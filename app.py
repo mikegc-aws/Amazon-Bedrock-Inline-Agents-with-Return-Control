@@ -1,5 +1,8 @@
 import datetime
-from inline_agent import BedrockInlineAgent
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+from bedrockInlineAgent import BedrockInlineAgent
 
 def get_current_time():
     """Function to get the current time"""
@@ -83,7 +86,7 @@ def get_action_groups():
 def main():
     # Define the agent configuration
     action_groups = get_action_groups()
-    instruction = "You are a helpful assistant that can tell the time and perform basic math operations when asked. You can also engage in general conversation."
+    instruction = """You are a helpful assistant."""
     
     # Create and configure the agent
     agent = BedrockInlineAgent(
