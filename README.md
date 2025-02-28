@@ -10,6 +10,7 @@ This SDK provides a simple yet powerful way to create and interact with Amazon B
 - Action group organization
 - Recursive tool calling with result accumulation
 - Interactive chat interface
+- Optional Code Interpreter integration
 
 ## Prerequisites
 
@@ -149,6 +150,33 @@ If no action group is specified, one is generated based on the function's module
 
 Action group descriptions are automatically generated as "Actions related to {group_name}". The "Actions" suffix is removed from the group name for cleaner descriptions.
 
+## Code Interpreter
+
+The SDK supports Amazon Bedrock's Code Interpreter feature, which allows the agent to write and execute Python code to solve problems.
+
+To enable Code Interpreter:
+
+```python
+agent = BedrockInlineAgent(
+    instruction="You are a helpful assistant that can write and execute code.",
+    foundation_model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    enable_code_interpreter=True
+)
+```
+
+When enabled, the agent can:
+- Write Python code to solve complex problems
+- Execute the code in a secure sandbox environment
+- Return the results of the code execution
+- Create and manipulate data visualizations
+- Work with data analysis and numerical computations
+
+This is particularly useful for:
+- Data analysis tasks
+- Mathematical calculations
+- Generating visualizations
+- Solving algorithmic problems
+
 ## Debugging and Exporting
 
 ### Debug Mode
@@ -195,8 +223,9 @@ from bedrockInlineAgent import BedrockInlineAgent
 
 # Create the agent
 agent = BedrockInlineAgent(
-    instruction="You are a helpful assistant that can tell time and do math.",
-    foundation_model="us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+    instruction="You are a helpful assistant that can tell time, do math, and write code.",
+    foundation_model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    enable_code_interpreter=True
 )
 
 # Time functions

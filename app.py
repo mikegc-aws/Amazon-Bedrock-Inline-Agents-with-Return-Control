@@ -7,7 +7,8 @@ agent = BedrockInlineAgent(
     instruction="""You are a helpful assistant that can tell the time, 
 perform basic math operations, search the web, and load content from URLs. 
 You can also engage in general conversation.""",
-    debug=False
+    debug=False, 
+    enable_code_interpreter=True
 )
 
 # Time functions

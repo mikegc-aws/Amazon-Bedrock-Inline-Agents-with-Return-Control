@@ -6,12 +6,13 @@ import functools
 from botocore.exceptions import ClientError
 
 class BedrockInlineAgent:
-    def __init__(self, instruction, foundation_model="us.amazon.nova-pro-v1:0", debug=False):
+    def __init__(self, instruction, foundation_model="us.amazon.nova-pro-v1:0", debug=False, enable_code_interpreter=False):
         """Initialize the Bedrock Inline Agent"""
         self.instruction = instruction
         self.foundation_model = foundation_model
         self.debug = debug
         self.max_tool_calls = 10  # Safety limit to prevent infinite loops
+        self.enable_code_interpreter = enable_code_interpreter
         
         # Initialize Bedrock clients
         self.bedrock_runtime = boto3.client('bedrock-runtime')
@@ -109,6 +110,7 @@ class BedrockInlineAgent:
         """Build action groups from registered functions"""
         self.action_groups = []
         
+        # Add custom action groups from registered functions
         for group_name, functions in self.action_group_map.items():
             action_group = {
                 "actionGroupName": group_name,
@@ -135,6 +137,16 @@ class BedrockInlineAgent:
                 action_group["functionSchema"]["functions"].append(function_def)
             
             self.action_groups.append(action_group)
+        
+        # Add code interpreter action group if enabled
+        if self.enable_code_interpreter:
+            code_interpreter_action = {
+                'actionGroupName': 'CodeInterpreterAction',
+                'parentActionGroupSignature': 'AMAZON.CodeInterpreter'
+            }
+            self.action_groups.append(code_interpreter_action)
+            if self.debug:
+                print("Added Code Interpreter action group")
         
         if self.debug:
             print(f"Built {len(self.action_groups)} action groups with {len(self.registered_functions)} functions")
