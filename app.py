@@ -1,18 +1,7 @@
-import datetime, json
-from bedrockInlineAgent import BedrockInlineAgent
+import datetime
+from bedrockAgents import BedrockAgents, Agent, Message
 
-# Create the agent instance
-agent = BedrockInlineAgent(
-    foundation_model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
-    instruction="""You are a helpful assistant that can tell the time, 
-perform basic math operations, search the web, and load content from URLs. 
-You can also engage in general conversation.""",
-    debug=False, 
-    enable_code_interpreter=True
-)
-
-# Time functions
-@agent.agent_function(action_group="TimeActions", description="Get the current time")
+# Define functions (no decorators needed)
 def get_time() -> dict:
     """Get the current time with timezone information"""
     now = datetime.datetime.now()
@@ -23,7 +12,6 @@ def get_time() -> dict:
         "timezone": timezone
     }
 
-@agent.agent_function(action_group="TimeActions", description="Get the current date")
 def get_date() -> dict:
     """Get the current date with timezone information"""
     now = datetime.datetime.now()
@@ -34,7 +22,6 @@ def get_date() -> dict:
         "timezone": timezone
     }
 
-@agent.agent_function(action_group="MathActions", description="Perform a math operation")
 def add_two_numbers(a: int, b: int, operation: str = "add") -> dict:
     """
     Perform a mathematical operation on two numbers.
@@ -53,13 +40,42 @@ def add_two_numbers(a: int, b: int, operation: str = "add") -> dict:
     return {"result": a + b}
 
 def main():
-    # View the action groups:
-    agent.build_action_groups()
-    action_groups = agent.action_groups
-    print(json.dumps(action_groups, indent=4))
-
-    # Start the chat session
-    agent.chat()
+    # Create the client
+    client = BedrockAgents(debug=False)
+    
+    # Create the agent with functions directly in the definition
+    agent = Agent(
+        name="HelperAgent",
+        model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        instructions="""You are a helpful and friendly assistant helping to test this new agent.""",
+        functions={
+            "TimeActions": [get_time, get_date],
+            "MathActions": [add_two_numbers]
+        }
+    )
+    
+    # Alternative: using a simple list of functions (all will be in the same default action group)
+    # agent = Agent(
+    #     name="HelperAgent",
+    #     model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    #     instructions="""You are a helpful and friendly assistant helping to test this new agent.""",
+    #     functions=[get_time, get_date, add_two_numbers]
+    # )
+        
+    response = client.run(
+        agent=agent,
+        messages=[
+            {
+                "role": "user",
+                "content": "Hello agent.  What is the time?"
+            }
+        ]
+    )
+    
+    print("\nAssistant:", response)
+    
+    # Start interactive chat session
+    # client.chat(agent=agent)
 
 if __name__ == "__main__":
     main() 
