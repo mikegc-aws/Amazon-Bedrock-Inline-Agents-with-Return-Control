@@ -1,11 +1,19 @@
-import datetime
-import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse
+import datetime, json
 from bedrockInlineAgent import BedrockInlineAgent
 
-def get_current_time():
-    """Function to get the current time"""
+# Create the agent instance
+agent = BedrockInlineAgent(
+    foundation_model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    instruction="""You are a helpful assistant that can tell the time, 
+perform basic math operations, search the web, and load content from URLs. 
+You can also engage in general conversation.""",
+    debug=False
+)
+
+# Time functions
+@agent.agent_function(action_group="TimeActions", description="Get the current time")
+def get_time() -> dict:
+    """Get the current time with timezone information"""
     now = datetime.datetime.now()
     current_time = now.strftime("%H:%M:%S")
     timezone = datetime.datetime.now().astimezone().tzname()
@@ -14,8 +22,9 @@ def get_current_time():
         "timezone": timezone
     }
 
-def get_current_date():
-    """Function to get the current date"""
+@agent.agent_function(action_group="TimeActions", description="Get the current date")
+def get_date() -> dict:
+    """Get the current date with timezone information"""
     now = datetime.datetime.now()
     current_date = now.strftime("%Y-%m-%d")
     timezone = datetime.datetime.now().astimezone().tzname()
@@ -24,82 +33,30 @@ def get_current_date():
         "timezone": timezone
     }
 
-def add_two_numbers(a, b):
-    """Function to add two numbers"""
+@agent.agent_function(action_group="MathActions", description="Perform a math operation")
+def add_two_numbers(a: int, b: int, operation: str = "add") -> dict:
+    """
+    Perform a mathematical operation on two numbers.
+    
+    :param a: The first number in the operation
+    :param b: The second number in the operation
+    :param operation: The operation to perform (must be one of: "add", "subtract", "multiply")
+    :return: Dictionary containing the result of the operation
+    """
+    if operation == "add":
+        return {"result": a + b}
+    if operation == "subtract":
+        return {"result": a - b}
+    elif operation == "multiply":
+        return {"result": a * b}
     return {"result": a + b}
 
-def get_action_groups():
-    """Define and return the action groups configuration"""
-    return [
-        {
-            "actionGroupName": "TimeActions",
-            "description": "Actions related to getting the current time",
-            "actionGroupExecutor": {
-                "customControl": "RETURN_CONTROL"
-            },
-            "functionSchema": {
-                "functions": [
-                    {
-                        "name": "get_time",
-                        "description": "Get the current time and date",
-                        "parameters": {},
-                        "requireConfirmation": "DISABLED"
-                    },
-                    {
-                        "name": "get_date",
-                        "description": "Get the current date",
-                        "parameters": {},
-                        "requireConfirmation": "DISABLED"
-                    }
-                ]
-            }
-        },
-        {
-            "actionGroupName": "MathActions",
-            "description": "Actions related to mathematical operations",
-            "actionGroupExecutor": {
-                "customControl": "RETURN_CONTROL"
-            },
-            "functionSchema": {
-                "functions": [
-                    {
-                        "name": "add_two_numbers",
-                        "description": "Add two numbers together",  
-                        "parameters": {
-                            "a": {
-                                "description": "The first number to add",
-                                "required": True,
-                                "type": "number"    
-                            },
-                            "b": {
-                                "description": "The second number to add",
-                                "required": True,
-                                "type": "number"
-                            }
-                        }   
-                    }
-                ]
-            }
-        }
-    ]
-
 def main():
-    # Define the agent configuration
-    action_groups = get_action_groups()
-    instruction = """You are a helpful assistant."""
-    
-    # Create and configure the agent
-    agent = BedrockInlineAgent(
-        action_groups=action_groups,
-        instruction=instruction,
-        debug=False
-    )
-    
-    # Register the available functions
-    agent.register_function("get_time", get_current_time)
-    agent.register_function("get_date", get_current_date)
-    agent.register_function("add_two_numbers", add_two_numbers)
-    
+    # View the action groups:
+    agent.build_action_groups()
+    action_groups = agent.action_groups
+    print(json.dumps(action_groups, indent=4))
+
     # Start the chat session
     agent.chat()
 

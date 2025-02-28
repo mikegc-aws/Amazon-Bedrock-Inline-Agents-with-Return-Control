@@ -1,12 +1,13 @@
 import boto3
 import json
 import uuid
+import inspect
+import functools
 from botocore.exceptions import ClientError
 
 class BedrockInlineAgent:
-    def __init__(self, action_groups, instruction, foundation_model="us.amazon.nova-pro-v1:0", debug=False):
+    def __init__(self, instruction, foundation_model="us.amazon.nova-pro-v1:0", debug=False):
         """Initialize the Bedrock Inline Agent"""
-        self.action_groups = action_groups
         self.instruction = instruction
         self.foundation_model = foundation_model
         self.debug = debug
@@ -19,15 +20,126 @@ class BedrockInlineAgent:
         # Initialize session
         self.session_id = str(uuid.uuid4())
         
-        # Store registered functions
+        # Store registered functions and action groups
         self.registered_functions = {}
+        self.action_groups = []
+        self.action_group_map = {}  # Maps function names to action groups
         
         # Tool call counter for debugging
         self.tool_call_count = 0
     
-    def register_function(self, function_name, function):
-        """Register a function that can be called by the agent"""
-        self.registered_functions[function_name] = function
+    def agent_function(self, action_group=None, description=None, parameters=None):
+        """
+        Decorator to register a function with the agent
+        
+        Args:
+            action_group (str): The action group name (defaults to function's module name)
+            description (str): Function description (defaults to docstring)
+            parameters (dict): Parameter definitions (defaults to inspected parameters)
+        """
+        def decorator(func):
+            # Get function name and module
+            func_name = func.__name__
+            module_name = func.__module__.split('.')[-1].capitalize()
+            
+            # Determine action group name
+            group_name = action_group or f"{module_name}Actions"
+            
+            # Get function description from docstring if not provided
+            func_desc = description or func.__doc__ or f"Execute the {func_name} function"
+            
+            # Initialize parameters dictionary if not provided
+            params = parameters or {}
+            
+            # If parameters not explicitly defined, try to derive from function signature
+            if not params:
+                sig = inspect.signature(func)
+                for param_name, param in sig.parameters.items():
+                    # Skip self parameter for methods
+                    if param_name == 'self':
+                        continue
+                        
+                    # Determine parameter type from annotations or default to string
+                    param_type = "string"
+                    if param.annotation != inspect.Parameter.empty:
+                        if param.annotation == int or param.annotation == float:
+                            param_type = "number"
+                        elif param.annotation == bool:
+                            param_type = "boolean"
+                    
+                    # Determine if parameter is required
+                    required = param.default == inspect.Parameter.empty
+                    
+                    # Look for parameter description in docstring
+                    param_desc = f"The {param_name} parameter"
+                    if func.__doc__:
+                        # Look for :param param_name: in docstring
+                        for line in func.__doc__.split('\n'):
+                            line = line.strip()
+                            if line.startswith(f":param {param_name}:"):
+                                param_desc = line.split(f":param {param_name}:")[1].strip()
+                    
+                    # Add parameter definition
+                    params[param_name] = {
+                        "description": param_desc,
+                        "required": required,
+                        "type": param_type
+                    }
+            
+            # Register the function
+            self.registered_functions[func_name] = func
+            
+            # Map function to action group
+            if group_name not in self.action_group_map:
+                self.action_group_map[group_name] = []
+            self.action_group_map[group_name].append({
+                "name": func_name,
+                "description": func_desc,
+                "parameters": params
+            })
+            
+            # Return the original function unchanged
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            return wrapper
+        return decorator
+    
+    def build_action_groups(self):
+        """Build action groups from registered functions"""
+        self.action_groups = []
+        
+        for group_name, functions in self.action_group_map.items():
+            action_group = {
+                "actionGroupName": group_name,
+                "description": f"Actions related to {group_name.replace('Actions', '')}",
+                "actionGroupExecutor": {
+                    "customControl": "RETURN_CONTROL"
+                },
+                "functionSchema": {
+                    "functions": []
+                }
+            }
+            
+            for func_info in functions:
+                function_def = {
+                    "name": func_info["name"],
+                    "description": func_info["description"],
+                    "requireConfirmation": "DISABLED"
+                }
+                
+                # Add parameters if they exist
+                if func_info["parameters"]:
+                    function_def["parameters"] = func_info["parameters"]
+                
+                action_group["functionSchema"]["functions"].append(function_def)
+            
+            self.action_groups.append(action_group)
+        
+        if self.debug:
+            print(f"Built {len(self.action_groups)} action groups with {len(self.registered_functions)} functions")
+        
+        return self.action_groups
     
     def convert_parameters(self, parameters):
         """Convert parameters from agent format to Python format"""
@@ -193,6 +305,10 @@ class BedrockInlineAgent:
 
     def chat(self):
         """Start the chat session"""
+        # Build action groups from registered functions
+        if not self.action_groups:
+            self.build_action_groups()
+            
         print(f"\nStarting new chat session (ID: {self.session_id})")
         print("Type 'exit' or 'quit' to end the chat")
         print("-" * 50)
