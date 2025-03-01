@@ -278,13 +278,53 @@ response = client.run(
 print(response)
 ```
 
-#### 2. Interactive Chat Session
+#### 2. Interactive Chat
 
 ```python
 client.chat(agent=agent)
 ```
 
-This will begin a terminal-based chat where users can interact with your agent.
+#### 3. Continuing a Conversation
+
+You can maintain conversation context across multiple run() calls by passing the same session_id:
+
+```python
+# First interaction
+session_id = "my-custom-session-123"  # Or use a generated UUID
+response1 = client.run(
+    agent=agent,
+    messages=[
+        {
+            "role": "user",
+            "content": "What time is it?"
+        }
+    ],
+    session_id=session_id
+)
+
+print(response1)
+
+# Continue the same conversation
+response2 = client.run(
+    agent=agent,
+    messages=[
+        {
+            "role": "user",
+            "content": "And what's the date today?"
+        }
+    ],
+    session_id=session_id
+)
+
+print(response2)
+```
+
+You can also continue an existing session in the interactive chat:
+
+```python
+# Start or continue a chat session with a specific session ID
+client.chat(agent=agent, session_id="my-custom-session-123")
+```
 
 ## Complete Example
 
@@ -385,6 +425,44 @@ The SDK automatically converts parameter types based on the function's type hint
 - String values for parameters with `int` or `float` type hints are converted to numbers
 - String values like "true", "yes", "1" for parameters with `bool` type hints are converted to boolean True
 - String values like "false", "no", "0" for parameters with `bool` type hints are converted to boolean False
+
+## Running Tests
+
+The project includes a comprehensive test suite built with pytest. To run the tests:
+
+1. Make sure you have installed the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Run the tests using pytest:
+   ```bash
+   pytest
+   ```
+
+3. For more verbose output, use:
+   ```bash
+   pytest -v
+   ```
+
+4. To run a specific test file:
+   ```bash
+   pytest test_bedrock_agents.py
+   ```
+
+5. To run a specific test function:
+   ```bash
+   pytest test_bedrock_agents.py::test_function_name
+   ```
+
+The test suite covers:
+- Initialization of BedrockAgents and Agent classes
+- Function processing and execution
+- Parameter extraction and conversion
+- Action group building
+- Agent invocation with mocks
+- Error handling
+- Edge cases
 
 ---
 

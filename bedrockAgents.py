@@ -3,7 +3,7 @@ import json
 import uuid
 import inspect
 from typing import List, Dict, Any, Optional, Union, Callable, Type
-from pydantic import BaseModel, create_model, Field
+from pydantic import BaseModel, create_model, Field, ConfigDict
 from botocore.exceptions import ClientError
 
 class Function(BaseModel):
@@ -13,8 +13,7 @@ class Function(BaseModel):
     function: Callable
     action_group: Optional[str] = None
     
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 class Message(BaseModel):
     """Represents a message in the conversation"""
@@ -35,8 +34,7 @@ class Agent(BaseModel):
     functions: List[Union[Function, Callable]] = []
     enable_code_interpreter: bool = False
     
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     
     def __init__(self, **data):
         """Initialize the agent and process functions if provided"""
@@ -380,19 +378,21 @@ class BedrockAgents:
             print(f"\nError in invoke_agent: {e}")
             return f"An error occurred: {str(e)}"
     
-    def run(self, agent: Agent, messages: List[Union[Message, Dict[str, str]]]) -> str:
+    def run(self, agent: Agent, messages: List[Union[Message, Dict[str, str]]], session_id: Optional[str] = None) -> str:
         """
         Run the agent with a list of messages
         
         Args:
             agent: The agent configuration
             messages: List of messages in the conversation
+            session_id: Optional session ID to continue a conversation. If not provided, a new session will be created.
             
         Returns:
             str: The agent's response
         """
-        # Create a session ID
-        session_id = str(uuid.uuid4())
+        # Create a session ID if not provided
+        if session_id is None:
+            session_id = str(uuid.uuid4())
         
         # Build action groups
         action_groups = self._build_action_groups(agent)
@@ -420,15 +420,17 @@ class BedrockAgents:
         
         return response
     
-    def chat(self, agent: Agent):
+    def chat(self, agent: Agent, session_id: Optional[str] = None):
         """
         Start an interactive chat session with the agent
         
         Args:
             agent: The agent configuration
+            session_id: Optional session ID to continue a conversation. If not provided, a new session will be created.
         """
-        # Create a session ID
-        session_id = str(uuid.uuid4())
+        # Create a session ID if not provided
+        if session_id is None:
+            session_id = str(uuid.uuid4())
         
         # Build action groups
         action_groups = self._build_action_groups(agent)
@@ -436,7 +438,7 @@ class BedrockAgents:
         # Create a map of function names to functions
         function_map = {func.name: func.function for func in agent.functions}
         
-        print(f"\nStarting new chat session (ID: {session_id})")
+        print(f"\nStarting chat session (ID: {session_id})")
         print("Type 'exit' or 'quit' to end the chat")
         print("-" * 50)
         

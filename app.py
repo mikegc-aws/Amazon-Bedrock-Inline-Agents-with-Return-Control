@@ -1,4 +1,5 @@
 import datetime
+import json
 from bedrockAgents import BedrockAgents, Agent, Message
 
 # Define functions (no decorators needed)
@@ -41,7 +42,7 @@ def add_two_numbers(a: int, b: int, operation: str = "add") -> dict:
 
 def main():
     # Create the client
-    client = BedrockAgents(debug=False)
+    client = BedrockAgents(debug=True)
     
     # Create the agent with functions directly in the definition
     agent = Agent(
@@ -62,20 +63,32 @@ def main():
     #     functions=[get_time, get_date, add_two_numbers]
     # )
         
-    response = client.run(
-        agent=agent,
-        messages=[
-            {
-                "role": "user",
-                "content": "Hello agent.  What is the time?"
-            }
-        ]
-    )
+    # response = client.run(
+    #     agent=agent,
+    #     messages=[
+    #         {
+    #             "role": "user",
+    #             "content": "Hello agent.  What is the time?"
+    #         }
+    #     ]
+    # )
     
-    print("\nAssistant:", response)
+    # print("\nAssistant:", response)
     
+
+    # Print out the action groups from the agent: 
+    print("\nAgent Configuration:")
+    print(f"Name: {agent.name}")
+    print(f"Model: {agent.model}")
+    print("\nAction Groups:")
+    for function in agent.functions:
+        group = function.action_group or "DefaultActions"
+        print(f"\n  {group}:")
+        print(f"    - {function.name}: {function.description}")
+
+
     # Start interactive chat session
-    # client.chat(agent=agent)
+    client.chat(agent=agent)
 
 if __name__ == "__main__":
     main() 
