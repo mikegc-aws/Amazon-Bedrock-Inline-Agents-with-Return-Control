@@ -196,10 +196,10 @@ class BedrockAgents:
             }
             action_groups.append(code_interpreter_action)
             if self.debug:
-                print("Added Code Interpreter action group")
+                print("[Debug] Added Code Interpreter action group")
         
         if self.debug:
-            print(f"Built {len(action_groups)} action groups with {len(agent.functions)} functions")
+            print(f"[Debug] Configured {len(action_groups)} action groups with {len(agent.functions)} functions")
         
         return action_groups
     
@@ -217,7 +217,7 @@ class BedrockAgents:
                     if value.is_integer():
                         value = int(value)
                 except ValueError:
-                    print(f"\nWarning: Could not convert {value} to number")
+                    print(f"\n[Debug] Warning: Could not convert {value} to number")
                     continue
             elif param_type == "boolean":
                 if value.lower() in ["true", "yes", "1"]:
@@ -228,13 +228,13 @@ class BedrockAgents:
             param_dict[name] = value
         
         if self.debug:
-            print(f"Converted parameters: {param_dict}")
+            print(f"[Debug] Parameters processed: {param_dict}")
         return param_dict
     
     def _execute_function(self, function_map: Dict[str, Callable], function_name: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a function with given parameters"""
         if function_name not in function_map:
-            print(f"\nError: Function '{function_name}' is not registered")
+            print(f"\n[Debug] Error: Function '{function_name}' is not registered")
             return None
             
         try:
@@ -243,11 +243,11 @@ class BedrockAgents:
                 return func(**params)
             return func()
         except TypeError as e:
-            print(f"\nError calling function '{function_name}': {e}")
-            print(f"Parameters: {params}")
+            print(f"\n[Debug] Error calling function '{function_name}': {e}")
+            print(f"[Debug] Parameters provided: {params}")
             return None
         except Exception as e:
-            print(f"\nUnexpected error in function '{function_name}': {e}")
+            print(f"\n[Debug] Unexpected error in function '{function_name}': {e}")
             return None
     
     def _invoke_agent(self, 
@@ -269,14 +269,15 @@ class BedrockAgents:
             return accumulated_text + "\n\nReached maximum number of tool calls. Some tasks may be incomplete."
         
         if self.debug and tool_call_count > 1:
-            print(f"\nTool call #{tool_call_count - 1}")
+            print(f"\n[Debug] Processing function call #{tool_call_count - 1}...")
         
         try:
             # Determine if this is an initial call or a follow-up call
             if input_text is not None:
                 # Initial call with user input
                 if self.debug:
-                    print(f"\nInvoking agent with user input: '{input_text[:50]}...' if len(input_text) > 50 else input_text")
+                    truncated_input = input_text[:50] + "..." if len(input_text) > 50 else input_text
+                    print(f"\n[Debug] Sending user query to agent: '{truncated_input}'")
                 response = self.bedrock_agent_runtime.invoke_inline_agent(
                     sessionId=session_id,
                     actionGroups=action_groups,
@@ -288,7 +289,7 @@ class BedrockAgents:
             else:
                 # Follow-up call with function result
                 if self.debug:
-                    print(f"\nInvoking agent with function result for invocation ID: {invocation_id}")
+                    print(f"\n[Debug] Sending function result back to agent (invocation ID: {invocation_id})")
                 response = self.bedrock_agent_runtime.invoke_inline_agent(
                     sessionId=session_id,
                     actionGroups=action_groups,
@@ -308,7 +309,7 @@ class BedrockAgents:
                 if "returnControl" in event:
                     return_control = event["returnControl"]
                     if self.debug:
-                        print("\nAgent is requesting information...")
+                        print("\n[Debug] Agent needs to call a function...")
                     break
                 elif "chunk" in event and "bytes" in event["chunk"]:
                     text = event["chunk"]["bytes"].decode('utf-8')
@@ -333,20 +334,23 @@ class BedrockAgents:
             parameters = function_input.get("parameters", [])
             
             if self.debug:
-                print(f"\nRequested function: {function_name}")
-                print(f"Action group: {action_group}")
-                print(f"Parameters: {parameters}")
+                print(f"\n[Debug] Function requested: {function_name}")
+                print(f"[Debug] From action group: {action_group}")
+                if parameters:
+                    print(f"[Debug] With parameters: {parameters}")
+                else:
+                    print(f"[Debug] No parameters provided")
             
             # Convert and execute
             params = self._convert_parameters(parameters)
             result = self._execute_function(function_map, function_name, params)
             
             if not result:
-                print(f"\nWarning: Function {function_name} did not return a result")
+                print(f"\n[Debug] Warning: Function {function_name} did not return a result")
                 return accumulated_text
             
             if self.debug:
-                print(f"\nFunction result: {result}")
+                print(f"\n[Debug] Function executed successfully. Result: {result}")
             
             # Create return control result
             return_control_result = {
@@ -375,7 +379,7 @@ class BedrockAgents:
             )
             
         except Exception as e:
-            print(f"\nError in invoke_agent: {e}")
+            print(f"\n[Debug] Error in agent invocation: {e}")
             return f"An error occurred: {str(e)}"
     
     def run(self, agent: Agent, messages: List[Union[Message, Dict[str, str]]], session_id: Optional[str] = None) -> str:
@@ -438,8 +442,8 @@ class BedrockAgents:
         # Create a map of function names to functions
         function_map = {func.name: func.function for func in agent.functions}
         
-        print(f"\nStarting chat session (ID: {session_id})")
-        print("Type 'exit' or 'quit' to end the chat")
+        print(f"\n[Session] Starting chat session (ID: {session_id})")
+        print("[Session] Type 'exit' or 'quit' to end the chat")
         print("-" * 50)
         
         try:
@@ -448,7 +452,7 @@ class BedrockAgents:
                 user_input = input("\nYou: ").strip()
                 
                 if user_input.lower() in ['exit', 'quit']:
-                    print("\nEnding chat session. Goodbye!")
+                    print("\n[Session] Ending chat session. Goodbye!")
                     break
                 
                 if not user_input:
@@ -468,8 +472,8 @@ class BedrockAgents:
                 print("\nAssistant:", response_text.strip())
                 
         except ClientError as e:
-            print(f"\nError: {e}")
+            print(f"\n[Error] AWS Client Error: {e}")
         except KeyboardInterrupt:
-            print("\n\nChat session interrupted. Goodbye!")
+            print("\n\n[Session] Chat session interrupted. Goodbye!")
         except Exception as e:
-            print(f"\nUnexpected error: {e}") 
+            print(f"\n[Error] Unexpected error: {e}") 
