@@ -135,4 +135,47 @@ class TestBedrockAgents:
         
         # Test executing a function that doesn't exist
         result = client._execute_function(function_map, "non_existent_function", {})
-        assert result is None 
+        assert result is None
+
+    def test_run_with_string_input(self, client, agent, mock_boto3_session):
+        """Test that the run method can handle a simple string as input"""
+        # Unpack the mock session and client
+        mock_session, mock_client = mock_boto3_session
+        
+        # Mock the invoke_inline_agent response
+        mock_response = {
+            'completion': [{'chunk': {'bytes': b'This is a test response'}}],
+            'stopReason': 'COMPLETE'
+        }
+        mock_client.invoke_inline_agent.return_value = mock_response
+        
+        # Run with a simple string input
+        result = client.run(agent=agent, message="Hello, world!")
+        
+        # Verify that the agent was invoked with the correct parameters
+        mock_client.invoke_inline_agent.assert_called()
+        call_args = mock_client.invoke_inline_agent.call_args[1]
+        
+        # Check that the input text is correct
+        assert call_args['inputText'] == "Hello, world!"
+        
+        # Check that the response is correct
+        assert result['response'] == 'This is a test response'
+
+    def test_run_with_both_message_types(self, client, agent):
+        """Test that providing both message and messages raises an error"""
+        with pytest.raises(ValueError) as excinfo:
+            client.run(
+                agent=agent, 
+                message="Hello, world!", 
+                messages=[{"role": "user", "content": "Another message"}]
+            )
+        
+        assert "Only one of 'message' or 'messages' should be provided, not both" in str(excinfo.value)
+
+    def test_run_with_no_message(self, client, agent):
+        """Test that providing neither message nor messages raises an error"""
+        with pytest.raises(ValueError) as excinfo:
+            client.run(agent=agent)
+        
+        assert "Either 'message' or 'messages' must be provided" in str(excinfo.value) 

@@ -377,18 +377,25 @@ class BedrockAgents:
                 "files": []
             }
     
-    def run(self, agent: Agent, messages: List[Union[Message, Dict[str, str]]], session_id: Optional[str] = None) -> Dict[str, Any]:
+    def run(self, agent: Agent, message: Optional[str] = None, messages: Optional[List[Union[Message, Dict[str, str]]]] = None, session_id: Optional[str] = None) -> Dict[str, Any]:
         """
-        Run the agent with a list of messages
+        Run the agent with either a simple message string or a list of structured messages
         
         Args:
             agent: The agent configuration
-            messages: List of messages in the conversation
+            message: A simple string message (mutually exclusive with messages)
+            messages: A list of messages in the conversation (mutually exclusive with message)
             session_id: Optional session ID to continue a conversation. If not provided, a new session will be created.
             
         Returns:
             Dict[str, Any]: Dictionary containing the response text and any files
         """
+        # Validate input parameters
+        if message is None and messages is None:
+            raise ValueError("Either 'message' or 'messages' must be provided")
+        if message is not None and messages is not None:
+            raise ValueError("Only one of 'message' or 'messages' should be provided, not both")
+            
         # Create a session ID if not provided
         if session_id is None:
             session_id = str(uuid.uuid4())
@@ -402,13 +409,17 @@ class BedrockAgents:
         # Create a map of function names to functions
         function_map = {func.name: func.function for func in agent.functions}
         
-        # Get the last user message
-        last_message = messages[-1]
-        if isinstance(last_message, dict):
-            last_message = Message(**last_message)
-        
-        if last_message.role != "user":
-            raise ValueError("The last message must be from the user")
+        # Handle simple string input by converting it to a user message
+        if message is not None:
+            last_message = Message(role="user", content=message)
+        else:
+            # Get the last user message from the list
+            last_message = messages[-1]
+            if isinstance(last_message, dict):
+                last_message = Message(**last_message)
+            
+            if last_message.role != "user":
+                raise ValueError("The last message must be from the user")
         
         # Invoke the agent
         result = self._invoke_agent(

@@ -409,12 +409,24 @@ client = BedrockAgents(debug=True)
 
 ### Running the Agent
 
-There are two ways to interact with the agent:
+There are multiple ways to interact with the agent:
 
-#### 1. Single Request
+#### 1. Single Request with a String
 
 ```python
-# Run the agent with a single message
+# Run the agent with a simple string input
+response = client.run(
+    agent=agent,
+    message="What time is it now, and can you also add 25 and 17 for me?"
+)
+
+print(response)
+```
+
+#### 2. Single Request with Message Objects
+
+```python
+# Run the agent with a list of messages
 response = client.run(
     agent=agent,
     messages=[
@@ -428,31 +440,19 @@ response = client.run(
 print(response)
 ```
 
-#### 2. Interactive Chat
+#### 3. Interactive Chat
 
 ```python
 client.chat(agent=agent)
 ```
 
-#### 3. Continuing a Conversation
+#### 4. Continuing a Conversation
 
 You can maintain conversation context across multiple run() calls by passing the same session_id:
 
 ```python
 # First interaction
 session_id = "my-custom-session-123"  # Or use a generated UUID
-response1 = client.run(
-    agent=agent,
-    messages=[
-        {
-            "role": "user",
-            "content": "What time is it?"
-        }
-    ],
-    session_id=session_id
-)
-
-print(response1)
 
 # Continue the same conversation
 response2 = client.run(
@@ -606,9 +606,9 @@ The SDK automatically converts parameter types based on the function's type hint
 
 The project includes a comprehensive test suite built with pytest. To run the tests:
 
-1. Make sure you have installed the required dependencies:
+1. Make sure you have installed the development dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install -e ".[dev]"
    ```
 
 2. Run the tests using pytest:
@@ -623,12 +623,12 @@ The project includes a comprehensive test suite built with pytest. To run the te
 
 4. To run a specific test file:
    ```bash
-   pytest test_bedrock_agents.py
+   pytest tests/test_client.py
    ```
 
 5. To run a specific test function:
    ```bash
-   pytest test_bedrock_agents.py::test_function_name
+   pytest tests/test_client.py::TestBedrockAgents::test_run_with_string_input
    ```
 
 The test suite covers:
@@ -639,6 +639,142 @@ The test suite covers:
 - Agent invocation with mocks
 - Error handling
 - Edge cases
+
+## Using the Module in Test Mode
+
+During development, you may want to test your agent locally without making actual calls to Amazon Bedrock. The SDK supports this through mocking, which allows you to simulate agent responses for testing purposes.
+
+### Setting Up a Test Environment
+
+1. Create a test file (e.g., `test_my_agent.py`) with the following structure:
+
+```python
+import pytest
+from unittest.mock import patch, MagicMock
+from bedrock_agents_sdk import BedrockAgents, Agent, Message
+
+# Define your agent functions
+def my_function() -> dict:
+    """A sample function that returns a dictionary"""
+    return {"result": "success"}
+
+# Create a fixture for mocking boto3
+@pytest.fixture
+def mock_boto3_session():
+    with patch("boto3.Session") as mock_session:
+        mock_client = MagicMock()
+        mock_session.return_value.client.return_value = mock_client
+        yield mock_session, mock_client
+
+# Test your agent
+def test_my_agent(mock_boto3_session):
+    # Unpack the mock session and client
+    mock_session, mock_client = mock_boto3_session
+    
+    # Create your agent
+    agent = Agent(
+        name="TestAgent",
+        model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        instructions="You are a helpful assistant.",
+        functions=[my_function]
+    )
+    
+    # Create the client
+    client = BedrockAgents(verbosity="quiet")
+    
+    # Mock the invoke_inline_agent response
+    mock_response = {
+        'completion': [{'chunk': {'bytes': b'This is a test response'}}],
+        'stopReason': 'COMPLETE'
+    }
+    mock_client.invoke_inline_agent.return_value = mock_response
+    
+    # Run with a simple string input
+    result = client.run(agent=agent, message="Hello, world!")
+    
+    # Verify the response
+    assert result['response'] == 'This is a test response'
+```
+
+### Testing Function Calls
+
+To test that your agent correctly calls your functions:
+
+```python
+def test_function_calls(mock_boto3_session):
+    # Unpack the mock session and client
+    mock_session, mock_client = mock_boto3_session
+    
+    # Create your agent
+    agent = Agent(
+        name="TestAgent",
+        model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        instructions="You are a helpful assistant.",
+        functions=[my_function]
+    )
+    
+    # Create the client
+    client = BedrockAgents(verbosity="quiet")
+    
+    # Mock a response that includes a function call
+    mock_response_with_tool = {
+        'completion': [],
+        'stopReason': 'RETURN_CONTROL',
+        'returnControl': {
+            'invocationId': '12345',
+            'returnControlDetails': {
+                'type': 'FUNCTION',
+                'function': {
+                    'name': 'my_function',
+                    'parameters': {}
+                }
+            }
+        }
+    }
+    
+    # Mock a final response after the function call
+    mock_final_response = {
+        'completion': [{'chunk': {'bytes': b'Function result: success'}}],
+        'stopReason': 'COMPLETE'
+    }
+    
+    # Set up the mock to return different responses on consecutive calls
+    mock_client.invoke_inline_agent.side_effect = [
+        mock_response_with_tool,
+        mock_final_response
+    ]
+    
+    # Run the agent
+    result = client.run(agent=agent, message="Call my function")
+    
+    # Verify the response
+    assert result['response'] == 'Function result: success'
+    
+    # Verify that invoke_inline_agent was called twice
+    assert mock_client.invoke_inline_agent.call_count == 2
+```
+
+### Running Your Tests
+
+Run your tests using pytest:
+
+```bash
+pytest test_my_agent.py -v
+```
+
+### Integration with Your Development Workflow
+
+You can integrate these tests into your development workflow:
+
+1. **TDD Approach**: Write tests for your agent functions before implementing them
+2. **CI/CD Integration**: Add these tests to your CI/CD pipeline
+3. **Regression Testing**: Create tests for specific scenarios to prevent regressions
+
+By using the module in test mode, you can:
+- Develop and test your agent without incurring AWS costs
+- Test edge cases and error handling
+- Ensure your agent behaves as expected before deploying to production
+- Automate testing as part of your development process
 
 ---
 
