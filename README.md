@@ -2,6 +2,32 @@
 
 This SDK provides a simple yet powerful way to create and interact with Amazon Bedrock Agents using the Return Control pattern. It allows you to easily define function tools, organize them into action groups, and handle the entire conversation flow with minimal boilerplate code.
 
+## Table of Contents
+- [Why Use This SDK?](#why-use-this-sdk)
+- [Benefits](#benefits)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Project Structure](#project-structure)
+- [Quick Start](#quick-start)
+- [Core Concepts](#core-concepts)
+- [Creating Function Tools](#creating-function-tools)
+- [Parameter Handling](#parameter-handling)
+- [Action Groups](#action-groups)
+- [Code Interpreter](#code-interpreter)
+- [Debugging and Running](#debugging-and-running)
+- [Complete Example](#complete-example)
+- [Advanced Usage](#advanced-usage)
+- [Running Tests](#running-tests)
+- [Using the Module in Test Mode](#using-the-module-in-test-mode)
+- [Working with Files](#working-with-files)
+- [Using Plugins](#using-plugins)
+- [Advanced Configuration](#advanced-configuration)
+- [Command Line Interface](#command-line-interface)
+- [Deploying Agents to AWS](#deploying-agents-to-aws)
+- [Contributing](#contributing)
+- [Conclusion](#conclusion)
+
 ## Why Use This SDK?
 
 As a developer, you want to build powerful AI agents quickly without managing complex infrastructure. This SDK lets you:
@@ -71,10 +97,40 @@ The SDK is organized into the following modules:
 ```
 bedrock_agents_sdk/
 ├── core/              # Core client functionality
+│   ├── client.py      # Main BedrockAgents client implementation
+│   └── function.py    # Function execution and parameter handling
 ├── models/            # Data models (Agent, Function, etc.)
+│   ├── agent.py       # Agent configuration and management
+│   ├── function.py    # Function definition and metadata
+│   ├── message.py     # Message structure for conversations
+│   └── file.py        # File handling for agent interactions
 ├── plugins/           # Plugin system for extending functionality
+│   ├── base.py        # Base plugin class
+│   ├── security.py    # Security features like encryption
+│   ├── guardrail.py   # Content guardrails integration
+│   └── knowledge_base.py # Knowledge base integration
+├── deployment/        # Deployment utilities
+│   ├── generator.py   # SAM template and Lambda code generation
+│   └── templates/     # Template files for deployment
 └── utils/             # Utility functions
+    ├── logging.py     # Logging and verbosity control
+    ├── validation.py  # Input validation helpers
+    └── formatting.py  # Response formatting utilities
 ```
+
+### Key Components
+
+- **core/client.py**: Contains the `BedrockAgents` class that manages communication with Amazon Bedrock, handles function execution, and manages the conversation flow.
+
+- **models/agent.py**: Contains the `Agent` class that represents a Bedrock agent configuration, including its name, model, instructions, and functions.
+
+- **models/function.py**: Contains the `Function` class that represents a function that can be called by the agent, including parameter extraction and validation.
+
+- **plugins/base.py**: Contains the `BedrockAgentsPlugin` base class that plugins extend to add functionality to the SDK.
+
+- **deployment/generator.py**: Contains utilities for generating SAM templates and Lambda function code for deploying agents to AWS.
+
+Each module is designed to be modular and extensible, allowing for easy customization and extension of the SDK's functionality.
 
 ## Quick Start
 
@@ -84,7 +140,7 @@ Here's a minimal example to get started:
 
 ```python
 import datetime
-from bedrockAgents import BedrockAgents, Agent, Message
+from bedrock_agents_sdk import BedrockAgents, Agent, Message
 
 # Define a function - this will run locally on your machine
 def get_time() -> dict:
@@ -483,7 +539,7 @@ Here's a more complete example showing various features:
 
 ```python
 import datetime
-from bedrockAgents import BedrockAgents, Agent, Message
+from bedrock_agents_sdk import BedrockAgents, Agent, Message
 
 # Define functions
 def get_time() -> dict:
@@ -586,7 +642,7 @@ Note that the `verbosity` parameter will override the other logging parameters u
 Instead of dictionaries, you can use Message objects for more type safety:
 
 ```python
-from bedrockAgents import Message
+from bedrock_agents_sdk import Message
 
 response = client.run(
     agent=agent,
@@ -777,23 +833,6 @@ By using the module in test mode, you can:
 - Ensure your agent behaves as expected before deploying to production
 - Automate testing as part of your development process
 
----
-
-## Conclusion
-
-This SDK empowers developers to build sophisticated AI agents with Amazon Bedrock while maintaining a streamlined development experience:
-
-- **Focus on Business Logic**: Write your function tools and let the SDK handle the complex orchestration
-- **Hybrid Architecture**: Develop locally while leveraging the power of Amazon Bedrock's cloud infrastructure
-- **Zero State Management**: No need to track conversation history or manage complex agent state
-- **Rapid Development**: Get from concept to working agent in minutes, not days
-- **Production Ready**: Built for both development and production use cases with flexible logging and error handling
-- **Secure by Design**: Leverage Amazon's secure managed environments for both agent execution and code interpretation
-
-By eliminating the boilerplate code for function registration, parameter extraction, and conversation flow, this SDK allows you to focus on what matters most - building valuable AI experiences for your users.
-
-For more information, see the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-inline.html).
-
 ## Working with Files
 
 The SDK supports sending files to and receiving files from the agent, particularly useful when working with the Code Interpreter.
@@ -917,7 +956,7 @@ response = client.run(agent=agent, messages=[...])
 You can create your own plugins by extending the `BedrockAgentsPlugin` class:
 
 ```python
-from bedrockAgents import BedrockAgentsPlugin
+from bedrock_agents_sdk import BedrockAgentsPlugin
 
 class MyCustomPlugin(BedrockAgentsPlugin):
     def __init__(self, custom_param):
@@ -989,10 +1028,6 @@ python app.py --verbosity verbose --trace standard
 # Use a customer KMS key
 python app.py --kms-key "arn:aws:kms:us-west-2:123456789012:key/abcd1234-ab12-cd34-ef56-abcdef123456"
 ```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Deploying Agents to AWS
 
@@ -1081,4 +1116,23 @@ The deployment process generates the following files:
 - `README.md` - Deployment instructions
 
 See the [deployment_example.py](examples/deployment_example.py) for a complete example of deploying an agent to AWS.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Conclusion
+
+This SDK empowers developers to build sophisticated AI agents with Amazon Bedrock while maintaining a streamlined development experience:
+
+- **Focus on Business Logic**: Write your function tools and let the SDK handle the complex orchestration
+- **Hybrid Architecture**: Develop locally while leveraging the power of Amazon Bedrock's cloud infrastructure
+- **Zero State Management**: No need to track conversation history or manage complex agent state
+- **Rapid Development**: Get from concept to working agent in minutes, not days
+- **Production Ready**: Built for both development and production use cases with flexible logging and error handling
+- **Secure by Design**: Leverage Amazon's secure managed environments for both agent execution and code interpretation
+
+By eliminating the boilerplate code for function registration, parameter extraction, and conversation flow, this SDK allows you to focus on what matters most - building valuable AI experiences for your users.
+
+For more information, see the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-inline.html).
 
