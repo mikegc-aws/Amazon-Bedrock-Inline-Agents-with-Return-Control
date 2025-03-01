@@ -40,6 +40,7 @@ As a developer, you want to build powerful AI agents quickly without managing co
 - **File handling**: Send files to and receive files from the agent
 - **Plugin architecture**: Extend the SDK with custom plugins
 - **Advanced configuration**: Access advanced Amazon Bedrock features
+- **Cloud deployment**: Generate SAM templates to deploy your agent to AWS
 
 ## Prerequisites
 
@@ -992,4 +993,92 @@ python app.py --kms-key "arn:aws:kms:us-west-2:123456789012:key/abcd1234-ab12-cd
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Deploying Agents to AWS
+
+The SDK provides a simple way to deploy your agents to AWS using AWS Serverless Application Model (SAM). This allows you to move from local development to cloud deployment with minimal effort.
+
+### Deployment Overview
+
+When you deploy an agent using the SDK:
+
+1. A SAM template is generated that defines all necessary AWS resources
+2. Lambda function code is created that implements all your agent's functions
+3. Deployment instructions are provided to guide you through the process
+
+### Deployment Example
+
+```python
+from bedrock_agents_sdk import BedrockAgents, Agent
+
+# Define your functions
+def get_weather(location: str) -> dict:
+    """Get the weather for a location"""
+    # Your implementation here
+    return {"temperature": 72, "condition": "sunny"}
+
+# Create your agent
+agent = Agent(
+    name="WeatherAgent",
+    model="anthropic.claude-3-sonnet-20240229-v1:0",
+    instructions="You are a weather assistant. Use the get_weather function to provide weather information.",
+    functions=[get_weather]
+)
+
+# Deploy the agent to AWS
+template_path = agent.deploy(
+    output_dir="./weather_agent_deployment",
+    description="Weather agent deployment"
+)
+
+print(f"SAM template generated at: {template_path}")
+print("To deploy, run:")
+print("  cd weather_agent_deployment")
+print("  sam build")
+print("  sam deploy --guided")
+```
+
+### Automatic Build and Deploy
+
+You can also automatically build and deploy your agent:
+
+```python
+# Build and deploy in one step
+agent.deploy(
+    output_dir="./weather_agent_deployment",
+    description="Weather agent deployment",
+    auto_build=True,    # Automatically run 'sam build'
+    auto_deploy=True    # Automatically run 'sam deploy --guided'
+)
+```
+
+### Customizing Deployment
+
+You can customize the deployment by providing additional parameters:
+
+```python
+# Add custom parameters to the SAM template
+agent.deploy(
+    output_dir="./weather_agent_deployment",
+    description="Weather agent deployment with custom parameters",
+    parameters={
+        "ApiKey": {
+            "Type": "String",
+            "Description": "API key for the weather service",
+            "NoEcho": True  # Sensitive parameter
+        }
+    }
+)
+```
+
+### Deployment Files
+
+The deployment process generates the following files:
+
+- `template.yaml` - The SAM template that defines all AWS resources
+- `lambda_function/app.py` - The Lambda function code that implements your agent's functions
+- `lambda_function/requirements.txt` - Dependencies for the Lambda function
+- `README.md` - Deployment instructions
+
+See the [deployment_example.py](examples/deployment_example.py) for a complete example of deploying an agent to AWS.
 

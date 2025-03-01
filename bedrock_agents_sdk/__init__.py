@@ -15,6 +15,7 @@ from bedrock_agents_sdk.models.files import InputFile, OutputFile
 from bedrock_agents_sdk.plugins.security import SecurityPlugin
 from bedrock_agents_sdk.plugins.guardrail import GuardrailPlugin
 from bedrock_agents_sdk.plugins.knowledge_base import KnowledgeBasePlugin
+from bedrock_agents_sdk.deployment.sam_template import SAMTemplateGenerator
 
 __version__ = "0.1.0"
 
@@ -29,4 +30,5 @@ __all__ = [
     "SecurityPlugin",
     "GuardrailPlugin",
     "KnowledgeBasePlugin",
+    "SAMTemplateGenerator",
 ]

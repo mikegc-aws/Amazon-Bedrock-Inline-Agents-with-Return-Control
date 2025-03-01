@@ -3,3 +3,4 @@ botocore>=1.37.0
 pydantic==2.10.6
 pydantic_core==2.27.2
 pytest>=7.4.0
+PyYAML>=6.0

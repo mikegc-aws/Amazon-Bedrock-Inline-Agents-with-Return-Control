@@ -52,6 +52,16 @@ Demonstrates how to integrate knowledge bases with your agent. This example show
 python knowledge_base_example.py
 ```
 
+### Deployment Example
+
+**File:** `deployment_example.py`
+
+Shows how to deploy your agent to AWS using the SAM (Serverless Application Model) template generator. This example demonstrates how to create a local agent, test it, and then generate a complete SAM project for cloud deployment.
+
+```bash
+python deployment_example.py
+```
+
 ## Customizing the Examples
 
 To adapt these examples for your own use:

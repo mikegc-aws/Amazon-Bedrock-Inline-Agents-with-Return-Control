@@ -24,6 +24,7 @@ setup(
         "botocore>=1.37.0",
         "pydantic==2.10.6",
         "pydantic_core==2.27.2",
+        "PyYAML>=6.0",
     ],
     extras_require={
         "dev": [
