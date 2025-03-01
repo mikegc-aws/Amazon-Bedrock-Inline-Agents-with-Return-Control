@@ -2,7 +2,7 @@ import datetime
 import json
 import argparse
 import os
-from bedrockAgents import BedrockAgents, Agent, Message, SecurityPlugin, GuardrailPlugin, KnowledgeBasePlugin
+from bedrock_agents_sdk import BedrockAgents, Agent, Message, SecurityPlugin, GuardrailPlugin, KnowledgeBasePlugin
 
 # Define functions (no decorators needed)
 def get_time() -> dict:

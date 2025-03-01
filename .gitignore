@@ -24,14 +24,15 @@ wheels/
 venv/
 env/
 ENV/
-.env
-.venv
+env.bak/
+venv.bak/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 .DS_Store
 
 # Logs
@@ -47,8 +48,16 @@ logs/
 # Coverage reports
 htmlcov/
 .tox/
+.nox/
+.hypothesis/
+.pytest_cache/
 .coverage
 .coverage.*
-.cache
+.cache/
+nosetests.xml
 coverage.xml
 *.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/

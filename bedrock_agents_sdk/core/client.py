@@ -1,178 +1,19 @@
+"""
+Main client for Bedrock Agents SDK.
+"""
 import boto3
 import json
 import uuid
-import inspect
-from typing import List, Dict, Any, Optional, Union, Callable, Type, BinaryIO
-from pydantic import BaseModel, create_model, Field, ConfigDict
+from typing import List, Dict, Any, Optional, Union, Callable
 from botocore.exceptions import ClientError
 
-class Function(BaseModel):
-    """Represents a function that can be called by the agent"""
-    name: str
-    description: str
-    function: Callable
-    action_group: Optional[str] = None
-    
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-class Message(BaseModel):
-    """Represents a message in the conversation"""
-    role: str
-    content: str
-
-class ActionGroup(BaseModel):
-    """Represents an action group in the agent"""
-    name: str
-    description: str
-    functions: List[Function]
-
-class InputFile(BaseModel):
-    """Represents a file to be sent to the agent"""
-    name: str
-    content: bytes
-    media_type: str
-    use_case: str = "CODE_INTERPRETER"
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to API parameters format"""
-        return {
-            "name": self.name,
-            "source": {
-                "byteContent": {
-                    "data": self.content,
-                    "mediaType": self.media_type
-                },
-                "sourceType": "BYTE_CONTENT"
-            },
-            "useCase": self.use_case
-        }
-
-class OutputFile:
-    """Represents a file received from the agent"""
-    def __init__(self, name: str, content: bytes, file_type: str):
-        self.name = name
-        self.content = content
-        self.type = file_type
-    
-    @classmethod
-    def from_response(cls, file_data: Dict[str, Any]) -> 'OutputFile':
-        """Create an OutputFile from API response data"""
-        return cls(
-            name=file_data.get('name', ''),
-            content=file_data.get('bytes', b''),
-            file_type=file_data.get('type', '')
-        )
-    
-    def save(self, directory: str = ".") -> str:
-        """Save the file to disk"""
-        import os
-        path = os.path.join(directory, self.name)
-        with open(path, 'wb') as f:
-            f.write(self.content)
-        return path
-
-class Agent(BaseModel):
-    """Represents a Bedrock agent configuration"""
-    name: str
-    model: str
-    instructions: str
-    functions: List[Union[Function, Callable]] = []
-    enable_code_interpreter: bool = False
-    files: List[InputFile] = []
-    advanced_config: Optional[Dict[str, Any]] = None
-    
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-    
-    def __init__(self, **data):
-        """Initialize the agent and process functions if provided"""
-        # Handle dictionary format for functions
-        if 'functions' in data and isinstance(data['functions'], dict):
-            action_groups = data.pop('functions')
-            processed_functions = []
-            
-            for action_group, funcs in action_groups.items():
-                for func in funcs:
-                    processed_functions.append(self._create_function(func, action_group=action_group))
-            
-            data['functions'] = processed_functions
-        
-        # Initialize files list if not provided
-        if 'files' not in data:
-            data['files'] = []
-            
-        super().__init__(**data)
-        self._process_functions()
-    
-    def _process_functions(self):
-        """Process functions provided in the constructor"""
-        processed_functions = []
-        
-        # Process each function
-        for item in self.functions:
-            if isinstance(item, Function):
-                # Already a Function object, keep as is
-                processed_functions.append(item)
-            elif callable(item):
-                # Single function without action group
-                processed_functions.append(self._create_function(item))
-        
-        # Replace the original functions list with processed functions
-        self.functions = processed_functions
-    
-    def _create_function(self, function: Callable, description: Optional[str] = None, action_group: Optional[str] = None) -> Function:
-        """Create a Function object from a callable"""
-        func_name = function.__name__
-        func_desc = description or function.__doc__ or f"Execute the {func_name} function"
-        
-        return Function(
-            name=func_name,
-            description=func_desc,
-            function=function,
-            action_group=action_group
-        )
-    
-    def add_function(self, function: Callable, description: Optional[str] = None, action_group: Optional[str] = None):
-        """Add a function to the agent"""
-        self.functions.append(self._create_function(function, description, action_group))
-        return self
-
-    def add_file(self, name: str, content: bytes, media_type: str, use_case: str = "CODE_INTERPRETER") -> InputFile:
-        """Add a file to be sent to the agent"""
-        file = InputFile(name=name, content=content, media_type=media_type, use_case=use_case)
-        self.files.append(file)
-        return file
-    
-    def add_file_from_path(self, file_path: str, use_case: str = "CODE_INTERPRETER") -> InputFile:
-        """Add a file from a local path"""
-        import mimetypes
-        import os
-        
-        name = os.path.basename(file_path)
-        media_type = mimetypes.guess_type(file_path)[0] or 'application/octet-stream'
-        
-        with open(file_path, 'rb') as f:
-            content = f.read()
-        
-        return self.add_file(name, content, media_type, use_case)
-
-class BedrockAgentsPlugin:
-    """Base class for all plugins for the BedrockAgents SDK"""
-    
-    def initialize(self, client):
-        """Called when the plugin is registered with the client"""
-        self.client = client
-    
-    def pre_invoke(self, params):
-        """Called before invoke_inline_agent, can modify params"""
-        return params
-    
-    def post_invoke(self, response):
-        """Called after invoke_inline_agent, can modify response"""
-        return response
-    
-    def post_process(self, result):
-        """Called after processing the response, can modify the final result"""
-        return result
+from bedrock_agents_sdk.models.agent import Agent
+from bedrock_agents_sdk.models.message import Message
+from bedrock_agents_sdk.models.files import OutputFile
+from bedrock_agents_sdk.plugins.base import BedrockAgentsPlugin
+from bedrock_agents_sdk.utils.parameter_extraction import extract_parameter_info
+from bedrock_agents_sdk.utils.parameter_conversion import convert_parameters
+from bedrock_agents_sdk.utils.trace_processing import process_trace_data
 
 class BedrockAgents:
     """Client for interacting with Amazon Bedrock Agents"""
@@ -227,45 +68,6 @@ class BedrockAgents:
         
         return self
     
-    def _extract_parameter_info(self, function: Callable) -> Dict[str, Dict[str, Any]]:
-        """Extract parameter information from a function using type hints and docstring"""
-        params = {}
-        sig = inspect.signature(function)
-        
-        for param_name, param in sig.parameters.items():
-            # Skip self parameter for methods
-            if param_name == 'self':
-                continue
-                
-            # Determine parameter type from annotations or default to string
-            param_type = "string"
-            if param.annotation != inspect.Parameter.empty:
-                if param.annotation == int or param.annotation == float:
-                    param_type = "number"
-                elif param.annotation == bool:
-                    param_type = "boolean"
-            
-            # Determine if parameter is required
-            required = param.default == inspect.Parameter.empty
-            
-            # Look for parameter description in docstring
-            param_desc = f"The {param_name} parameter"
-            if function.__doc__:
-                # Look for :param param_name: in docstring
-                for line in function.__doc__.split('\n'):
-                    line = line.strip()
-                    if line.startswith(f":param {param_name}:"):
-                        param_desc = line.split(f":param {param_name}:")[1].strip()
-            
-            # Add parameter definition
-            params[param_name] = {
-                "description": param_desc,
-                "required": required,
-                "type": param_type
-            }
-        
-        return params
-    
     def _build_action_groups(self, agent: Agent) -> List[Dict[str, Any]]:
         """Build action groups from agent functions"""
         # Group functions by action group
@@ -280,7 +82,7 @@ class BedrockAgents:
                 action_group_map[group_name] = []
             
             # Extract parameter information
-            params = self._extract_parameter_info(func.function)
+            params = extract_parameter_info(func.function)
             
             # Add function to action group
             action_group_map[group_name].append({
@@ -335,35 +137,6 @@ class BedrockAgents:
         
         return action_groups
     
-    def _convert_parameters(self, parameters: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Convert parameters from agent format to Python format"""
-        param_dict = {}
-        for param in parameters:
-            name = param.get("name")
-            value = param.get("value")
-            param_type = param.get("type")
-            
-            if param_type == "number":
-                try:
-                    value = float(value)
-                    if value.is_integer():
-                        value = int(value)
-                except ValueError:
-                    if self.sdk_logs:
-                        print(f"\n[SDK LOG] Warning: Could not convert {value} to number")
-                    continue
-            elif param_type == "boolean":
-                if value.lower() in ["true", "yes", "1"]:
-                    value = True
-                elif value.lower() in ["false", "no", "0"]:
-                    value = False
-            
-            param_dict[name] = value
-        
-        if self.sdk_logs:
-            print(f"[SDK LOG] Parameters processed: {param_dict}")
-        return param_dict
-    
     def _execute_function(self, function_map: Dict[str, Callable], function_name: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a function with given parameters"""
         if function_name not in function_map:
@@ -385,93 +158,6 @@ class BedrockAgents:
             if self.sdk_logs:
                 print(f"\n[SDK LOG] Unexpected error in function '{function_name}': {e}")
             return None
-    
-    def _process_trace_data(self, trace_data: Dict[str, Any]) -> None:
-        """
-        Process and display trace information from the agent
-        
-        Args:
-            trace_data: The trace data from the agent response
-        """
-        # Skip trace processing if agent_traces is disabled or trace level is none
-        if not self.agent_traces or self.trace_level == "none":
-            return
-            
-        if not trace_data or not isinstance(trace_data, dict) or "trace" not in trace_data:
-            return
-            
-        trace = trace_data["trace"]
-        
-        # Process orchestration trace (main reasoning and decision making)
-        if "orchestrationTrace" in trace:
-            orchestration = trace["orchestrationTrace"]
-            
-            # Display model reasoning if available (all trace levels)
-            if "modelInvocationOutput" in orchestration and "reasoningContent" in orchestration["modelInvocationOutput"]:
-                reasoning = orchestration["modelInvocationOutput"]["reasoningContent"]
-                if "reasoningText" in reasoning and "text" in reasoning["reasoningText"]:
-                    reasoning_text = reasoning["reasoningText"]["text"]
-                    print("\n" + "=" * 80)
-                    print("[AGENT TRACE] Reasoning Process:")
-                    print("-" * 80)
-                    print(reasoning_text)
-                    print("=" * 80)
-            
-            # Display rationale if available (all trace levels)
-            if "rationale" in orchestration and "text" in orchestration["rationale"]:
-                rationale_text = orchestration["rationale"]["text"]
-                print("\n" + "=" * 80)
-                print("[AGENT TRACE] Decision Rationale:")
-                print("-" * 80)
-                print(rationale_text)
-                print("=" * 80)
-                
-            # Display invocation input if available (standard and detailed levels)
-            if self.trace_level in ["standard", "detailed"] and "invocationInput" in orchestration:
-                invocation = orchestration["invocationInput"]
-                invocation_type = invocation.get("invocationType", "Unknown")
-                
-                print("\n" + "-" * 80)
-                print(f"[AGENT TRACE] Invocation Type: {invocation_type}")
-                
-                # Show action group invocation details
-                if "actionGroupInvocationInput" in invocation:
-                    action_input = invocation["actionGroupInvocationInput"]
-                    action_group = action_input.get("actionGroupName", "Unknown")
-                    function = action_input.get("function", "Unknown")
-                    parameters = action_input.get("parameters", [])
-                    
-                    print(f"[AGENT TRACE] Action Group: {action_group}")
-                    print(f"[AGENT TRACE] Function: {function}")
-                    if parameters:
-                        print("[AGENT TRACE] Parameters:")
-                        for param in parameters:
-                            print(f"  - {param.get('name')}: {param.get('value')} ({param.get('type', 'unknown')})")
-                print("-" * 80)
-        
-        # Only process these traces for detailed level
-        if self.trace_level == "detailed":
-            # Process pre-processing trace
-            if "preProcessingTrace" in trace and "modelInvocationOutput" in trace["preProcessingTrace"]:
-                pre_processing = trace["preProcessingTrace"]["modelInvocationOutput"]
-                if "parsedResponse" in pre_processing:
-                    parsed = pre_processing["parsedResponse"]
-                    if "rationale" in parsed:
-                        print("\n" + "-" * 80)
-                        print("[AGENT TRACE] Pre-processing Rationale:")
-                        print(parsed["rationale"])
-                        print("-" * 80)
-            
-            # Process post-processing trace
-            if "postProcessingTrace" in trace and "modelInvocationOutput" in trace["postProcessingTrace"]:
-                post_processing = trace["postProcessingTrace"]["modelInvocationOutput"]
-                if "reasoningContent" in post_processing and "reasoningText" in post_processing["reasoningContent"]:
-                    reasoning = post_processing["reasoningContent"]["reasoningText"]
-                    if "text" in reasoning:
-                        print("\n" + "-" * 80)
-                        print("[AGENT TRACE] Post-processing Reasoning:")
-                        print(reasoning["text"])
-                        print("-" * 80)
     
     def _invoke_agent(self, 
                      agent: Agent, 
@@ -583,7 +269,7 @@ class BedrockAgents:
                             print(f"\n[SDK LOG] Received file: {output_file.name} ({len(output_file.content)} bytes, type: {output_file.type})")
                 elif "trace" in event:
                     # Process trace information using the helper method
-                    self._process_trace_data(event["trace"])
+                    process_trace_data(event["trace"], self.agent_traces, self.trace_level)
             
             # Update accumulated text with any new response text
             if response_text:
@@ -623,7 +309,7 @@ class BedrockAgents:
                     print(f"[SDK LOG] No parameters provided")
             
             # Convert and execute
-            params = self._convert_parameters(parameters)
+            params = convert_parameters(parameters, self.sdk_logs)
             result = self._execute_function(function_map, function_name, params)
             
             if not result:
@@ -847,65 +533,4 @@ class BedrockAgents:
         except KeyboardInterrupt:
             print("\n\n[SESSION] Chat session interrupted. Goodbye!")
         except Exception as e:
-            print(f"\n[ERROR] Unexpected error: {e}")
-
-# Example plugins
-
-class SecurityPlugin(BedrockAgentsPlugin):
-    """Plugin for security features"""
-    
-    def __init__(self, customer_encryption_key_arn=None):
-        """Initialize the security plugin"""
-        self.customer_encryption_key_arn = customer_encryption_key_arn
-    
-    def pre_invoke(self, params):
-        """Add security parameters before invocation"""
-        if self.customer_encryption_key_arn:
-            params["customerEncryptionKeyArn"] = self.customer_encryption_key_arn
-        return params
-
-class GuardrailPlugin(BedrockAgentsPlugin):
-    """Plugin for guardrail features"""
-    
-    def __init__(self, guardrail_id, guardrail_version=None):
-        """Initialize the guardrail plugin"""
-        self.guardrail_id = guardrail_id
-        self.guardrail_version = guardrail_version
-    
-    def pre_invoke(self, params):
-        """Add guardrail configuration before invocation"""
-        params["guardrailConfiguration"] = {
-            "guardrailIdentifier": self.guardrail_id
-        }
-        
-        if self.guardrail_version:
-            params["guardrailConfiguration"]["guardrailVersion"] = self.guardrail_version
-            
-        return params
-
-class KnowledgeBasePlugin(BedrockAgentsPlugin):
-    """Plugin for knowledge base integration"""
-    
-    def __init__(self, knowledge_base_id, description=None, retrieval_config=None):
-        """Initialize the knowledge base plugin"""
-        self.knowledge_base_id = knowledge_base_id
-        self.description = description
-        self.retrieval_config = retrieval_config or {}
-    
-    def pre_invoke(self, params):
-        """Add knowledge base configuration before invocation"""
-        kb_config = {
-            "knowledgeBaseId": self.knowledge_base_id
-        }
-        
-        if self.description:
-            kb_config["description"] = self.description
-            
-        if self.retrieval_config:
-            kb_config["retrievalConfiguration"] = self.retrieval_config
-        
-        if "knowledgeBases" not in params:
-            params["knowledgeBases"] = []
-            
-        params["knowledgeBases"].append(kb_config)
-        return params 
+            print(f"\n[ERROR] Unexpected error: {e}") 

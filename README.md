@@ -49,16 +49,31 @@ As a developer, you want to build powerful AI agents quickly without managing co
 
 ## Installation
 
-1. Clone this repository
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+You can install the package directly from GitHub:
+
+```bash
+pip install git+https://github.com/aws-samples/bedrock-agents-sdk.git
+```
+
+Or for development:
+
+```bash
+git clone https://github.com/aws-samples/bedrock-agents-sdk.git
+cd bedrock-agents-sdk
+pip install -e ".[dev]"
+```
+
+## Project Structure
+
+The SDK is organized into the following modules:
+
+```
+bedrock_agents_sdk/
+├── core/              # Core client functionality
+├── models/            # Data models (Agent, Function, etc.)
+├── plugins/           # Plugin system for extending functionality
+└── utils/             # Utility functions
+```
 
 ## Quick Start
 
@@ -837,4 +852,8 @@ python app.py --verbosity verbose --trace standard
 # Use a customer KMS key
 python app.py --kms-key "arn:aws:kms:us-west-2:123456789012:key/abcd1234-ab12-cd34-ef56-abcdef123456"
 ```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
