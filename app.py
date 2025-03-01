@@ -62,33 +62,27 @@ def main():
     #     instructions="""You are a helpful and friendly assistant helping to test this new agent.""",
     #     functions=[get_time, get_date, add_two_numbers]
     # )
-        
-    # response = client.run(
-    #     agent=agent,
-    #     messages=[
-    #         {
-    #             "role": "user",
-    #             "content": "Hello agent.  What is the time?"
-    #         }
-    #     ]
-    # )
     
-    # print("\nAssistant:", response)
+    print("\n[Test] Running single query with run() method...")
+    print("-" * 50)
     
-
-    # Print out the action groups from the agent: 
-    print("\nAgent Configuration:")
-    print(f"Name: {agent.name}")
-    print(f"Model: {agent.model}")
-    print("\nAction Groups:")
-    for function in agent.functions:
-        group = function.action_group or "DefaultActions"
-        print(f"\n  {group}:")
-        print(f"    - {function.name}: {function.description}")
-
-
-    # Start interactive chat session
-    client.chat(agent=agent)
+    response = client.run(
+        agent=agent,
+        messages=[
+            {
+                "role": "user",
+                "content": "Hello agent. What is the time?"
+            }
+        ]
+    )
+    
+    print("\n[Test] Final response from agent:")
+    print("-" * 50)
+    print(response)
+    print("-" * 50)
+    
+    # print("\n[Test] Starting interactive chat session...")
+    # client.chat(agent=agent)
 
 if __name__ == "__main__":
     main() 

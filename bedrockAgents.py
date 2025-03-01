@@ -321,6 +321,8 @@ class BedrockAgents:
                 if accumulated_text:
                     accumulated_text += "\n"
                 accumulated_text += response_text
+                if self.debug and not return_control:
+                    print("\n[Debug] Agent has completed its response")
             
             # If no tool call is needed, return the accumulated response
             if not return_control:
@@ -397,6 +399,9 @@ class BedrockAgents:
         # Create a session ID if not provided
         if session_id is None:
             session_id = str(uuid.uuid4())
+            
+        if self.debug:
+            print(f"\n[Debug] Starting new run session (ID: {session_id})")
         
         # Build action groups
         action_groups = self._build_action_groups(agent)
@@ -422,6 +427,9 @@ class BedrockAgents:
             tool_call_count=0
         )
         
+        if self.debug:
+            print(f"\n[Debug] Run session completed (ID: {session_id})")
+            
         return response
     
     def chat(self, agent: Agent, session_id: Optional[str] = None):
