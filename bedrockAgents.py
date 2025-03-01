@@ -2,7 +2,7 @@ import boto3
 import json
 import uuid
 import inspect
-from typing import List, Dict, Any, Optional, Union, Callable, Type
+from typing import List, Dict, Any, Optional, Union, Callable, Type, BinaryIO
 from pydantic import BaseModel, create_model, Field, ConfigDict
 from botocore.exceptions import ClientError
 
@@ -26,6 +26,51 @@ class ActionGroup(BaseModel):
     description: str
     functions: List[Function]
 
+class InputFile(BaseModel):
+    """Represents a file to be sent to the agent"""
+    name: str
+    content: bytes
+    media_type: str
+    use_case: str = "CODE_INTERPRETER"
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to API parameters format"""
+        return {
+            "name": self.name,
+            "source": {
+                "byteContent": {
+                    "data": self.content,
+                    "mediaType": self.media_type
+                },
+                "sourceType": "BYTE_CONTENT"
+            },
+            "useCase": self.use_case
+        }
+
+class OutputFile:
+    """Represents a file received from the agent"""
+    def __init__(self, name: str, content: bytes, file_type: str):
+        self.name = name
+        self.content = content
+        self.type = file_type
+    
+    @classmethod
+    def from_response(cls, file_data: Dict[str, Any]) -> 'OutputFile':
+        """Create an OutputFile from API response data"""
+        return cls(
+            name=file_data.get('name', ''),
+            content=file_data.get('bytes', b''),
+            file_type=file_data.get('type', '')
+        )
+    
+    def save(self, directory: str = ".") -> str:
+        """Save the file to disk"""
+        import os
+        path = os.path.join(directory, self.name)
+        with open(path, 'wb') as f:
+            f.write(self.content)
+        return path
+
 class Agent(BaseModel):
     """Represents a Bedrock agent configuration"""
     name: str
@@ -33,6 +78,8 @@ class Agent(BaseModel):
     instructions: str
     functions: List[Union[Function, Callable]] = []
     enable_code_interpreter: bool = False
+    files: List[InputFile] = []
+    advanced_config: Optional[Dict[str, Any]] = None
     
     model_config = ConfigDict(arbitrary_types_allowed=True)
     
@@ -49,6 +96,10 @@ class Agent(BaseModel):
             
             data['functions'] = processed_functions
         
+        # Initialize files list if not provided
+        if 'files' not in data:
+            data['files'] = []
+            
         super().__init__(**data)
         self._process_functions()
     
@@ -85,59 +136,96 @@ class Agent(BaseModel):
         self.functions.append(self._create_function(function, description, action_group))
         return self
 
+    def add_file(self, name: str, content: bytes, media_type: str, use_case: str = "CODE_INTERPRETER") -> InputFile:
+        """Add a file to be sent to the agent"""
+        file = InputFile(name=name, content=content, media_type=media_type, use_case=use_case)
+        self.files.append(file)
+        return file
+    
+    def add_file_from_path(self, file_path: str, use_case: str = "CODE_INTERPRETER") -> InputFile:
+        """Add a file from a local path"""
+        import mimetypes
+        import os
+        
+        name = os.path.basename(file_path)
+        media_type = mimetypes.guess_type(file_path)[0] or 'application/octet-stream'
+        
+        with open(file_path, 'rb') as f:
+            content = f.read()
+        
+        return self.add_file(name, content, media_type, use_case)
+
+class BedrockAgentsPlugin:
+    """Base class for all plugins for the BedrockAgents SDK"""
+    
+    def initialize(self, client):
+        """Called when the plugin is registered with the client"""
+        self.client = client
+    
+    def pre_invoke(self, params):
+        """Called before invoke_inline_agent, can modify params"""
+        return params
+    
+    def post_invoke(self, response):
+        """Called after invoke_inline_agent, can modify response"""
+        return response
+    
+    def post_process(self, result):
+        """Called after processing the response, can modify the final result"""
+        return result
+
 class BedrockAgents:
     """Client for interacting with Amazon Bedrock Agents"""
     
-    def __init__(self, verbosity: str = "normal", sdk_logs: bool = False, agent_traces: bool = True, trace_level: str = "standard", debug: bool = None):
+    def __init__(self, 
+                 region_name: Optional[str] = None, 
+                 profile_name: Optional[str] = None,
+                 verbosity: str = "normal",
+                 trace_level: str = "none",
+                 max_tool_calls: int = 10):
         """
-        Initialize the Bedrock Agents client
+        Initialize the client
         
         Args:
-            verbosity: Overall verbosity level. Options are:
-                - "quiet": No output except errors
-                - "normal": Basic operational information
-                - "verbose": Detailed operational information
-                - "debug": All available information
-            sdk_logs: Whether to show SDK-level logs (client operations, function calls, etc.)
-            agent_traces: Whether to show agent trace information (reasoning, decisions, etc.)
-            trace_level: Level of agent trace detail to display. Options are:
-                - "minimal": Only basic reasoning and decisions
-                - "standard": Reasoning, decisions, and function calls
-                - "detailed": All available trace information
-            debug: (Deprecated) Whether to enable debug output. Use sdk_logs instead.
+            region_name: AWS region name (default: None, uses boto3 default)
+            profile_name: AWS profile name (default: None, uses boto3 default)
+            verbosity: Logging verbosity (default: "normal")
+                Options: "quiet", "normal", "verbose", "debug"
+            trace_level: Agent trace level (default: "none")
+                Options: "none", "minimal", "standard", "detailed"
+            max_tool_calls: Maximum number of tool calls per run (default: 10)
         """
-        # Handle deprecated debug parameter for backward compatibility
-        if debug is not None:
-            sdk_logs = debug
+        # Set up session
+        session = boto3.Session(region_name=region_name, profile_name=profile_name)
+        self.bedrock_agent_runtime = session.client('bedrock-agent-runtime')
         
-        # Set up verbosity based on the selected level
-        if verbosity == "quiet":
-            self.sdk_logs = False
-            self.agent_traces = False
-        elif verbosity == "normal":
-            self.sdk_logs = sdk_logs
-            self.agent_traces = agent_traces
-        elif verbosity == "verbose":
-            self.sdk_logs = True
-            self.agent_traces = True
-            if trace_level == "minimal":
-                trace_level = "standard"
-        elif verbosity == "debug":
-            self.sdk_logs = True
-            self.agent_traces = True
-            trace_level = "detailed"
-        else:
-            # Default to user-specified values if verbosity is not recognized
-            self.sdk_logs = sdk_logs
-            self.agent_traces = agent_traces
+        # Configure logging
+        self.verbosity = verbosity.lower()
+        self.sdk_logs = self.verbosity != "quiet"
+        self.debug_logs = self.verbosity == "debug"
         
-        # For backward compatibility
-        self.debug = self.sdk_logs
-        
+        # Configure agent traces
         self.trace_level = trace_level.lower()
-        self.bedrock_runtime = boto3.client('bedrock-runtime')
-        self.bedrock_agent_runtime = boto3.client('bedrock-agent-runtime')
-        self.max_tool_calls = 10  # Safety limit to prevent infinite loops
+        self.agent_traces = self.trace_level != "none"
+        
+        # Set maximum tool calls
+        self.max_tool_calls = max_tool_calls
+        
+        # Initialize plugins list
+        self.plugins = []
+        
+        if self.sdk_logs:
+            print(f"[SDK LOG] Initialized BedrockAgents client (region: {region_name or 'default'}, verbosity: {verbosity}, trace level: {trace_level})")
+    
+    def register_plugin(self, plugin: BedrockAgentsPlugin):
+        """Register a plugin with the client"""
+        plugin.initialize(self)
+        self.plugins.append(plugin)
+        
+        if self.sdk_logs:
+            print(f"[SDK LOG] Registered plugin: {plugin.__class__.__name__}")
+        
+        return self
     
     def _extract_parameter_info(self, function: Callable) -> Dict[str, Dict[str, Any]]:
         """Extract parameter information from a function using type hints and docstring"""
@@ -394,52 +482,88 @@ class BedrockAgents:
                      invocation_id: Optional[str] = None, 
                      return_control_result: Optional[Dict[str, Any]] = None, 
                      accumulated_text: str = "",
-                     tool_call_count: int = 0) -> str:
+                     tool_call_count: int = 0) -> Dict[str, Any]:
         """
         Invoke the agent with either user input or function result
         This method handles the entire flow recursively until completion
+        
+        Returns:
+            Dict[str, Any]: Dictionary containing the response text and any files
         """
         tool_call_count += 1
         if tool_call_count > self.max_tool_calls:
-            return accumulated_text + "\n\nReached maximum number of tool calls. Some tasks may be incomplete."
+            return {
+                "response": accumulated_text + "\n\nReached maximum number of tool calls. Some tasks may be incomplete.",
+                "files": []
+            }
         
         if self.sdk_logs and tool_call_count > 1:
             print(f"\n[SDK LOG] Processing function call #{tool_call_count - 1}...")
         
         try:
+            # Prepare parameters for the API call
+            params = {
+                "sessionId": session_id,
+                "actionGroups": action_groups,
+                "instruction": agent.instructions,
+                "foundationModel": agent.model,
+                "enableTrace": self.agent_traces
+            }
+            
+            # Add advanced configuration if provided
+            if agent.advanced_config:
+                params.update(agent.advanced_config)
+            
             # Determine if this is an initial call or a follow-up call
             if input_text is not None:
                 # Initial call with user input
                 if self.sdk_logs:
                     truncated_input = input_text[:50] + "..." if len(input_text) > 50 else input_text
                     print(f"\n[SDK LOG] Sending user query to agent: '{truncated_input}'")
-                response = self.bedrock_agent_runtime.invoke_inline_agent(
-                    sessionId=session_id,
-                    actionGroups=action_groups,
-                    instruction=agent.instructions,
-                    foundationModel=agent.model,
-                    inputText=input_text,
-                    enableTrace=self.agent_traces
-                )
+                
+                params["inputText"] = input_text
+                
+                # Add files if provided
+                if agent.files:
+                    if self.sdk_logs:
+                        print(f"\n[SDK LOG] Sending {len(agent.files)} file(s) to agent")
+                    
+                    params["inlineSessionState"] = {
+                        "files": [f.to_dict() for f in agent.files]
+                    }
             else:
                 # Follow-up call with function result
                 if self.sdk_logs:
                     print(f"\n[SDK LOG] Sending function result back to agent (invocation ID: {invocation_id})")
-                response = self.bedrock_agent_runtime.invoke_inline_agent(
-                    sessionId=session_id,
-                    actionGroups=action_groups,
-                    instruction=agent.instructions,
-                    foundationModel=agent.model,
-                    inlineSessionState={
-                        "invocationId": invocation_id,
-                        "returnControlInvocationResults": [return_control_result]
-                    },
-                    enableTrace=self.agent_traces
-                )
+                
+                inline_session_state = {
+                    "invocationId": invocation_id,
+                    "returnControlInvocationResults": [return_control_result]
+                }
+                
+                # Add files if provided
+                if agent.files:
+                    if self.sdk_logs:
+                        print(f"\n[SDK LOG] Sending {len(agent.files)} file(s) to agent")
+                    inline_session_state["files"] = [f.to_dict() for f in agent.files]
+                
+                params["inlineSessionState"] = inline_session_state
+            
+            # Apply pre-invoke plugins
+            for plugin in self.plugins:
+                params = plugin.pre_invoke(params)
+            
+            # Call the API
+            response = self.bedrock_agent_runtime.invoke_inline_agent(**params)
+            
+            # Apply post-invoke plugins
+            for plugin in self.plugins:
+                response = plugin.post_invoke(response)
             
             # Process the response
             return_control = None
             response_text = ""
+            output_files = []
             
             for event in response["completion"]:
                 if "returnControl" in event:
@@ -450,6 +574,13 @@ class BedrockAgents:
                 elif "chunk" in event and "bytes" in event["chunk"]:
                     text = event["chunk"]["bytes"].decode('utf-8')
                     response_text += text
+                elif "files" in event:
+                    # Process files from the response
+                    for file_data in event["files"].get("files", []):
+                        output_file = OutputFile.from_response(file_data)
+                        output_files.append(output_file)
+                        if self.sdk_logs:
+                            print(f"\n[SDK LOG] Received file: {output_file.name} ({len(output_file.content)} bytes, type: {output_file.type})")
                 elif "trace" in event:
                     # Process trace information using the helper method
                     self._process_trace_data(event["trace"])
@@ -463,9 +594,18 @@ class BedrockAgents:
                 if self.sdk_logs and not return_control:
                     print("\n[SDK LOG] Agent has completed its response")
             
-            # If no tool call is needed, return the accumulated response
+            # If no tool call is needed, prepare the final result
             if not return_control:
-                return accumulated_text
+                result = {
+                    "response": accumulated_text,
+                    "files": output_files
+                }
+                
+                # Apply post-process plugins
+                for plugin in self.plugins:
+                    result = plugin.post_process(result)
+                
+                return result
             
             # Extract function details
             invocation_id = return_control["invocationId"]
@@ -489,7 +629,16 @@ class BedrockAgents:
             if not result:
                 if self.sdk_logs:
                     print(f"\n[SDK LOG] Warning: Function {function_name} did not return a result")
-                return accumulated_text
+                final_result = {
+                    "response": accumulated_text,
+                    "files": output_files
+                }
+                
+                # Apply post-process plugins
+                for plugin in self.plugins:
+                    final_result = plugin.post_process(final_result)
+                
+                return final_result
             
             if self.sdk_logs:
                 print(f"\n[SDK LOG] Function executed successfully. Result: {result}")
@@ -508,7 +657,7 @@ class BedrockAgents:
             }
             
             # Recursive call with the function result
-            return self._invoke_agent(
+            result = self._invoke_agent(
                 agent=agent,
                 action_groups=action_groups,
                 function_map=function_map,
@@ -520,13 +669,29 @@ class BedrockAgents:
                 tool_call_count=tool_call_count
             )
             
+            # Merge files from this call with any files from recursive calls
+            all_files = output_files + result.get("files", [])
+            final_result = {
+                "response": result.get("response", ""),
+                "files": all_files
+            }
+            
+            # Apply post-process plugins
+            for plugin in self.plugins:
+                final_result = plugin.post_process(final_result)
+            
+            return final_result
+            
         except Exception as e:
             error_msg = f"Error in agent invocation: {e}"
             if self.sdk_logs:
                 print(f"\n[SDK LOG] {error_msg}")
-            return f"An error occurred: {str(e)}"
+            return {
+                "response": f"An error occurred: {str(e)}",
+                "files": []
+            }
     
-    def run(self, agent: Agent, messages: List[Union[Message, Dict[str, str]]], session_id: Optional[str] = None) -> str:
+    def run(self, agent: Agent, messages: List[Union[Message, Dict[str, str]]], session_id: Optional[str] = None) -> Dict[str, Any]:
         """
         Run the agent with a list of messages
         
@@ -536,7 +701,7 @@ class BedrockAgents:
             session_id: Optional session ID to continue a conversation. If not provided, a new session will be created.
             
         Returns:
-            str: The agent's response
+            Dict[str, Any]: Dictionary containing the response text and any files
         """
         # Create a session ID if not provided
         if session_id is None:
@@ -560,7 +725,7 @@ class BedrockAgents:
             raise ValueError("The last message must be from the user")
         
         # Invoke the agent
-        response = self._invoke_agent(
+        result = self._invoke_agent(
             agent=agent,
             action_groups=action_groups,
             function_map=function_map,
@@ -572,7 +737,23 @@ class BedrockAgents:
         if self.sdk_logs:
             print(f"\n[SDK LOG] Run session completed (ID: {session_id})")
             
-        return response
+            if result.get("files"):
+                print(f"\n[SDK LOG] {len(result['files'])} file(s) were generated during this session")
+        
+        # Add helper methods for file handling
+        if result.get("files"):
+            # Add a method to save all files
+            def save_all_files(directory="."):
+                """Save all files to the specified directory"""
+                saved_paths = []
+                for file in result["files"]:
+                    path = file.save(directory)
+                    saved_paths.append(path)
+                return saved_paths
+            
+            result["save_all_files"] = save_all_files
+        
+        return result
     
     def chat(self, agent: Agent, session_id: Optional[str] = None):
         """
@@ -594,6 +775,8 @@ class BedrockAgents:
         
         print(f"\n[SESSION] Starting chat session (ID: {session_id})")
         print("[SESSION] Type 'exit' or 'quit' to end the chat")
+        print("[SESSION] Type 'file:path/to/file.ext' to upload a file")
+        print("[SESSION] Type 'clear files' to remove all uploaded files")
         print("-" * 50)
         
         try:
@@ -608,8 +791,25 @@ class BedrockAgents:
                 if not user_input:
                     continue
                 
+                # Check for file upload command
+                if user_input.startswith('file:'):
+                    file_path = user_input[5:].strip()
+                    try:
+                        file = agent.add_file_from_path(file_path)
+                        print(f"[SESSION] File '{file.name}' uploaded successfully ({len(file.content)} bytes)")
+                        continue
+                    except Exception as e:
+                        print(f"[ERROR] Failed to upload file: {e}")
+                        continue
+                
+                # Check for clear files command
+                if user_input.lower() == 'clear files':
+                    agent.files = []
+                    print("[SESSION] All files have been cleared")
+                    continue
+                
                 # Invoke the agent
-                response_text = self._invoke_agent(
+                result = self._invoke_agent(
                     agent=agent,
                     action_groups=action_groups,
                     function_map=function_map,
@@ -619,11 +819,93 @@ class BedrockAgents:
                 )
                 
                 # Print the agent's final response
-                print("\nAssistant:", response_text.strip())
+                print("\nAssistant:", result["response"].strip())
+                
+                # Handle any files returned by the agent
+                if result.get("files"):
+                    print(f"\n[FILES] The agent generated {len(result['files'])} file(s):")
+                    for i, file in enumerate(result["files"]):
+                        print(f"  {i+1}. {file.name} ({len(file.content)} bytes, type: {file.type})")
+                    
+                    # Ask if the user wants to save the files
+                    save_choice = input("\nDo you want to save these files? (y/n): ").strip().lower()
+                    if save_choice in ['y', 'yes']:
+                        save_dir = input("Enter directory to save files (default is current directory): ").strip()
+                        if not save_dir:
+                            save_dir = "."
+                        
+                        # Save the files
+                        saved_paths = []
+                        for file in result["files"]:
+                            path = file.save(save_dir)
+                            saved_paths.append(path)
+                        
+                        print(f"\n[FILES] Files saved to: {', '.join(saved_paths)}")
                 
         except ClientError as e:
             print(f"\n[ERROR] AWS Client Error: {e}")
         except KeyboardInterrupt:
             print("\n\n[SESSION] Chat session interrupted. Goodbye!")
         except Exception as e:
-            print(f"\n[ERROR] Unexpected error: {e}") 
+            print(f"\n[ERROR] Unexpected error: {e}")
+
+# Example plugins
+
+class SecurityPlugin(BedrockAgentsPlugin):
+    """Plugin for security features"""
+    
+    def __init__(self, customer_encryption_key_arn=None):
+        """Initialize the security plugin"""
+        self.customer_encryption_key_arn = customer_encryption_key_arn
+    
+    def pre_invoke(self, params):
+        """Add security parameters before invocation"""
+        if self.customer_encryption_key_arn:
+            params["customerEncryptionKeyArn"] = self.customer_encryption_key_arn
+        return params
+
+class GuardrailPlugin(BedrockAgentsPlugin):
+    """Plugin for guardrail features"""
+    
+    def __init__(self, guardrail_id, guardrail_version=None):
+        """Initialize the guardrail plugin"""
+        self.guardrail_id = guardrail_id
+        self.guardrail_version = guardrail_version
+    
+    def pre_invoke(self, params):
+        """Add guardrail configuration before invocation"""
+        params["guardrailConfiguration"] = {
+            "guardrailIdentifier": self.guardrail_id
+        }
+        
+        if self.guardrail_version:
+            params["guardrailConfiguration"]["guardrailVersion"] = self.guardrail_version
+            
+        return params
+
+class KnowledgeBasePlugin(BedrockAgentsPlugin):
+    """Plugin for knowledge base integration"""
+    
+    def __init__(self, knowledge_base_id, description=None, retrieval_config=None):
+        """Initialize the knowledge base plugin"""
+        self.knowledge_base_id = knowledge_base_id
+        self.description = description
+        self.retrieval_config = retrieval_config or {}
+    
+    def pre_invoke(self, params):
+        """Add knowledge base configuration before invocation"""
+        kb_config = {
+            "knowledgeBaseId": self.knowledge_base_id
+        }
+        
+        if self.description:
+            kb_config["description"] = self.description
+            
+        if self.retrieval_config:
+            kb_config["retrievalConfiguration"] = self.retrieval_config
+        
+        if "knowledgeBases" not in params:
+            params["knowledgeBases"] = []
+            
+        params["knowledgeBases"].append(kb_config)
+        return params 

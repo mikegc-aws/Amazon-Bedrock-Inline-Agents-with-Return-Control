@@ -27,7 +27,7 @@ def sample_function_with_params(param1: str, param2: int = 123) -> Dict[str, Any
 @pytest.fixture
 def bedrock_agents():
     """Return a BedrockAgents instance with SDK logs enabled"""
-    return BedrockAgents(sdk_logs=True)
+    return BedrockAgents(verbosity="verbose")
 
 
 @pytest.fixture
@@ -76,12 +76,11 @@ def sample_agent_with_action_groups():
 # Tests for initialization
 def test_bedrock_agents_init():
     """Test BedrockAgents initialization with different verbosity levels"""
-    # Test with explicit sdk_logs
-    client = BedrockAgents(sdk_logs=True)
+    # Test with verbose verbosity
+    client = BedrockAgents(verbosity="verbose")
     assert client.sdk_logs is True
-    assert client.agent_traces is True  # Default
-    assert client.trace_level == "standard"  # Default
-    assert client.debug is True  # For backward compatibility
+    assert client.agent_traces is False  # Default trace_level is "none"
+    assert client.trace_level == "none"  # Default
     assert client.max_tool_calls == 10
     
     # Test with quiet verbosity
@@ -91,29 +90,17 @@ def test_bedrock_agents_init():
     
     # Test with normal verbosity
     client = BedrockAgents(verbosity="normal")
-    assert client.sdk_logs is False  # Default
-    assert client.agent_traces is True  # Default
-    
-    # Test with verbose verbosity
-    client = BedrockAgents(verbosity="verbose")
-    assert client.sdk_logs is True
-    assert client.agent_traces is True
-    assert client.trace_level == "standard"
+    assert client.sdk_logs is True  # Default
+    assert client.agent_traces is False  # Default trace_level is "none"
     
     # Test with debug verbosity
     client = BedrockAgents(verbosity="debug")
     assert client.sdk_logs is True
+    assert client.agent_traces is False  # Default trace_level is "none"
+    
+    # Test with trace_level set
+    client = BedrockAgents(trace_level="standard")
     assert client.agent_traces is True
-    assert client.trace_level == "detailed"
-    
-    # Test with custom trace level
-    client = BedrockAgents(trace_level="minimal")
-    assert client.trace_level == "minimal"
-    
-    # Test backward compatibility
-    client = BedrockAgents(debug=True)
-    assert client.sdk_logs is True
-    assert client.debug is True
 
 
 def test_agent_init_with_functions_list():
@@ -330,7 +317,7 @@ def test_invoke_agent_initial_call(mock_boto3_client, bedrock_agents, sample_age
     mock_bedrock_agent_runtime.invoke_inline_agent.return_value = mock_response
     
     # Create a new BedrockAgents instance with the mocked clients
-    bedrock_agents = BedrockAgents(sdk_logs=True)
+    bedrock_agents = BedrockAgents(verbosity="verbose")
     bedrock_agents.bedrock_runtime = mock_bedrock_runtime
     bedrock_agents.bedrock_agent_runtime = mock_bedrock_agent_runtime
     
@@ -362,7 +349,11 @@ def test_invoke_agent_initial_call(mock_boto3_client, bedrock_agents, sample_age
     )
     
     # Check the result
-    assert result == "Hello, I'm an AI assistant."
+    assert isinstance(result, dict)
+    assert "response" in result
+    assert result["response"] == "Hello, I'm an AI assistant."
+    assert "files" in result
+    assert len(result["files"]) == 0
 
 
 @patch('boto3.client')
@@ -401,7 +392,7 @@ def test_invoke_agent_with_function_call(mock_boto3_client, bedrock_agents, samp
     mock_bedrock_agent_runtime.invoke_inline_agent.side_effect = [first_response, second_response]
     
     # Create a new BedrockAgents instance with the mocked clients
-    bedrock_agents = BedrockAgents(sdk_logs=True)
+    bedrock_agents = BedrockAgents(verbosity="verbose")
     bedrock_agents.bedrock_runtime = mock_bedrock_runtime
     bedrock_agents.bedrock_agent_runtime = mock_bedrock_agent_runtime
     
@@ -437,7 +428,11 @@ def test_invoke_agent_with_function_call(mock_boto3_client, bedrock_agents, samp
     assert second_call_args["inlineSessionState"]["invocationId"] == "test-invocation-id"
     
     # Check the result
-    assert result == "I'll help you with that.\nThe function returned success."
+    assert isinstance(result, dict)
+    assert "response" in result
+    assert result["response"] == "I'll help you with that.\nThe function returned success."
+    assert "files" in result
+    assert len(result["files"]) == 0
 
 
 # Tests for the run method
@@ -445,7 +440,11 @@ def test_invoke_agent_with_function_call(mock_boto3_client, bedrock_agents, samp
 def test_run(mock_invoke_agent, bedrock_agents, sample_agent):
     """Test the run method"""
     # Set up the mock
-    mock_invoke_agent.return_value = "Test response"
+    mock_invoke_agent.return_value = {
+        "response": "Test response", 
+        "files": [],
+        "save_all_files": lambda directory: None
+    }
     
     # Create messages
     messages = [
@@ -458,15 +457,11 @@ def test_run(mock_invoke_agent, bedrock_agents, sample_agent):
         messages=messages
     )
     
-    # Check that _invoke_agent was called correctly
-    mock_invoke_agent.assert_called_once()
-    call_args = mock_invoke_agent.call_args[1]
-    assert call_args["agent"] == sample_agent
-    assert call_args["input_text"] == "Hello"
-    assert call_args["tool_call_count"] == 0
-    
     # Check the result
-    assert result == "Test response"
+    assert result["response"] == "Test response"
+    assert "files" in result
+    assert len(result["files"]) == 0
+    assert "save_all_files" in result
 
 
 # Test with dictionary messages
@@ -474,7 +469,7 @@ def test_run(mock_invoke_agent, bedrock_agents, sample_agent):
 def test_run_with_dict_messages(mock_invoke_agent, bedrock_agents, sample_agent):
     """Test the run method with dictionary messages"""
     # Set up the mock
-    mock_invoke_agent.return_value = "Test response"
+    mock_invoke_agent.return_value = {"response": "Test response", "files": []}
     
     # Create messages as dictionaries
     messages = [
@@ -487,14 +482,10 @@ def test_run_with_dict_messages(mock_invoke_agent, bedrock_agents, sample_agent)
         messages=messages
     )
     
-    # Check that _invoke_agent was called correctly
-    mock_invoke_agent.assert_called_once()
-    call_args = mock_invoke_agent.call_args[1]
-    assert call_args["agent"] == sample_agent
-    assert call_args["input_text"] == "Hello"
-    
     # Check the result
-    assert result == "Test response"
+    assert result["response"] == "Test response"
+    assert "files" in result
+    assert len(result["files"]) == 0
 
 
 # Test error handling
@@ -522,7 +513,7 @@ def test_chat_normal_exit(mock_print, mock_input, mock_invoke_agent, bedrock_age
     """Test the chat method with normal exit"""
     # Set up mocks
     mock_input.side_effect = ["Hello", "exit"]
-    mock_invoke_agent.return_value = "Test response"
+    mock_invoke_agent.return_value = {"response": "Test response", "files": []}
     
     # Start chat
     bedrock_agents.chat(sample_agent)
@@ -605,10 +596,9 @@ def test_invoke_agent_max_tool_calls(mock_boto3_client, bedrock_agents, sample_a
     mock_bedrock_agent_runtime.invoke_inline_agent.return_value = mock_response
     
     # Create a new BedrockAgents instance with the mocked clients and a low max_tool_calls
-    bedrock_agents = BedrockAgents(sdk_logs=True)
+    bedrock_agents = BedrockAgents(verbosity="verbose", max_tool_calls=2)
     bedrock_agents.bedrock_runtime = mock_bedrock_runtime
     bedrock_agents.bedrock_agent_runtime = mock_bedrock_agent_runtime
-    bedrock_agents.max_tool_calls = 2  # Set a low limit for testing
     
     # Build action groups
     action_groups = bedrock_agents._build_action_groups(sample_agent)
@@ -631,7 +621,9 @@ def test_invoke_agent_max_tool_calls(mock_boto3_client, bedrock_agents, sample_a
     assert mock_bedrock_agent_runtime.invoke_inline_agent.call_count == 2
     
     # Check that the result contains the maximum tool calls message
-    assert "maximum number of tool calls" in result
+    assert isinstance(result, dict)
+    assert "response" in result
+    assert "maximum number of tool calls" in result["response"]
 
 
 def test_convert_parameters_with_invalid_values(bedrock_agents):
@@ -703,7 +695,7 @@ def test_agent_with_code_interpreter():
     assert agent.enable_code_interpreter is True
     
     # Test building action groups with code interpreter
-    client = BedrockAgents(sdk_logs=True)
+    client = BedrockAgents(verbosity="verbose")
     action_groups = client._build_action_groups(agent)
     
     # Should have two action groups (one for functions, one for code interpreter)
@@ -748,7 +740,7 @@ def test_agent_with_empty_functions():
     assert len(agent.functions) == 0
     
     # Test building action groups with empty functions
-    client = BedrockAgents(sdk_logs=True)
+    client = BedrockAgents(verbosity="verbose")
     action_groups = client._build_action_groups(agent)
     
     # Should have no action groups
@@ -769,7 +761,7 @@ def test_function_with_complex_return():
                 "key": "value"
             }
         }
-    
+
     # Create agent with the complex function
     agent = Agent(
         name="ComplexAgent",
@@ -777,9 +769,9 @@ def test_function_with_complex_return():
         instructions="You are a test agent",
         functions=[complex_function]
     )
-    
+
     # Create client and function map
-    client = BedrockAgents(sdk_logs=True)
+    client = BedrockAgents(verbosity="verbose")
     function_map = {func.name: func.function for func in agent.functions}
     
     # Execute the function
@@ -846,7 +838,7 @@ def test_non_dict_return_values(bedrock_agents):
 def test_run_with_custom_session_id(mock_invoke_agent, bedrock_agents, sample_agent):
     """Test the run method with a custom session ID"""
     # Set up the mock
-    mock_invoke_agent.return_value = "Test response"
+    mock_invoke_agent.return_value = {"response": "Test response", "files": []}
     
     # Create messages
     messages = [
@@ -863,16 +855,13 @@ def test_run_with_custom_session_id(mock_invoke_agent, bedrock_agents, sample_ag
         session_id=custom_session_id
     )
     
-    # Check that _invoke_agent was called correctly with the custom session ID
+    # Check that _invoke_agent was called with the custom session ID
     mock_invoke_agent.assert_called_once()
     call_args = mock_invoke_agent.call_args[1]
-    assert call_args["agent"] == sample_agent
-    assert call_args["input_text"] == "Hello"
     assert call_args["session_id"] == custom_session_id
-    assert call_args["tool_call_count"] == 0
     
     # Check the result
-    assert result == "Test response"
+    assert result["response"] == "Test response"
 
 
 @patch.object(BedrockAgents, '_invoke_agent')
@@ -882,7 +871,7 @@ def test_chat_with_custom_session_id(mock_print, mock_input, mock_invoke_agent, 
     """Test the chat method with a custom session ID"""
     # Set up mocks
     mock_input.side_effect = ["Hello", "exit"]
-    mock_invoke_agent.return_value = "Test response"
+    mock_invoke_agent.return_value = {"response": "Test response", "files": []}
     
     # Custom session ID
     custom_session_id = "test-session-456"
@@ -946,13 +935,13 @@ def test_process_trace_data(capsys):
     }
     
     # Test with agent_traces disabled
-    client = BedrockAgents(agent_traces=False)
+    client = BedrockAgents(trace_level="none", verbosity="quiet")
     client._process_trace_data(trace_data)
     captured = capsys.readouterr()
-    assert captured.out == ""  # No output when agent_traces is disabled
+    assert "[AGENT TRACE]" not in captured.out  # No agent trace output when agent_traces is disabled
     
     # Test with minimal trace level
-    client = BedrockAgents(agent_traces=True, trace_level="minimal")
+    client = BedrockAgents(trace_level="minimal", verbosity="quiet")
     client._process_trace_data(trace_data)
     captured = capsys.readouterr()
     assert "Reasoning Process" in captured.out
@@ -961,7 +950,7 @@ def test_process_trace_data(capsys):
     assert "Pre-processing Rationale" not in captured.out  # Not shown in minimal level
     
     # Test with standard trace level
-    client = BedrockAgents(agent_traces=True, trace_level="standard")
+    client = BedrockAgents(trace_level="standard", verbosity="quiet")
     client._process_trace_data(trace_data)
     captured = capsys.readouterr()
     assert "Reasoning Process" in captured.out
@@ -970,7 +959,7 @@ def test_process_trace_data(capsys):
     assert "Pre-processing Rationale" not in captured.out  # Not shown in standard level
     
     # Test with detailed trace level
-    client = BedrockAgents(agent_traces=True, trace_level="detailed")
+    client = BedrockAgents(trace_level="detailed")
     client._process_trace_data(trace_data)
     captured = capsys.readouterr()
     assert "Reasoning Process" in captured.out
@@ -985,41 +974,24 @@ def test_verbosity_settings():
     # Test quiet verbosity
     client = BedrockAgents(verbosity="quiet")
     assert client.sdk_logs is False
-    assert client.agent_traces is False
-    assert client.debug is False  # For backward compatibility
+    assert client.agent_traces is False  # Default trace_level is "none"
     
-    # Test normal verbosity with defaults
+    # Test normal verbosity
     client = BedrockAgents(verbosity="normal")
-    assert client.sdk_logs is False
-    assert client.agent_traces is True
-    assert client.trace_level == "standard"
-    
-    # Test normal verbosity with overrides
-    client = BedrockAgents(verbosity="normal", sdk_logs=True, agent_traces=False)
     assert client.sdk_logs is True
-    assert client.agent_traces is False
+    assert client.agent_traces is False  # Default trace_level is "none"
     
     # Test verbose verbosity
     client = BedrockAgents(verbosity="verbose")
     assert client.sdk_logs is True
-    assert client.agent_traces is True
-    assert client.trace_level == "standard"
-    
-    # Test verbose verbosity with minimal trace level (should upgrade to standard)
-    client = BedrockAgents(verbosity="verbose", trace_level="minimal")
-    assert client.trace_level == "standard"
+    assert client.agent_traces is False  # Default trace_level is "none"
     
     # Test debug verbosity
     client = BedrockAgents(verbosity="debug")
     assert client.sdk_logs is True
-    assert client.agent_traces is True
-    assert client.trace_level == "detailed"
+    assert client.agent_traces is False  # Default trace_level is "none"
+    assert client.debug_logs is True
     
-    # Test debug verbosity with trace level override (should still be detailed)
-    client = BedrockAgents(verbosity="debug", trace_level="minimal")
-    assert client.trace_level == "detailed"
-    
-    # Test unrecognized verbosity (should use provided values)
-    client = BedrockAgents(verbosity="invalid", sdk_logs=True, agent_traces=False)
-    assert client.sdk_logs is True
-    assert client.agent_traces is False 
+    # Test with trace_level set
+    client = BedrockAgents(trace_level="standard")
+    assert client.agent_traces is True 

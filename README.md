@@ -37,6 +37,9 @@ As a developer, you want to build powerful AI agents quickly without managing co
 - Recursive tool calling with result accumulation
 - Interactive chat interface
 - Optional Code Interpreter integration
+- **File handling**: Send files to and receive files from the agent
+- **Plugin architecture**: Extend the SDK with custom plugins
+- **Advanced configuration**: Access advanced Amazon Bedrock features
 
 ## Prerequisites
 
@@ -396,12 +399,13 @@ There are two ways to interact with the agent:
 #### 1. Single Request
 
 ```python
+# Run the agent with a single message
 response = client.run(
     agent=agent,
     messages=[
         {
             "role": "user",
-            "content": "What time is it?"
+            "content": "What time is it now, and can you also add 25 and 17 for me?"
         }
     ]
 )
@@ -637,4 +641,200 @@ This SDK empowers developers to build sophisticated AI agents with Amazon Bedroc
 By eliminating the boilerplate code for function registration, parameter extraction, and conversation flow, this SDK allows you to focus on what matters most - building valuable AI experiences for your users.
 
 For more information, see the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-inline.html).
+
+## Working with Files
+
+The SDK supports sending files to and receiving files from the agent, particularly useful when working with the Code Interpreter.
+
+### Sending Files to the Agent
+
+You can add files to an agent using the `add_file` or `add_file_from_path` methods:
+
+```python
+# Create an agent with code interpreter enabled
+agent = Agent(
+    name="FileAgent",
+    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    instructions="You are a helpful assistant that can analyze data files.",
+    enable_code_interpreter=True
+)
+
+# Add a file directly
+with open("data.csv", "rb") as f:
+    agent.add_file(
+        name="data.csv",
+        content=f.read(),
+        media_type="text/csv"
+    )
+
+# Or add a file from a path (automatically detects media type)
+agent.add_file_from_path("data.csv")
+```
+
+### Receiving Files from the Agent
+
+When you run an agent that generates files (e.g., through Code Interpreter), the files are returned in the response:
+
+```python
+result = client.run(
+    agent=agent,
+    messages=[
+        {
+            "role": "user",
+            "content": "Please analyze this CSV file and create a bar chart of the data."
+        }
+    ]
+)
+
+# Access the response text
+print(result["response"])
+
+# Check if any files were generated
+if result.get("files"):
+    print(f"The agent generated {len(result['files'])} file(s)")
+    
+    # Save all files to a directory
+    saved_paths = result["save_all_files"]("output_directory")
+    print(f"Files saved to: {', '.join(saved_paths)}")
+    
+    # Or work with individual files
+    for file in result["files"]:
+        print(f"File: {file.name} ({len(file.content)} bytes, type: {file.type})")
+        # Save individual file
+        path = file.save("output_directory")
+        print(f"Saved to: {path}")
+```
+
+### File Handling in Chat Mode
+
+In interactive chat mode, you can upload files using the `file:` command:
+
+```
+You: file:data.csv
+[SESSION] File 'data.csv' uploaded successfully (1024 bytes)
+
+You: Please analyze this CSV file
+```
+
+## Using Plugins
+
+The SDK includes a plugin architecture that allows you to extend its functionality without modifying the core code.
+
+### Built-in Plugins
+
+The SDK comes with several built-in plugins:
+
+1. **SecurityPlugin**: For adding security features like customer encryption keys
+2. **GuardrailPlugin**: For adding guardrails to your agent
+3. **KnowledgeBasePlugin**: For integrating knowledge bases with your agent
+
+Example usage:
+
+```python
+# Create the client
+client = BedrockAgents(region_name="us-west-2")
+
+# Register security plugin
+client.register_plugin(
+    SecurityPlugin(customer_encryption_key_arn="arn:aws:kms:us-west-2:123456789012:key/abcd1234-ab12-cd34-ef56-abcdef123456")
+)
+
+# Register guardrail plugin
+client.register_plugin(
+    GuardrailPlugin(guardrail_id="my-guardrail-id", guardrail_version="1.0")
+)
+
+# Register knowledge base plugin
+client.register_plugin(
+    KnowledgeBasePlugin(knowledge_base_id="my-kb-id", description="My knowledge base")
+)
+
+# Create and use the agent as normal
+agent = Agent(
+    name="MyAgent",
+    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    instructions="You are a helpful assistant."
+)
+
+# The plugins will automatically add their configurations
+response = client.run(agent=agent, messages=[...])
+```
+
+### Creating Custom Plugins
+
+You can create your own plugins by extending the `BedrockAgentsPlugin` class:
+
+```python
+from bedrockAgents import BedrockAgentsPlugin
+
+class MyCustomPlugin(BedrockAgentsPlugin):
+    def __init__(self, custom_param):
+        self.custom_param = custom_param
+    
+    def pre_invoke(self, params):
+        """Called before invoke_inline_agent, can modify params"""
+        params["myCustomParam"] = self.custom_param
+        return params
+    
+    def post_invoke(self, response):
+        """Called after invoke_inline_agent, can modify response"""
+        # Process or modify the response
+        return response
+    
+    def post_process(self, result):
+        """Called after processing the response, can modify the final result"""
+        # Add custom data to the result
+        result["custom_data"] = "Some custom data"
+        return result
+
+# Register your custom plugin
+client.register_plugin(MyCustomPlugin(custom_param="value"))
+```
+
+## Advanced Configuration
+
+For advanced users who need access to the full Amazon Bedrock Agents API, you can use the `advanced_config` parameter:
+
+```python
+agent = Agent(
+    name="AdvancedAgent",
+    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    instructions="You are a helpful assistant.",
+    advanced_config={
+        "customerEncryptionKeyArn": "arn:aws:kms:us-west-2:123456789012:key/abcd1234-ab12-cd34-ef56-abcdef123456",
+        "guardrailConfiguration": {
+            "guardrailIdentifier": "my-guardrail-id",
+            "guardrailVersion": "1.0"
+        },
+        "bedrockModelConfigurations": {
+            "performanceConfig": {
+                "latency": "optimized"
+            }
+        }
+    }
+)
+```
+
+This provides a direct escape hatch to the underlying API for any parameters not explicitly modeled by the SDK.
+
+## Command Line Interface
+
+The example app provides a command-line interface for testing the SDK:
+
+```bash
+# Start in interactive chat mode
+python app.py --chat
+
+# Run with a file
+python app.py --file data.csv
+
+# Use a specific AWS region and profile
+python app.py --region us-west-2 --profile myprofile
+
+# Set verbosity and trace levels
+python app.py --verbosity verbose --trace standard
+
+# Use a customer KMS key
+python app.py --kms-key "arn:aws:kms:us-west-2:123456789012:key/abcd1234-ab12-cd34-ef56-abcdef123456"
+```
 
