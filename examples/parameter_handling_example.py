@@ -150,26 +150,14 @@ def main():
     # Deploy the agent to AWS
     print("\nDeploying agent to AWS...")
     
-    # Create a clean output directory
-    output_dir = "./parameter_demo_agent"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
     # Generate the SAM template and supporting files
+    # The output directory will default to "./parameterdemoagent_deployment"
     template_path = agent.deploy(
-        output_dir=output_dir,
         description="Parameter handling demonstration agent",
         # Uncomment the following lines to automatically build and deploy
         # auto_build=True,
         # auto_deploy=True
     )
-    
-    print("\nDeployment files generated successfully!")
-    print(f"SAM template: {template_path}")
-    print("\nTo deploy the agent to AWS, run the following commands:")
-    print(f"  cd {output_dir}")
-    print("  sam build")
-    print("  sam deploy --guided --capabilities CAPABILITY_NAMED_IAM")
     
     print("\nAfter deployment, you can test your agent in the AWS Console:")
     print("1. Go to the Amazon Bedrock console")

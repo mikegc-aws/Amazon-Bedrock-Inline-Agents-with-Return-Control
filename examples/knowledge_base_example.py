@@ -2,21 +2,22 @@
 Example of using knowledge bases with the Bedrock Agents SDK.
 """
 import os
-from bedrock_agents_sdk import BedrockAgents, Agent, KnowledgeBase, Message
+from bedrock_agents_sdk import BedrockAgents, Agent, Message, KnowledgeBasePlugin
 
 def main():
     # Create the client
     client = BedrockAgents()
     
-    # Create or reference an existing knowledge base
-    # In a real application, you would create this in the AWS console or via API
-    knowledge_base = KnowledgeBase(
-        id="your-knowledge-base-id",  # Replace with your actual KB ID
-        name="CompanyDocs",
+    # Create a knowledge base plugin
+    kb_plugin = KnowledgeBasePlugin(
+        knowledge_base_id="your-knowledge-base-id",  # Replace with your actual KB ID
         description="Knowledge base containing company documentation and FAQs"
     )
     
-    # Create the agent with knowledge base
+    # Register the plugin with the client
+    client.register_plugin(kb_plugin)
+    
+    # Create the agent
     agent = Agent(
         name="SupportAgent",
         model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
@@ -24,8 +25,7 @@ def main():
         You are a helpful support assistant for our company.
         Use the knowledge base to answer questions about our products and services.
         If you don't know the answer, say so and don't make up information.
-        """,
-        knowledge_bases=[knowledge_base]
+        """
     )
     
     # Run the agent with a user query

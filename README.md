@@ -28,6 +28,36 @@ This SDK provides a simple yet powerful way to create and interact with Amazon B
 - [Contributing](#contributing)
 - [Conclusion](#conclusion)
 
+## TL;DR
+
+The Amazon Bedrock Agents with Return Control SDK lets you:
+
+1. **Build agents fast** with minimal code - define Python functions locally that your cloud-hosted agent can call
+2. **Zero conversation management** - AWS handles all the state tracking and agent orchestration
+3. **Test locally, run in cloud** - develop on your machine, then deploy to AWS with auto-generated SAM templates
+4. **Quick setup:** Just `pip install git+https://github.com/aws-samples/bedrock-agents-sdk.git`
+
+```python
+# Minimal working example
+import datetime
+from bedrock_agents_sdk import BedrockAgents, Agent
+
+def get_time() -> dict:
+    """Get the current time"""
+    now = datetime.datetime.now()
+    return {"time": now.strftime("%H:%M:%S")}
+
+agent = Agent(
+    name="TimeAgent",
+    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    instructions="You are a helpful assistant that can tell the time.",
+    functions=[get_time]
+)
+
+# Start chatting with your agent
+BedrockAgents().chat(agent=agent)
+```
+
 ## Why Use This SDK?
 
 As a developer, you want to build powerful AI agents quickly without managing complex infrastructure. This SDK lets you:

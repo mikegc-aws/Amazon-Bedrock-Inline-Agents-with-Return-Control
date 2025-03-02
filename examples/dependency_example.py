@@ -169,37 +169,19 @@ def main():
     # Deploy the agent to AWS
     print("\nDeploying agent to AWS...")
     
-    # Create a clean output directory
-    output_dir = "./websearch_agent"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
     # Add specific version constraints for dependencies
     agent.add_dependency("requests", ">=2.25.0")
     agent.add_dependency("beautifulsoup4", ">=4.9.0")
     agent.add_dependency("duckduckgo-search", ">=3.0.0")
     
     # Generate the SAM template and supporting files
+    # The output directory will default to "./websearchagent_deployment"
     template_path = agent.deploy(
-        output_dir=output_dir,
         description="Web search agent with DuckDuckGo and BeautifulSoup",
         # Uncomment the following lines to automatically build and deploy
         # auto_build=True,
         # auto_deploy=True
     )
-    
-    print("\nDeployment files generated successfully!")
-    print(f"SAM template: {template_path}")
-    print("\nTo deploy the agent to AWS, run the following commands:")
-    print(f"  cd {output_dir}")
-    print("  sam build")
-    print("  sam deploy --guided --capabilities CAPABILITY_NAMED_IAM")
-    
-    print("\nAfter deployment, you can test your agent in the AWS Console:")
-    print("1. Go to the Amazon Bedrock console")
-    print("2. Navigate to Agents")
-    print("3. Find your agent named 'WebSearchAgent'")
-    print("4. Click on the agent and use the 'Test' tab to interact with it")
     
     print("\nIMPORTANT: After deployment, you need to manually update the Lambda function code")
     print("to handle parameters correctly. In the Lambda console, add the following function:")

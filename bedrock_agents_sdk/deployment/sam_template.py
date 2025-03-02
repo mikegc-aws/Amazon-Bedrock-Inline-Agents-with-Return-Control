@@ -19,15 +19,24 @@ if TYPE_CHECKING:
 class SAMTemplateGenerator:
     """Generates a SAM template for deploying a Bedrock Agent"""
     
-    def __init__(self, agent: "Agent", output_dir: str = "./deployment"):
+    def __init__(self, agent: "Agent", output_dir: str = None):
         """
         Initialize the SAM template generator
         
         Args:
             agent: The agent to generate a template for
-            output_dir: The directory to output the SAM template and code to
+            output_dir: The directory to output the SAM template and code to.
+                        If None, defaults to "./[agent_name]_deployment"
         """
         self.agent = agent
+        
+        # If output_dir is not provided, use agent name to create a default path
+        if output_dir is None:
+            # Create a safe name for the directory (lowercase, alphanumeric with underscores)
+            safe_name = ''.join(c.lower() if c.isalnum() else '_' for c in agent.name)
+            safe_name = safe_name.strip('_')  # Remove leading/trailing underscores
+            output_dir = f"./{safe_name}_deployment"
+        
         self.output_dir = output_dir
         self.lambda_dir = os.path.join(output_dir, "lambda_function")
         # Dictionary to store custom dependencies provided by the developer
@@ -72,6 +81,16 @@ class SAMTemplateGenerator:
         
         # Generate README
         self._generate_readme()
+        
+        # Print deployment instructions
+        safe_name = ''.join(c.lower() if c.isalnum() else '-' for c in self.agent.name)
+        safe_name = safe_name.strip('-')  # Remove leading/trailing hyphens
+        print(f"\nDeployment files generated for {self.agent.name}!")
+        print(f"SAM template: {template_path}")
+        print("\nTo deploy the agent to AWS, run the following commands:")
+        print(f"  cd {os.path.basename(self.output_dir)}")
+        print("  sam build")
+        print(f"  sam deploy --guided --capabilities CAPABILITY_NAMED_IAM --stack-name {safe_name}-agent")
         
         return template_path
     
@@ -699,6 +718,10 @@ class SAMTemplateGenerator:
         """Generate a README file for the deployment"""
         readme_path = os.path.join(self.output_dir, "README.md")
         
+        # Create a safe name for the stack (lowercase, alphanumeric with hyphens)
+        safe_stack_name = ''.join(c.lower() if c.isalnum() else '-' for c in self.agent.name)
+        safe_stack_name = safe_stack_name.strip('-')  # Remove leading/trailing hyphens
+        
         with open(readme_path, "w") as f:
             f.write(f"""# {self.agent.name} Deployment
 
@@ -718,7 +741,7 @@ This directory contains the AWS SAM template and supporting files for deploying 
 
 3. Deploy the SAM application:
    ```
-   sam deploy --guided --capabilities CAPABILITY_NAMED_IAM
+   sam deploy --guided --capabilities CAPABILITY_NAMED_IAM --stack-name {safe_stack_name}-agent
    ```
    
    Note: The `CAPABILITY_NAMED_IAM` capability is required because this template creates named IAM resources.

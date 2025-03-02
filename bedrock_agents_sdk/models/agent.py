@@ -127,7 +127,7 @@ class Agent(BaseModel):
         return self
     
     def deploy(self, 
-               output_dir: str = "./deployment", 
+               output_dir: Optional[str] = None, 
                foundation_model: Optional[str] = None,
                parameters: Optional[Dict[str, Dict[str, str]]] = None,
                description: Optional[str] = None,
@@ -137,7 +137,8 @@ class Agent(BaseModel):
         Deploy the agent to AWS using SAM
         
         Args:
-            output_dir: The directory to output the SAM template and code to
+            output_dir: The directory to output the SAM template and code to.
+                       If None, defaults to "./[agent_name]_deployment"
             foundation_model: The foundation model to use (defaults to the agent's model)
             parameters: Additional parameters to add to the template
             description: Description for the SAM template
@@ -167,13 +168,9 @@ class Agent(BaseModel):
             description=description
         )
         
-        # Print success message
-        print(f"\n✅ SAM template generated successfully at: {template_path}")
-        print(f"📁 Deployment files created in: {os.path.abspath(output_dir)}")
-        print("\n📋 To deploy manually:")
-        print(f"  cd {os.path.abspath(output_dir)}")
-        print("  sam build")
-        print("  sam deploy --guided --capabilities CAPABILITY_NAMED_IAM")
+        # Create a safe name for the stack (lowercase, alphanumeric with hyphens)
+        safe_stack_name = ''.join(c.lower() if c.isalnum() else '-' for c in self.name)
+        safe_stack_name = safe_stack_name.strip('-')  # Remove leading/trailing hyphens
         
         # Automatically build the SAM project if requested
         if auto_build or auto_deploy:
@@ -184,7 +181,7 @@ class Agent(BaseModel):
             
             # Change to the output directory
             original_dir = os.getcwd()
-            os.chdir(output_dir)
+            os.chdir(generator.output_dir)
             
             try:
                 # Run sam build
@@ -202,9 +199,10 @@ class Agent(BaseModel):
                 if auto_deploy:
                     print("\n🚀 Deploying SAM project...")
                     
-                    # Run sam deploy
+                    # Run sam deploy with the agent name as the stack name
                     deploy_result = subprocess.run(
-                        ["sam", "deploy", "--guided", "--capabilities", "CAPABILITY_NAMED_IAM"],
+                        ["sam", "deploy", "--guided", "--capabilities", "CAPABILITY_NAMED_IAM", 
+                         "--stack-name", f"{safe_stack_name}-agent"],
                         check=True
                     )
                     
