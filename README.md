@@ -25,7 +25,7 @@ def get_time() -> dict:
 
 agent = Agent(
     name="TimeAgent",
-    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant that can tell the time.",
     functions=[get_time]
 )
