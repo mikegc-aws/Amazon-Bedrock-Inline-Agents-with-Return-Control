@@ -19,18 +19,15 @@ Minimal Working Example
 
     agent = Agent(
         name="TimeAgent",
-        description="An agent that can tell you the current time",
         foundation_model="anthropic.claude-3-sonnet-20240229-v1:0",
-        instructions="You are a helpful assistant that can tell the time."
+        instructions="You are a helpful assistant that can tell the time.",
+        functions=[get_time]
     )
 
-    agent.add_function(get_time)
-
     client = Client()
-    client.add_agent(agent)
 
     # Run the agent locally
-    client.run()
+    client.run(agent=agent)
 
 Step-by-Step Guide
 -----------------

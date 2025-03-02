@@ -144,7 +144,7 @@ The SDK is organized into the following modules:
 ```
 bedrock_agents_sdk/
 ├── core/              # Core client functionality
-│   ├── client.py      # Main BedrockAgents client implementation
+│   ├── client.py      # Main Client client implementation
 │   └── function.py    # Function execution and parameter handling
 ├── models/            # Data models (Agent, Function, etc.)
 │   ├── agent.py       # Agent configuration and management
@@ -167,13 +167,13 @@ bedrock_agents_sdk/
 
 ### Key Components
 
-- **core/client.py**: Contains the `BedrockAgents` class that manages communication with Amazon Bedrock, handles function execution, and manages the conversation flow.
+- **core/client.py**: Contains the `Client` class that manages communication with Amazon Bedrock, handles function execution, and manages the conversation flow.
 
 - **models/agent.py**: Contains the `Agent` class that represents a Bedrock agent configuration, including its name, model, instructions, and functions.
 
 - **models/function.py**: Contains the `Function` class that represents a function that can be called by the agent. These functions run locally on your machine, but are orchestrated by the cloud-based agent.
 
-- **plugins/base.py**: Contains the `BedrockAgentsPlugin` base class that plugins extend to add functionality to the SDK.
+- **plugins/base.py**: Contains the `AgentPlugin` base class that plugins extend to add functionality to the SDK.
 
 - **deployment/generator.py**: Contains utilities for generating SAM templates and Lambda function code for deploying agents to AWS.
 
@@ -187,7 +187,7 @@ Here's a minimal example to get started:
 
 ```python
 import datetime
-from bedrock_agents_sdk import BedrockAgents, Agent, Message
+from bedrock_agents_sdk import Client, Agent, Message
 
 # Define a function - this will run locally on your machine
 def get_time() -> dict:
@@ -204,7 +204,7 @@ agent = Agent(
 )
 
 # Create the client - handles communication with Amazon Bedrock
-client = BedrockAgents()
+client = Client()
 
 # Start chatting - conversation history is managed in the cloud
 if __name__ == "__main__":
@@ -225,7 +225,7 @@ The SDK is built around these key components:
 
 2. **Function**: A class that represents a function that can be called by the agent. These functions run locally on your machine, but are orchestrated by the cloud-based agent.
 
-3. **BedrockAgents**: The main client class that manages the agent session, function execution, and conversation flow. It handles all communication with Amazon Bedrock.
+3. **Client**: The main client class that manages the agent session, function execution, and conversation flow. It handles all communication with Amazon Bedrock.
 
 4. **Action Groups**: Collections of related function tools that are presented to the agent. These help organize your functions logically.
 
@@ -440,16 +440,16 @@ The SDK provides a unified verbosity system with multiple levels to help you deb
 
 ```python
 # Simple unified verbosity control
-client = BedrockAgents(verbosity="normal")  # Default level
+client = Client(verbosity="normal")  # Default level
 
 # Available verbosity levels:
-client = BedrockAgents(verbosity="quiet")    # No output except errors
-client = BedrockAgents(verbosity="normal")   # Basic operational information
-client = BedrockAgents(verbosity="verbose")  # Detailed operational information
-client = BedrockAgents(verbosity="debug")    # All available information
+client = Client(verbosity="quiet")    # No output except errors
+client = Client(verbosity="normal")   # Basic operational information
+client = Client(verbosity="verbose")  # Detailed operational information
+client = Client(verbosity="debug")    # All available information
 
 # Advanced control (overrides specific aspects of verbosity)
-client = BedrockAgents(
+client = Client(
     verbosity="normal",     # Base verbosity level
     sdk_logs=True,          # Override to show SDK-level logs
     agent_traces=True,      # Override to show agent reasoning and decisions
@@ -508,7 +508,7 @@ For backward compatibility, you can still use the `debug` parameter:
 
 ```python
 # Equivalent to sdk_logs=True
-client = BedrockAgents(debug=True)
+client = Client(debug=True)
 ```
 
 ### Running the Agent
@@ -586,7 +586,7 @@ Here's a more complete example showing various features:
 
 ```python
 import datetime
-from bedrock_agents_sdk import BedrockAgents, Agent, Message
+from bedrock_agents_sdk import Client, Agent, Message
 
 # Define functions
 def get_time() -> dict:
@@ -628,7 +628,7 @@ def add_two_numbers(a: int, b: int, operation: str = "add") -> dict:
 
 def main():
     # Create the client
-    client = BedrockAgents(verbosity="verbose")
+    client = Client(verbosity="verbose")
     
     # Create the agent with functions directly in the definition
     agent = Agent(
@@ -655,15 +655,15 @@ if __name__ == "__main__":
 The SDK has a safety limit to prevent infinite loops of tool calls. You can adjust this limit when creating the client:
 
 ```python
-client = BedrockAgents(verbosity="normal", max_tool_calls=20)  # Default is 10
+client = Client(verbosity="normal", max_tool_calls=20)  # Default is 10
 ```
 
-### BedrockAgents Constructor Parameters
+### Client Constructor Parameters
 
-The `BedrockAgents` class accepts the following parameters:
+The `Client` class accepts the following parameters:
 
 ```python
-client = BedrockAgents(
+client = Client(
     verbosity="normal",     # Overall verbosity level (quiet, normal, verbose, debug)
     sdk_logs=False,         # Whether to show SDK-level logs
     agent_traces=True,      # Whether to show agent trace information
@@ -736,7 +736,7 @@ The project includes a comprehensive test suite built with pytest. To run the te
    ```
 
 The test suite covers:
-- Initialization of BedrockAgents and Agent classes
+- Initialization of Client and Agent classes
 - Function processing and execution
 - Parameter extraction and conversion
 - Action group building
@@ -755,7 +755,7 @@ During development, you may want to test your agent locally without making actua
 ```python
 import pytest
 from unittest.mock import patch, MagicMock
-from bedrock_agents_sdk import BedrockAgents, Agent, Message
+from bedrock_agents_sdk import Client, Agent, Message
 
 # Define your agent functions
 def my_function() -> dict:
@@ -784,7 +784,7 @@ def test_my_agent(mock_boto3_session):
     )
     
     # Create the client
-    client = BedrockAgents(verbosity="quiet")
+    client = Client(verbosity="quiet")
     
     # Mock the invoke_inline_agent response
     mock_response = {
@@ -818,7 +818,7 @@ def test_function_calls(mock_boto3_session):
     )
     
     # Create the client
-    client = BedrockAgents(verbosity="quiet")
+    client = Client(verbosity="quiet")
     
     # Mock a response that includes a function call
     mock_response_with_tool = {
@@ -996,7 +996,7 @@ agent = Agent(
 )
 
 # Create the client and run the agent
-client = BedrockAgents(region_name="us-west-2")
+client = Client(region_name="us-west-2")
 result = client.run(agent=agent, message="Hello!")
 
 # When deploying, the plugins will be applied to the SAM template
@@ -1005,12 +1005,12 @@ agent.deploy(description="My agent with plugins")
 
 ### Creating Custom Plugins
 
-You can create your own plugins by extending the `BedrockAgentsPlugin` class:
+You can create your own plugins by extending the `AgentPlugin` class:
 
 ```python
-from bedrock_agents_sdk.plugins.base import BedrockAgentsPlugin
+from bedrock_agents_sdk.plugins.base import AgentPlugin
 
-class MyCustomPlugin(BedrockAgentsPlugin):
+class MyCustomPlugin(AgentPlugin):
     def __init__(self, custom_param):
         self.custom_param = custom_param
     
@@ -1208,7 +1208,7 @@ The generated Lambda code will:
 #### Example
 
 ```python
-from bedrock_agents_sdk import BedrockAgents, Agent
+from bedrock_agents_sdk import Client, Agent
 
 # Define a function that uses pandas
 def analyze_data(data: str) -> dict:
@@ -1238,7 +1238,7 @@ See the [dependency_example.py](examples/dependency_example.py) for a complete e
 ### Deployment Example
 
 ```python
-from bedrock_agents_sdk import BedrockAgents, Agent
+from bedrock_agents_sdk import Client, Agent
 
 # Define your functions
 def get_weather(location: str) -> dict:
