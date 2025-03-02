@@ -49,7 +49,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Core Concepts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#agent">Agent</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bedrockagents-client">BedrockAgents Client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#client">Client</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#function">Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#action-group">Action Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#message">Message</a></li>
@@ -105,9 +105,9 @@
 <li><p><strong>Action Groups</strong>: Logical groupings of related functions</p></li>
 </ul>
 </section>
-<section id="bedrockagents-client">
-<h2>BedrockAgents Client<a class="headerlink" href="#bedrockagents-client" title="Link to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">BedrockAgents</span></code> class is the main client for interacting with Amazon Bedrock Agents. It provides methods for:</p>
+<section id="client">
+<h2>Client<a class="headerlink" href="#client" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Client</span></code> class (formerly <code class="docutils literal notranslate"><span class="pre">BedrockAgents</span></code>) is the main client for interacting with Amazon Bedrock Agents. It provides methods for:</p>
 <ul class="simple">
 <li><p>Adding agents</p></li>
 <li><p>Running agents locally</p></li>
@@ -158,6 +158,7 @@
 <li><p><strong>GuardrailPlugin</strong>: Adds content filtering and guardrails</p></li>
 <li><p><strong>KnowledgeBasePlugin</strong>: Connects the agent to an Amazon Bedrock Knowledge Base</p></li>
 </ul>
+<p>All plugins inherit from the <code class="docutils literal notranslate"><span class="pre">AgentPlugin</span></code> base class (formerly <code class="docutils literal notranslate"><span class="pre">ClientPlugin</span></code>).</p>
 </section>
 <section id="deployment">
 <h2>Deployment<a class="headerlink" href="#deployment" title="Link to this heading"></a></h2>

@@ -79,110 +79,101 @@
              
   <h1>Source code for bedrock_agents_sdk.plugins.knowledge_base</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Knowledge Base plugin for Bedrock Agents SDK.</span>
+<span class="sd">Knowledge base plugin for Bedrock Agents SDK.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">BedrockAgentsPlugin</span>
+<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">AgentPlugin</span>
 
 <div class="viewcode-block" id="KnowledgeBasePlugin">
 <a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.KnowledgeBasePlugin">[docs]</a>
-<span class="k">class</span> <span class="nc">KnowledgeBasePlugin</span><span class="p">(</span><span class="n">BedrockAgentsPlugin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plugin for knowledge base integration&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">KnowledgeBasePlugin</span><span class="p">(</span><span class="n">AgentPlugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plugin for adding knowledge base integration to Bedrock Agents&quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">knowledge_base_id</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">retrieval_config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the knowledge base plugin&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">knowledge_base_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">retrieval_config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the knowledge base plugin</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            knowledge_base_id: The ID of the knowledge base to use</span>
+<span class="sd">            description: Optional description of the knowledge base</span>
+<span class="sd">            retrieval_config: Optional retrieval configuration for the knowledge base</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base_id</span> <span class="o">=</span> <span class="n">knowledge_base_id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">retrieval_config</span> <span class="o">=</span> <span class="n">retrieval_config</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;Knowledge base </span><span class="si">{</span><span class="n">knowledge_base_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">retrieval_config</span> <span class="o">=</span> <span class="n">retrieval_config</span>
     
 <div class="viewcode-block" id="KnowledgeBasePlugin.pre_invoke">
 <a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.KnowledgeBasePlugin.pre_invoke">[docs]</a>
     <span class="k">def</span> <span class="nf">pre_invoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add knowledge base configuration before invocation&quot;&quot;&quot;</span>
-        <span class="n">kb_config</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;knowledgeBaseId&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base_id</span>
-        <span class="p">}</span>
-        
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
-            <span class="n">kb_config</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
-            
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieval_config</span><span class="p">:</span>
-            <span class="n">kb_config</span><span class="p">[</span><span class="s2">&quot;retrievalConfiguration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieval_config</span>
-        
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add knowledge base configuration to the request parameters&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;knowledgeBases&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;knowledgeBases&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
             
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;knowledgeBases&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kb_config</span><span class="p">)</span>
+        <span class="c1"># Add the knowledge base if it&#39;s not already in the list</span>
+        <span class="n">kb_entry</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;knowledgeBaseId&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base_id</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Add retrieval configuration if provided</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieval_config</span><span class="p">:</span>
+            <span class="n">kb_entry</span><span class="p">[</span><span class="s2">&quot;retrievalConfiguration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieval_config</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;knowledgeBaseId&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base_id</span> <span class="k">for</span> <span class="n">kb</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;knowledgeBases&quot;</span><span class="p">]):</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;knowledgeBases&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kb_entry</span><span class="p">)</span>
+            
         <span class="k">return</span> <span class="n">params</span></div>
 
     
 <div class="viewcode-block" id="KnowledgeBasePlugin.pre_deploy">
 <a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.KnowledgeBasePlugin.pre_deploy">[docs]</a>
     <span class="k">def</span> <span class="nf">pre_deploy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add knowledge base configuration to the SAM template&quot;&quot;&quot;</span>
-        <span class="c1"># Add knowledge base ID to agent properties</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add knowledge base configuration to the agent in the SAM template&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;Resources&quot;</span> <span class="ow">in</span> <span class="n">template</span> <span class="ow">and</span> <span class="s2">&quot;BedrockAgent&quot;</span> <span class="ow">in</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]:</span>
             <span class="n">agent_props</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">][</span><span class="s2">&quot;BedrockAgent&quot;</span><span class="p">][</span><span class="s2">&quot;Properties&quot;</span><span class="p">]</span>
             
-            <span class="c1"># Add KnowledgeBases property if it doesn&#39;t exist</span>
+            <span class="c1"># Add knowledge base configuration to the agent</span>
             <span class="k">if</span> <span class="s2">&quot;KnowledgeBases&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">agent_props</span><span class="p">:</span>
                 <span class="n">agent_props</span><span class="p">[</span><span class="s2">&quot;KnowledgeBases&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
                 
-            <span class="c1"># Create knowledge base configuration</span>
-            <span class="n">kb_config</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;KnowledgeBaseId&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base_id</span>
+            <span class="c1"># Add the knowledge base if it&#39;s not already in the list</span>
+            <span class="n">kb_entry</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;KnowledgeBaseId&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base_id</span><span class="p">,</span>
+                <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
             <span class="p">}</span>
             
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
-                <span class="n">kb_config</span><span class="p">[</span><span class="s2">&quot;Description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
-                
+            <span class="c1"># Add retrieval configuration if provided</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieval_config</span><span class="p">:</span>
-                <span class="c1"># Convert retrieval configuration to proper format</span>
-                <span class="c1"># The CloudFormation property names are typically PascalCase</span>
-                <span class="n">retrieval_config</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieval_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="c1"># Convert camelCase to PascalCase</span>
-                    <span class="n">pascal_key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-                    <span class="n">retrieval_config</span><span class="p">[</span><span class="n">pascal_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-                
-                <span class="n">kb_config</span><span class="p">[</span><span class="s2">&quot;RetrievalConfiguration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">retrieval_config</span>
-                
-            <span class="c1"># Add the knowledge base configuration to the agent properties</span>
-            <span class="n">agent_props</span><span class="p">[</span><span class="s2">&quot;KnowledgeBases&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kb_config</span><span class="p">)</span>
+                <span class="n">kb_entry</span><span class="p">[</span><span class="s2">&quot;RetrievalConfiguration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieval_config</span>
             
-            <span class="c1"># Add IAM permissions for the knowledge base</span>
-            <span class="c1"># Get the agent role</span>
-            <span class="n">agent_role</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;BedrockAgentRole&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">agent_role</span> <span class="ow">and</span> <span class="s2">&quot;Properties&quot;</span> <span class="ow">in</span> <span class="n">agent_role</span> <span class="ow">and</span> <span class="s2">&quot;Policies&quot;</span> <span class="ow">in</span> <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">]:</span>
-                <span class="c1"># Get the first policy (or create one if it doesn&#39;t exist)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">][</span><span class="s2">&quot;Policies&quot;</span><span class="p">]:</span>
-                    <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">][</span><span class="s2">&quot;Policies&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                        <span class="p">{</span>
-                            <span class="s2">&quot;PolicyName&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="s2">&quot;BedrockAgentPolicy-${AWS::StackName}&quot;</span><span class="p">},</span>
-                            <span class="s2">&quot;PolicyDocument&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="s2">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
-                                <span class="s2">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;KnowledgeBaseId&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base_id</span> <span class="k">for</span> <span class="n">kb</span> <span class="ow">in</span> <span class="n">agent_props</span><span class="p">[</span><span class="s2">&quot;KnowledgeBases&quot;</span><span class="p">]):</span>
+                <span class="n">agent_props</span><span class="p">[</span><span class="s2">&quot;KnowledgeBases&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kb_entry</span><span class="p">)</span>
+            
+            <span class="c1"># Add IAM permissions for knowledge base</span>
+            <span class="k">if</span> <span class="s2">&quot;BedrockAgentRole&quot;</span> <span class="ow">in</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]:</span>
+                <span class="n">role_props</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">][</span><span class="s2">&quot;BedrockAgentRole&quot;</span><span class="p">][</span><span class="s2">&quot;Properties&quot;</span><span class="p">]</span>
+                
+                <span class="c1"># Get the policy document</span>
+                <span class="k">if</span> <span class="s2">&quot;Policies&quot;</span> <span class="ow">in</span> <span class="n">role_props</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">policy</span> <span class="ow">in</span> <span class="n">role_props</span><span class="p">[</span><span class="s2">&quot;Policies&quot;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="s2">&quot;PolicyDocument&quot;</span> <span class="ow">in</span> <span class="n">policy</span> <span class="ow">and</span> <span class="s2">&quot;Statement&quot;</span> <span class="ow">in</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">]:</span>
+                            <span class="n">statements</span> <span class="o">=</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">][</span><span class="s2">&quot;Statement&quot;</span><span class="p">]</span>
+                            
+                            <span class="c1"># Add knowledge base permissions</span>
+                            <span class="n">kb_statement</span> <span class="o">=</span> <span class="p">{</span>
+                                <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                    <span class="s2">&quot;bedrock:RetrieveAndGenerate&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;bedrock:Retrieve&quot;</span>
+                                <span class="p">],</span>
+                                <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                    <span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="s2">&quot;arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:knowledge-base/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base_id</span>
+                                <span class="p">}</span>
                             <span class="p">}</span>
-                        <span class="p">}</span>
-                    <span class="p">]</span>
-                
-                <span class="n">policy</span> <span class="o">=</span> <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">][</span><span class="s2">&quot;Policies&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                
-                <span class="c1"># Add knowledge base permissions to the policy</span>
-                <span class="k">if</span> <span class="s2">&quot;PolicyDocument&quot;</span> <span class="ow">in</span> <span class="n">policy</span> <span class="ow">and</span> <span class="s2">&quot;Statement&quot;</span> <span class="ow">in</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">]:</span>
-                    <span class="n">kb_statement</span> <span class="o">=</span> <span class="p">{</span>
-                        <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
-                            <span class="s2">&quot;bedrock:RetrieveAndGenerate&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;bedrock:Retrieve&quot;</span>
-                        <span class="p">],</span>
-                        <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;arn:aws:bedrock:$</span><span class="se">{{</span><span class="s2">AWS::Region</span><span class="se">}}</span><span class="s2">:$</span><span class="se">{{</span><span class="s2">AWS::AccountId</span><span class="se">}}</span><span class="s2">:knowledge-base/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
-                    <span class="p">}</span>
-                    
-                    <span class="c1"># Add the statement if it doesn&#39;t already exist</span>
-                    <span class="n">statements</span> <span class="o">=</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">][</span><span class="s2">&quot;Statement&quot;</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_same_kb_resource</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">statements</span><span class="p">):</span>
-                        <span class="n">statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kb_statement</span><span class="p">)</span>
-        
+                            
+                            <span class="c1"># Check if statement already exists</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_same_kb_resource</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">knowledge_base_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">statements</span><span class="p">):</span>
+                                <span class="n">statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kb_statement</span><span class="p">)</span>
+            
         <span class="k">return</span> <span class="n">template</span></div>
 
         

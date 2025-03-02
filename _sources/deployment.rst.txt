@@ -20,7 +20,7 @@ The SDK provides a simple way to deploy your agent to AWS using the ``deploy`` m
 
 .. code-block:: python
 
-    from bedrock_agents_sdk import BedrockAgents, Agent
+    from bedrock_agents_sdk import Client, Agent
 
     def get_time() -> dict:
         """Get the current time"""
@@ -37,7 +37,7 @@ The SDK provides a simple way to deploy your agent to AWS using the ``deploy`` m
 
     agent.add_function(get_time)
 
-    client = BedrockAgents()
+    client = Client()
     client.add_agent(agent)
 
     # Deploy the agent to AWS
@@ -69,7 +69,7 @@ The SDK generates an AWS SAM template for deployment. You can customize the temp
 
 .. code-block:: python
 
-    from bedrock_agents_sdk import BedrockAgents, Agent
+    from bedrock_agents_sdk import Client, Agent
     from bedrock_agents_sdk.deployment import SAMTemplateGenerator
 
     agent = Agent(
@@ -91,7 +91,7 @@ The SDK generates an AWS SAM template for deployment. You can customize the temp
     )
 
     # Deploy with the custom template generator
-    client = BedrockAgents()
+    client = Client()
     client.add_agent(agent)
     client.deploy(
         stack_name="custom-agent",

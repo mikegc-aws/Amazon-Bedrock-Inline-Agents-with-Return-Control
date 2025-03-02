@@ -81,32 +81,46 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Agent model for Bedrock Agents SDK.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Type</span>
 <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 
 <span class="kn">from</span> <span class="nn">bedrock_agents_sdk.models.function</span> <span class="kn">import</span> <span class="n">Function</span>
+<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.models.action_group</span> <span class="kn">import</span> <span class="n">ActionGroup</span>
 <span class="kn">from</span> <span class="nn">bedrock_agents_sdk.models.files</span> <span class="kn">import</span> <span class="n">InputFile</span>
 <span class="kn">from</span> <span class="nn">bedrock_agents_sdk.deployment.sam_template</span> <span class="kn">import</span> <span class="n">SAMTemplateGenerator</span>
-<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">BedrockAgentsPlugin</span>
+<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">AgentPlugin</span><span class="p">,</span> <span class="n">BedrockAgentsPlugin</span><span class="p">,</span> <span class="n">ClientPlugin</span>
 
 <div class="viewcode-block" id="Agent">
 <a class="viewcode-back" href="../../../api/bedrock_agents_sdk.models.html#bedrock_agents_sdk.Agent">[docs]</a>
-<span class="k">class</span> <span class="nc">Agent</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a Bedrock agent configuration&quot;&quot;&quot;</span>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Agent</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Agent configuration for Amazon Bedrock Agents&quot;&quot;&quot;</span>
+    
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">model</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">instructions</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">functions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Function</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">functions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">action_groups</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionGroup</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
     <span class="n">enable_code_interpreter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">files</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">InputFile</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">plugins</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BedrockAgentsPlugin</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">InputFile</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">plugins</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">AgentPlugin</span><span class="p">,</span> <span class="n">BedrockAgentsPlugin</span><span class="p">,</span> <span class="n">ClientPlugin</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
     <span class="n">advanced_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">arbitrary_types_allowed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the agent and process functions if provided&quot;&quot;&quot;</span>
+        <span class="c1"># Set default values for attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">functions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plugins</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_groups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_code_interpreter</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advanced_config</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_custom_dependencies</span> <span class="o">=</span> <span class="p">{}</span>
+        
         <span class="c1"># Handle dictionary format for functions</span>
         <span class="k">if</span> <span class="s1">&#39;functions&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;functions&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">action_groups</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;functions&#39;</span><span class="p">)</span>
@@ -117,21 +131,13 @@
                     <span class="n">processed_functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">action_group</span><span class="o">=</span><span class="n">action_group</span><span class="p">))</span>
             
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;functions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">processed_functions</span>
-        
-        <span class="c1"># Initialize files list if not provided</span>
-        <span class="k">if</span> <span class="s1">&#39;files&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
             
-        <span class="c1"># Initialize plugins list if not provided</span>
-        <span class="k">if</span> <span class="s1">&#39;plugins&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;plugins&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Initialize attributes from data</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
             
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_functions</span><span class="p">()</span>
         
-        <span class="c1"># Store custom dependencies</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_custom_dependencies</span> <span class="o">=</span> <span class="p">{}</span>
-    
     <span class="k">def</span> <span class="nf">_process_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process functions provided in the constructor&quot;&quot;&quot;</span>
         <span class="n">processed_functions</span> <span class="o">=</span> <span class="p">[]</span>
@@ -203,15 +209,12 @@
     
 <div class="viewcode-block" id="Agent.add_plugin">
 <a class="viewcode-back" href="../../../api/bedrock_agents_sdk.models.html#bedrock_agents_sdk.Agent.add_plugin">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_plugin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">:</span> <span class="n">BedrockAgentsPlugin</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add_plugin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AgentPlugin</span><span class="p">,</span> <span class="n">BedrockAgentsPlugin</span><span class="p">,</span> <span class="n">ClientPlugin</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a plugin to the agent</span>
 <span class="sd">        </span>
 <span class="sd">        Args:</span>
 <span class="sd">            plugin: The plugin to add</span>
-<span class="sd">            </span>
-<span class="sd">        Returns:</span>
-<span class="sd">            self: For method chaining</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plugins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plugin</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>

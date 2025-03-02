@@ -81,80 +81,83 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Guardrail plugin for Bedrock Agents SDK.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">BedrockAgentsPlugin</span>
+<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">AgentPlugin</span>
 
 <div class="viewcode-block" id="GuardrailPlugin">
 <a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.GuardrailPlugin">[docs]</a>
-<span class="k">class</span> <span class="nc">GuardrailPlugin</span><span class="p">(</span><span class="n">BedrockAgentsPlugin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plugin for guardrail features&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">GuardrailPlugin</span><span class="p">(</span><span class="n">AgentPlugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plugin for adding guardrails to Bedrock Agents&quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guardrail_id</span><span class="p">,</span> <span class="n">guardrail_version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the guardrail plugin&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guardrail_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">guardrail_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the guardrail plugin</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            guardrail_id: The ID of the guardrail to use</span>
+<span class="sd">            guardrail_version: The version of the guardrail to use (optional)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_id</span> <span class="o">=</span> <span class="n">guardrail_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_version</span> <span class="o">=</span> <span class="n">guardrail_version</span>
     
 <div class="viewcode-block" id="GuardrailPlugin.pre_invoke">
 <a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.GuardrailPlugin.pre_invoke">[docs]</a>
     <span class="k">def</span> <span class="nf">pre_invoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add guardrail configuration before invocation&quot;&quot;&quot;</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;guardrailConfiguration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;guardrailIdentifier&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_id</span>
-        <span class="p">}</span>
-        
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_version</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;guardrailConfiguration&quot;</span><span class="p">][</span><span class="s2">&quot;guardrailVersion&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_version</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add guardrail configuration to the request parameters&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;guardrailConfiguration&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">guardrail_config</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;guardrailIdentifier&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_id</span>
+            <span class="p">}</span>
             
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_version</span><span class="p">:</span>
+                <span class="n">guardrail_config</span><span class="p">[</span><span class="s2">&quot;guardrailVersion&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_version</span>
+                
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;guardrailConfiguration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">guardrail_config</span>
         <span class="k">return</span> <span class="n">params</span></div>
 
     
 <div class="viewcode-block" id="GuardrailPlugin.pre_deploy">
 <a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.GuardrailPlugin.pre_deploy">[docs]</a>
     <span class="k">def</span> <span class="nf">pre_deploy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add guardrail configuration to the SAM template&quot;&quot;&quot;</span>
-        <span class="c1"># Add guardrail ID to agent properties</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add guardrail configuration to the agent in the SAM template&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;Resources&quot;</span> <span class="ow">in</span> <span class="n">template</span> <span class="ow">and</span> <span class="s2">&quot;BedrockAgent&quot;</span> <span class="ow">in</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]:</span>
             <span class="n">agent_props</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">][</span><span class="s2">&quot;BedrockAgent&quot;</span><span class="p">][</span><span class="s2">&quot;Properties&quot;</span><span class="p">]</span>
             
-            <span class="c1"># Add GuardrailConfiguration property</span>
-            <span class="n">agent_props</span><span class="p">[</span><span class="s2">&quot;GuardrailConfiguration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;GuardrailIdentifier&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_id</span>
-            <span class="p">}</span>
-            
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_version</span><span class="p">:</span>
-                <span class="n">agent_props</span><span class="p">[</span><span class="s2">&quot;GuardrailConfiguration&quot;</span><span class="p">][</span><span class="s2">&quot;GuardrailVersion&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_version</span>
-            
-            <span class="c1"># Add IAM permissions for the guardrail</span>
-            <span class="n">agent_role</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;BedrockAgentRole&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">agent_role</span> <span class="ow">and</span> <span class="s2">&quot;Properties&quot;</span> <span class="ow">in</span> <span class="n">agent_role</span> <span class="ow">and</span> <span class="s2">&quot;Policies&quot;</span> <span class="ow">in</span> <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">]:</span>
-                <span class="c1"># Get the first policy (or create one if it doesn&#39;t exist)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">][</span><span class="s2">&quot;Policies&quot;</span><span class="p">]:</span>
-                    <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">][</span><span class="s2">&quot;Policies&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                        <span class="p">{</span>
-                            <span class="s2">&quot;PolicyName&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="s2">&quot;BedrockAgentPolicy-${AWS::StackName}&quot;</span><span class="p">},</span>
-                            <span class="s2">&quot;PolicyDocument&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="s2">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
-                                <span class="s2">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[]</span>
-                            <span class="p">}</span>
-                        <span class="p">}</span>
-                    <span class="p">]</span>
+            <span class="c1"># Add guardrail configuration to the agent</span>
+            <span class="k">if</span> <span class="s2">&quot;guardrailConfiguration&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">agent_props</span><span class="p">:</span>
+                <span class="n">guardrail_config</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;guardrailIdentifier&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_id</span>
+                <span class="p">}</span>
                 
-                <span class="n">policy</span> <span class="o">=</span> <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">][</span><span class="s2">&quot;Policies&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                
-                <span class="c1"># Add guardrail permissions to the policy</span>
-                <span class="k">if</span> <span class="s2">&quot;PolicyDocument&quot;</span> <span class="ow">in</span> <span class="n">policy</span> <span class="ow">and</span> <span class="s2">&quot;Statement&quot;</span> <span class="ow">in</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">]:</span>
-                    <span class="n">guardrail_statement</span> <span class="o">=</span> <span class="p">{</span>
-                        <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
-                            <span class="s2">&quot;bedrock:ApplyGuardrail&quot;</span>
-                        <span class="p">],</span>
-                        <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;arn:aws:bedrock:$</span><span class="se">{{</span><span class="s2">AWS::Region</span><span class="se">}}</span><span class="s2">:$</span><span class="se">{{</span><span class="s2">AWS::AccountId</span><span class="se">}}</span><span class="s2">:guardrail/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">guardrail_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
-                    <span class="p">}</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_version</span><span class="p">:</span>
+                    <span class="n">guardrail_config</span><span class="p">[</span><span class="s2">&quot;guardrailVersion&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_version</span>
                     
-                    <span class="c1"># Add the statement if it doesn&#39;t already exist</span>
-                    <span class="n">statements</span> <span class="o">=</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">][</span><span class="s2">&quot;Statement&quot;</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_same_guardrail_resource</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">statements</span><span class="p">):</span>
-                        <span class="n">statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">guardrail_statement</span><span class="p">)</span>
-        
+                <span class="n">agent_props</span><span class="p">[</span><span class="s2">&quot;guardrailConfiguration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">guardrail_config</span>
+            
+            <span class="c1"># Add IAM permissions for guardrail</span>
+            <span class="k">if</span> <span class="s2">&quot;BedrockAgentRole&quot;</span> <span class="ow">in</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]:</span>
+                <span class="n">role_props</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">][</span><span class="s2">&quot;BedrockAgentRole&quot;</span><span class="p">][</span><span class="s2">&quot;Properties&quot;</span><span class="p">]</span>
+                
+                <span class="c1"># Get the policy document</span>
+                <span class="k">if</span> <span class="s2">&quot;Policies&quot;</span> <span class="ow">in</span> <span class="n">role_props</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">policy</span> <span class="ow">in</span> <span class="n">role_props</span><span class="p">[</span><span class="s2">&quot;Policies&quot;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="s2">&quot;PolicyDocument&quot;</span> <span class="ow">in</span> <span class="n">policy</span> <span class="ow">and</span> <span class="s2">&quot;Statement&quot;</span> <span class="ow">in</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">]:</span>
+                            <span class="n">statements</span> <span class="o">=</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">][</span><span class="s2">&quot;Statement&quot;</span><span class="p">]</span>
+                            
+                            <span class="c1"># Add guardrail permissions</span>
+                            <span class="n">guardrail_statement</span> <span class="o">=</span> <span class="p">{</span>
+                                <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                    <span class="s2">&quot;bedrock:ApplyGuardrail&quot;</span>
+                                <span class="p">],</span>
+                                <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                    <span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="s2">&quot;arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:guardrail/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_id</span>
+                                <span class="p">}</span>
+                            <span class="p">}</span>
+                            
+                            <span class="c1"># Check if statement already exists</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_same_guardrail_resource</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guardrail_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">statements</span><span class="p">):</span>
+                                <span class="n">statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">guardrail_statement</span><span class="p">)</span>
+            
         <span class="k">return</span> <span class="n">template</span></div>
 
         

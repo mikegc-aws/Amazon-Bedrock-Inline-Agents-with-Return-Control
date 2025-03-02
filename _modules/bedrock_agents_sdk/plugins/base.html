@@ -83,34 +83,34 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
 
-<div class="viewcode-block" id="BedrockAgentsPlugin">
-<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin">[docs]</a>
-<span class="k">class</span> <span class="nc">BedrockAgentsPlugin</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all plugins for the BedrockAgents SDK&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="AgentPlugin">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.AgentPlugin">[docs]</a>
+<span class="k">class</span> <span class="nc">AgentPlugin</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all plugins for the Bedrock Agents SDK&quot;&quot;&quot;</span>
     
-<div class="viewcode-block" id="BedrockAgentsPlugin.pre_invoke">
-<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin.pre_invoke">[docs]</a>
+<div class="viewcode-block" id="AgentPlugin.pre_invoke">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.AgentPlugin.pre_invoke">[docs]</a>
     <span class="k">def</span> <span class="nf">pre_invoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called before invoke_inline_agent, can modify params&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">params</span></div>
 
     
-<div class="viewcode-block" id="BedrockAgentsPlugin.post_invoke">
-<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin.post_invoke">[docs]</a>
+<div class="viewcode-block" id="AgentPlugin.post_invoke">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.AgentPlugin.post_invoke">[docs]</a>
     <span class="k">def</span> <span class="nf">post_invoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called after invoke_inline_agent, can modify response&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">response</span></div>
 
     
-<div class="viewcode-block" id="BedrockAgentsPlugin.post_process">
-<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin.post_process">[docs]</a>
+<div class="viewcode-block" id="AgentPlugin.post_process">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.AgentPlugin.post_process">[docs]</a>
     <span class="k">def</span> <span class="nf">post_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called after processing the response, can modify the final result&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
     
-<div class="viewcode-block" id="BedrockAgentsPlugin.pre_deploy">
-<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin.pre_deploy">[docs]</a>
+<div class="viewcode-block" id="AgentPlugin.pre_deploy">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.AgentPlugin.pre_deploy">[docs]</a>
     <span class="k">def</span> <span class="nf">pre_deploy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Called before generating the SAM template, can modify the template</span>
@@ -121,9 +121,13 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The modified SAM template dictionary</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">template</span> </div>
+        <span class="k">return</span> <span class="n">template</span></div>
 </div>
 
+
+<span class="c1"># For backward compatibility</span>
+<span class="n">BedrockAgentsPlugin</span> <span class="o">=</span> <span class="n">AgentPlugin</span>
+<span class="n">ClientPlugin</span> <span class="o">=</span> <span class="n">AgentPlugin</span> 
 </pre></div>
 
            </div>

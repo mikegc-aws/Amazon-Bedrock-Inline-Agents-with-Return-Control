@@ -39,7 +39,7 @@ The SDK provides advanced configuration options for both agents and the client:
 
 .. code-block:: python
 
-    from bedrock_agents_sdk import BedrockAgents, Agent
+    from bedrock_agents_sdk import Client, Agent
 
     agent = Agent(
         name="AdvancedAgent",
@@ -55,7 +55,7 @@ The SDK provides advanced configuration options for both agents and the client:
         }
     )
 
-    client = BedrockAgents(
+    client = Client(
         region_name="us-west-2",
         profile_name="my-profile",
         endpoint_url="https://bedrock-runtime.us-west-2.amazonaws.com",
@@ -73,7 +73,7 @@ You can create and manage multiple agents with a single client:
 
 .. code-block:: python
 
-    from bedrock_agents_sdk import BedrockAgents, Agent
+    from bedrock_agents_sdk import Client, Agent
 
     weather_agent = Agent(
         name="WeatherAgent",
@@ -89,7 +89,7 @@ You can create and manage multiple agents with a single client:
         instructions="You are a helpful time assistant."
     )
 
-    client = BedrockAgents()
+    client = Client()
     client.add_agent(weather_agent)
     client.add_agent(time_agent)
 
@@ -105,7 +105,7 @@ The SDK provides methods for managing conversations:
 
 .. code-block:: python
 
-    from bedrock_agents_sdk import BedrockAgents, Agent, Message
+    from bedrock_agents_sdk import Client, Agent, Message
 
     agent = Agent(
         name="ConversationAgent",
@@ -114,7 +114,7 @@ The SDK provides methods for managing conversations:
         instructions="You are a helpful assistant."
     )
 
-    client = BedrockAgents()
+    client = Client()
     client.add_agent(agent)
 
     # Start a new conversation

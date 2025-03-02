@@ -100,7 +100,7 @@
 <section id="security-plugin">
 <h3>Security Plugin<a class="headerlink" href="#security-plugin" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">SecurityPlugin</span></code> adds security features to your agent:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">BedrockAgents</span><span class="p">,</span> <span class="n">Agent</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">Agent</span>
 <span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">SecurityPlugin</span>
 
 <span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
@@ -124,7 +124,7 @@
 <section id="guardrail-plugin">
 <h3>Guardrail Plugin<a class="headerlink" href="#guardrail-plugin" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">GuardrailPlugin</span></code> adds content filtering and guardrails to your agent:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">BedrockAgents</span><span class="p">,</span> <span class="n">Agent</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">Agent</span>
 <span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">GuardrailPlugin</span>
 
 <span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
@@ -151,7 +151,7 @@
 <section id="knowledge-base-plugin">
 <h3>Knowledge Base Plugin<a class="headerlink" href="#knowledge-base-plugin" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">KnowledgeBasePlugin</span></code> connects your agent to an Amazon Bedrock Knowledge Base:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">BedrockAgents</span><span class="p">,</span> <span class="n">Agent</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">Agent</span>
 <span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">KnowledgeBasePlugin</span>
 
 <span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
@@ -185,10 +185,10 @@
 </section>
 <section id="creating-custom-plugins">
 <h2>Creating Custom Plugins<a class="headerlink" href="#creating-custom-plugins" title="Link to this heading"></a></h2>
-<p>You can create your own plugins by extending the <code class="docutils literal notranslate"><span class="pre">BasePlugin</span></code> class:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">BasePlugin</span>
+<p>You can create your own plugins by extending the <code class="docutils literal notranslate"><span class="pre">AgentPlugin</span></code> class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">AgentPlugin</span>
 
-<span class="k">class</span> <span class="nc">MyCustomPlugin</span><span class="p">(</span><span class="n">BasePlugin</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">MyCustomPlugin</span><span class="p">(</span><span class="n">AgentPlugin</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_param1</span><span class="p">,</span> <span class="n">custom_param2</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">custom_param1</span> <span class="o">=</span> <span class="n">custom_param1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">custom_param2</span> <span class="o">=</span> <span class="n">custom_param2</span>

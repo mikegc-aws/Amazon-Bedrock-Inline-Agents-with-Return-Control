@@ -81,22 +81,27 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Security plugin for Bedrock Agents SDK.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">BedrockAgentsPlugin</span>
+<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">AgentPlugin</span>
 
 <div class="viewcode-block" id="SecurityPlugin">
 <a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.SecurityPlugin">[docs]</a>
-<span class="k">class</span> <span class="nc">SecurityPlugin</span><span class="p">(</span><span class="n">BedrockAgentsPlugin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plugin for security features&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">SecurityPlugin</span><span class="p">(</span><span class="n">AgentPlugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plugin for adding security features to Bedrock Agents&quot;&quot;&quot;</span>
     
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer_encryption_key_arn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the security plugin&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the security plugin</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            customer_encryption_key_arn: The ARN of the KMS key to use for encryption</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span> <span class="o">=</span> <span class="n">customer_encryption_key_arn</span>
     
 <div class="viewcode-block" id="SecurityPlugin.pre_invoke">
 <a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.SecurityPlugin.pre_invoke">[docs]</a>
     <span class="k">def</span> <span class="nf">pre_invoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add security parameters before invocation&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add KMS key ARN to the request parameters&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span> <span class="ow">and</span> <span class="s2">&quot;customerEncryptionKeyArn&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s2">&quot;customerEncryptionKeyArn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span>
         <span class="k">return</span> <span class="n">params</span></div>
 
@@ -104,47 +109,45 @@
 <div class="viewcode-block" id="SecurityPlugin.pre_deploy">
 <a class="viewcode-back" href="../../../api/bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.SecurityPlugin.pre_deploy">[docs]</a>
     <span class="k">def</span> <span class="nf">pre_deploy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add security configuration to the SAM template&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span> <span class="ow">and</span> <span class="s2">&quot;Resources&quot;</span> <span class="ow">in</span> <span class="n">template</span> <span class="ow">and</span> <span class="s2">&quot;BedrockAgent&quot;</span> <span class="ow">in</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]:</span>
-            <span class="c1"># Add customer encryption key to agent properties</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add KMS key ARN to the agent configuration in the SAM template&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;Resources&quot;</span> <span class="ow">in</span> <span class="n">template</span> <span class="ow">and</span> <span class="s2">&quot;BedrockAgent&quot;</span> <span class="ow">in</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]:</span>
             <span class="n">agent_props</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">][</span><span class="s2">&quot;BedrockAgent&quot;</span><span class="p">][</span><span class="s2">&quot;Properties&quot;</span><span class="p">]</span>
-            <span class="n">agent_props</span><span class="p">[</span><span class="s2">&quot;CustomerEncryptionKeyArn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span>
             
-            <span class="c1"># Add IAM permissions for the KMS key</span>
-            <span class="n">agent_role</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;BedrockAgentRole&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">agent_role</span> <span class="ow">and</span> <span class="s2">&quot;Properties&quot;</span> <span class="ow">in</span> <span class="n">agent_role</span> <span class="ow">and</span> <span class="s2">&quot;Policies&quot;</span> <span class="ow">in</span> <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">]:</span>
-                <span class="c1"># Get the first policy (or create one if it doesn&#39;t exist)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">][</span><span class="s2">&quot;Policies&quot;</span><span class="p">]:</span>
-                    <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">][</span><span class="s2">&quot;Policies&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                        <span class="p">{</span>
-                            <span class="s2">&quot;PolicyName&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="s2">&quot;BedrockAgentPolicy-${AWS::StackName}&quot;</span><span class="p">},</span>
-                            <span class="s2">&quot;PolicyDocument&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="s2">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
-                                <span class="s2">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="c1"># Add KMS key ARN to the agent configuration</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span> <span class="ow">and</span> <span class="s2">&quot;customerEncryptionKeyArn&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">agent_props</span><span class="p">:</span>
+                <span class="n">agent_props</span><span class="p">[</span><span class="s2">&quot;customerEncryptionKeyArn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span>
+            
+            <span class="c1"># Add IAM permissions for KMS key</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span> <span class="ow">and</span> <span class="s2">&quot;BedrockAgentRole&quot;</span> <span class="ow">in</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]:</span>
+                <span class="n">role_props</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">][</span><span class="s2">&quot;BedrockAgentRole&quot;</span><span class="p">][</span><span class="s2">&quot;Properties&quot;</span><span class="p">]</span>
+                
+                <span class="c1"># Get the policy document</span>
+                <span class="k">if</span> <span class="s2">&quot;Policies&quot;</span> <span class="ow">in</span> <span class="n">role_props</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">policy</span> <span class="ow">in</span> <span class="n">role_props</span><span class="p">[</span><span class="s2">&quot;Policies&quot;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="s2">&quot;PolicyDocument&quot;</span> <span class="ow">in</span> <span class="n">policy</span> <span class="ow">and</span> <span class="s2">&quot;Statement&quot;</span> <span class="ow">in</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">]:</span>
+                            <span class="n">statements</span> <span class="o">=</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">][</span><span class="s2">&quot;Statement&quot;</span><span class="p">]</span>
+                            
+                            <span class="c1"># Add KMS permissions</span>
+                            <span class="n">kms_statement</span> <span class="o">=</span> <span class="p">{</span>
+                                <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                    <span class="s2">&quot;kms:Decrypt&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;kms:GenerateDataKey&quot;</span>
+                                <span class="p">],</span>
+                                <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span>
                             <span class="p">}</span>
-                        <span class="p">}</span>
-                    <span class="p">]</span>
-                
-                <span class="n">policy</span> <span class="o">=</span> <span class="n">agent_role</span><span class="p">[</span><span class="s2">&quot;Properties&quot;</span><span class="p">][</span><span class="s2">&quot;Policies&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                
-                <span class="c1"># Add KMS permissions to the policy</span>
-                <span class="k">if</span> <span class="s2">&quot;PolicyDocument&quot;</span> <span class="ow">in</span> <span class="n">policy</span> <span class="ow">and</span> <span class="s2">&quot;Statement&quot;</span> <span class="ow">in</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">]:</span>
-                    <span class="n">kms_statement</span> <span class="o">=</span> <span class="p">{</span>
-                        <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
-                            <span class="s2">&quot;kms:Decrypt&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;kms:GenerateDataKey&quot;</span>
-                        <span class="p">],</span>
-                        <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span>
-                    <span class="p">}</span>
-                    
-                    <span class="c1"># Add the statement if it doesn&#39;t already exist</span>
-                    <span class="n">statements</span> <span class="o">=</span> <span class="n">policy</span><span class="p">[</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">][</span><span class="s2">&quot;Statement&quot;</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Resource&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">statements</span><span class="p">):</span>
-                        <span class="n">statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kms_statement</span><span class="p">)</span>
+                            
+                            <span class="c1"># Check if statement already exists</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_same_kms_resource</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">customer_encryption_key_arn</span><span class="p">)</span> <span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">statements</span><span class="p">):</span>
+                                <span class="n">statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kms_statement</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">template</span></div>
+
         
-        <span class="k">return</span> <span class="n">template</span> </div>
-</div>
+    <span class="k">def</span> <span class="nf">_is_same_kms_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">statement</span><span class="p">,</span> <span class="n">kms_arn</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if a statement refers to the same KMS resource&quot;&quot;&quot;</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">statement</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Resource&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resource</span> <span class="o">==</span> <span class="n">kms_arn</span> </div>
 
 </pre></div>
 
