@@ -10,7 +10,7 @@ Minimal Working Example
 
     # Minimal working example
     import datetime
-    from bedrock_agents_sdk import BedrockAgents, Agent
+    from bedrock_agents_sdk import Client, Agent
 
     def get_time() -> dict:
         """Get the current time"""
@@ -26,7 +26,7 @@ Minimal Working Example
 
     agent.add_function(get_time)
 
-    client = BedrockAgents()
+    client = Client()
     client.add_agent(agent)
 
     # Run the agent locally

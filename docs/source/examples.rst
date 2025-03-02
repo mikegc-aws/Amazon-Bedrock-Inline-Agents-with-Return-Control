@@ -9,7 +9,7 @@ Simple Weather Agent
 .. code-block:: python
 
     import requests
-    from bedrock_agents_sdk import BedrockAgents, Agent
+    from bedrock_agents_sdk import Client, Agent
 
     def get_weather(location: str) -> dict:
         """Get the current weather for a location
@@ -38,7 +38,7 @@ Simple Weather Agent
 
     agent.add_function(get_weather)
 
-    client = BedrockAgents()
+    client = Client()
     client.add_agent(agent)
     client.run()
 
@@ -49,7 +49,7 @@ File Processing Agent
 
     import os
     import json
-    from bedrock_agents_sdk import BedrockAgents, Agent, InputFile, OutputFile
+    from bedrock_agents_sdk import Client, Agent, InputFile, OutputFile
 
     def read_file(file_path: InputFile) -> dict:
         """Read the contents of a file
@@ -91,7 +91,7 @@ File Processing Agent
     agent.add_function(read_file)
     agent.add_function(write_file)
 
-    client = BedrockAgents()
+    client = Client()
     client.add_agent(agent)
     client.run()
 
@@ -100,7 +100,7 @@ Multi-Agent System
 
 .. code-block:: python
 
-    from bedrock_agents_sdk import BedrockAgents, Agent, ActionGroup
+    from bedrock_agents_sdk import Client, Agent, ActionGroup
 
     # Weather functions
     def get_weather(location: str) -> dict:
@@ -159,7 +159,7 @@ Multi-Agent System
     time_agent.add_action_group(time_group)
 
     # Create client and add agents
-    client = BedrockAgents()
+    client = Client()
     client.add_agent(weather_agent)
     client.add_agent(time_agent)
 
@@ -174,7 +174,7 @@ Agent with Knowledge Base
 
 .. code-block:: python
 
-    from bedrock_agents_sdk import BedrockAgents, Agent, KnowledgeBasePlugin
+    from bedrock_agents_sdk import Client, Agent, KnowledgeBasePlugin
 
     agent = Agent(
         name="DocsAgent",
@@ -194,6 +194,6 @@ Agent with Knowledge Base
 
     agent.add_plugin(kb_plugin)
 
-    client = BedrockAgents()
+    client = Client()
     client.add_agent(agent)
     client.run() 
