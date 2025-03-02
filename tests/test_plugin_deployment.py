@@ -118,8 +118,8 @@ class TestPluginDeployment:
         
         # Check that the security plugin modified the template
         agent_props = mock_template["Resources"]["BedrockAgent"]["Properties"]
-        assert "CustomerEncryptionKeyArn" in agent_props
-        assert agent_props["CustomerEncryptionKeyArn"] == "test-arn"
+        assert "customerEncryptionKeyArn" in agent_props
+        assert agent_props["customerEncryptionKeyArn"] == "test-arn"
         
         # Check that the IAM permissions were added
         statements = mock_template["Resources"]["BedrockAgentRole"]["Properties"]["Policies"][0]["PolicyDocument"]["Statement"]
@@ -170,9 +170,9 @@ class TestPluginDeployment:
         
         # Check that the guardrail plugin modified the template
         agent_props = mock_template["Resources"]["BedrockAgent"]["Properties"]
-        assert "GuardrailConfiguration" in agent_props
-        assert agent_props["GuardrailConfiguration"]["GuardrailIdentifier"] == "test-id"
-        assert agent_props["GuardrailConfiguration"]["GuardrailVersion"] == "1.0"
+        assert "guardrailConfiguration" in agent_props
+        assert agent_props["guardrailConfiguration"]["guardrailIdentifier"] == "test-id"
+        assert agent_props["guardrailConfiguration"]["guardrailVersion"] == "1.0"
         
         # Check that the IAM permissions were added
         statements = mock_template["Resources"]["BedrockAgentRole"]["Properties"]["Policies"][0]["PolicyDocument"]["Statement"]
@@ -226,11 +226,11 @@ class TestPluginDeployment:
         
         # Check that the knowledge base plugin modified the template
         agent_props = mock_template["Resources"]["BedrockAgent"]["Properties"]
-        assert "KnowledgeBases" in agent_props
-        assert len(agent_props["KnowledgeBases"]) == 1
-        assert agent_props["KnowledgeBases"][0]["KnowledgeBaseId"] == "test-kb-id"
-        assert agent_props["KnowledgeBases"][0]["Description"] == "Test KB"
-        assert agent_props["KnowledgeBases"][0]["RetrievalConfiguration"]["MaxResults"] == 5
+        assert "knowledgeBases" in agent_props
+        assert len(agent_props["knowledgeBases"]) == 1
+        assert agent_props["knowledgeBases"][0]["knowledgeBaseId"] == "test-kb-id"
+        assert agent_props["knowledgeBases"][0]["description"] == "Test KB"
+        assert agent_props["knowledgeBases"][0]["retrievalConfiguration"]["maxResults"] == 5
         
         # Check that the IAM permissions were added
         statements = mock_template["Resources"]["BedrockAgentRole"]["Properties"]["Policies"][0]["PolicyDocument"]["Statement"]
@@ -323,12 +323,12 @@ class TestPluginDeployment:
         assert agent_props["CustomProperties"]["TestProperty"] == "test_value"
         
         # Security plugin
-        assert "CustomerEncryptionKeyArn" in agent_props
-        assert agent_props["CustomerEncryptionKeyArn"] == "test-arn"
+        assert "customerEncryptionKeyArn" in agent_props
+        assert agent_props["customerEncryptionKeyArn"] == "test-arn"
         
         # Guardrail plugin
-        assert "GuardrailConfiguration" in agent_props
-        assert agent_props["GuardrailConfiguration"]["GuardrailIdentifier"] == "test-id"
+        assert "guardrailConfiguration" in agent_props
+        assert agent_props["guardrailConfiguration"]["guardrailIdentifier"] == "test-id"
         
         # Check that the IAM permissions were added for both plugins
         statements = mock_template["Resources"]["BedrockAgentRole"]["Properties"]["Policies"][0]["PolicyDocument"]["Statement"]

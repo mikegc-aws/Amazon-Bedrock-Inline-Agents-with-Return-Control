@@ -30,6 +30,15 @@ class Agent:
     
     def __init__(self, **data):
         """Initialize the agent and process functions if provided"""
+        # Set default values for attributes
+        self.functions = []
+        self.files = []
+        self.plugins = []
+        self.action_groups = []
+        self.enable_code_interpreter = False
+        self.advanced_config = None
+        self._custom_dependencies = {}
+        
         # Handle dictionary format for functions
         if 'functions' in data and isinstance(data['functions'], dict):
             action_groups = data.pop('functions')
@@ -40,21 +49,13 @@ class Agent:
                     processed_functions.append(self._create_function(func, action_group=action_group))
             
             data['functions'] = processed_functions
-        
-        # Initialize files list if not provided
-        if 'files' not in data:
-            data['files'] = []
             
-        # Initialize plugins list if not provided
-        if 'plugins' not in data:
-            data['plugins'] = []
+        # Initialize attributes from data
+        for key, value in data.items():
+            setattr(self, key, value)
             
-        super().__init__(**data)
         self._process_functions()
         
-        # Store custom dependencies
-        self._custom_dependencies = {}
-    
     def _process_functions(self):
         """Process functions provided in the constructor"""
         processed_functions = []

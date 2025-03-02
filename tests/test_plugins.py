@@ -99,7 +99,7 @@ class TestKnowledgeBasePlugin:
         assert "knowledgeBases" in result
         assert len(result["knowledgeBases"]) == 1
         assert result["knowledgeBases"][0]["knowledgeBaseId"] == "test-id"
-        assert "description" not in result["knowledgeBases"][0]
+        assert result["knowledgeBases"][0]["description"] == "Knowledge base test-id"
         assert "retrievalConfiguration" not in result["knowledgeBases"][0]
     
     def test_knowledge_base_plugin_pre_invoke_existing(self):
