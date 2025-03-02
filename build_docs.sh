@@ -19,7 +19,7 @@ if [ "$1" == "--deploy" ]; then
     mkdir -p temp_docs
     
     # Clone the gh-pages branch to the temporary directory
-    git clone -b gh-pages https://github.com/mikegchambers/inline-return-control.git temp_docs 2>/dev/null || git clone https://github.com/mikegchambers/inline-return-control.git temp_docs
+    git clone -b gh-pages https://github.com/mikegc-aws/Amazon-Bedrock-Inline-Agents-with-Return-Control.git temp_docs 2>/dev/null || git clone https://github.com/mikegc-aws/Amazon-Bedrock-Inline-Agents-with-Return-Control.git temp_docs
     
     # Create and switch to gh-pages branch if it doesn't exist
     cd temp_docs
@@ -44,7 +44,7 @@ if [ "$1" == "--deploy" ]; then
     rm -rf temp_docs
     
     echo "Documentation deployed successfully to GitHub Pages!"
-    echo "Visit https://mikegchambers.github.io/inline-return-control/ to view it."
+    echo "Visit https://mikegc-aws.github.io/Amazon-Bedrock-Inline-Agents-with-Return-Control/ to view it."
 else
     echo "Documentation built successfully!"
     echo "Open docs/build/html/index.html in your browser to view it."
