@@ -41,6 +41,13 @@ The above code will run the agent with tools running locally.  When you are read
 agent.deploy()
 ```
 
+
+## Documentation Pages
+
+For detailed documentation, visit the [SDK Documentation Pages](https://mikegc-aws.github.io/Amazon-Bedrock-Inline-Agents-with-Return-Control/).
+
+
+
 ## Table of Contents
 - [Why Use This SDK?](#why-use-this-sdk)
 - [Benefits](#benefits)
