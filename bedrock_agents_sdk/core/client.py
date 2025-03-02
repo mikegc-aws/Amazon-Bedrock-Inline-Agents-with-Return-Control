@@ -8,6 +8,7 @@ from typing import List, Dict, Any, Optional, Union, Callable
 from botocore.exceptions import ClientError
 
 from bedrock_agents_sdk.models.agent import Agent
+from bedrock_agents_sdk.models.function import Function
 from bedrock_agents_sdk.models.message import Message
 from bedrock_agents_sdk.models.files import OutputFile
 from bedrock_agents_sdk.utils.parameter_extraction import extract_parameter_info
@@ -55,58 +56,109 @@ class Client:
             print(f"[SDK LOG] Initialized Bedrock Agents client (region: {region_name or 'default'}, verbosity: {verbosity}, trace level: {trace_level})")
     
     def _build_action_groups(self, agent: Agent) -> List[Dict[str, Any]]:
-        """Build action groups from agent functions"""
-        # Group functions by action group
-        action_group_map = {}
-        
-        for func in agent.functions:
-            # Determine action group name
-            group_name = func.action_group or "DefaultActions"
-            
-            # Create action group if it doesn't exist
-            if group_name not in action_group_map:
-                action_group_map[group_name] = []
-            
-            # Extract parameter information
-            params = extract_parameter_info(func.function)
-            
-            # Add function to action group
-            action_group_map[group_name].append({
-                "name": func.name,
-                "description": func.description,
-                "parameters": params
-            })
-        
-        # Create action groups
+        """Build action groups from agent's action_groups property or functions"""
         action_groups = []
         
-        # Add custom action groups from functions
-        for group_name, functions in action_group_map.items():
-            action_group = {
-                "actionGroupName": group_name,
-                "description": f"Actions related to {group_name.replace('Actions', '')}",
-                "actionGroupExecutor": {
-                    "customControl": "RETURN_CONTROL"
-                },
-                "functionSchema": {
-                    "functions": []
-                }
-            }
-            
-            for func_info in functions:
-                function_def = {
-                    "name": func_info["name"],
-                    "description": func_info["description"],
-                    "requireConfirmation": "DISABLED"
+        # First, use the explicitly defined action groups if they exist
+        if agent.action_groups:
+            for ag in agent.action_groups:
+                action_group = {
+                    "actionGroupName": ag.name,
+                    "description": ag.description,
+                    "actionGroupExecutor": {
+                        "customControl": "RETURN_CONTROL"
+                    },
+                    "functionSchema": {
+                        "functions": []
+                    }
                 }
                 
-                # Add parameters if they exist
-                if func_info["parameters"]:
-                    function_def["parameters"] = func_info["parameters"]
+                for func in ag.functions:
+                    # Extract function info
+                    if isinstance(func, Function):
+                        func_obj = func
+                    else:
+                        # Create a Function object if it's a callable
+                        func_obj = Function(
+                            name=func.__name__,
+                            description=func.__doc__ or f"Execute {func.__name__}",
+                            function=func,
+                            action_group=ag.name
+                        )
+                    
+                    # Extract parameter information
+                    params = extract_parameter_info(func_obj.function)
+                    
+                    function_def = {
+                        "name": func_obj.name,
+                        "description": func_obj.description,
+                        "requireConfirmation": "DISABLED"
+                    }
+                    
+                    # Add parameters if they exist
+                    if params:
+                        function_def["parameters"] = params
+                    
+                    action_group["functionSchema"]["functions"].append(function_def)
                 
-                action_group["functionSchema"]["functions"].append(function_def)
+                action_groups.append(action_group)
+                
+            if self.sdk_logs:
+                print(f"[SDK LOG] Using {len(action_groups)} action groups from agent.action_groups")
+        
+        # If no action groups are defined, fall back to building them from functions
+        else:
+            # Group functions by action group
+            action_group_map = {}
             
-            action_groups.append(action_group)
+            for func in agent.functions:
+                # Determine action group name
+                group_name = func.action_group or "DefaultActions"
+                
+                # Create action group if it doesn't exist
+                if group_name not in action_group_map:
+                    action_group_map[group_name] = []
+                
+                # Extract parameter information
+                params = extract_parameter_info(func.function)
+                
+                # Add function to action group
+                action_group_map[group_name].append({
+                    "name": func.name,
+                    "description": func.description,
+                    "parameters": params
+                })
+            
+            # Create action groups
+            for group_name, functions in action_group_map.items():
+                action_group = {
+                    "actionGroupName": group_name,
+                    "description": f"Actions related to {group_name.replace('Actions', '')}",
+                    "actionGroupExecutor": {
+                        "customControl": "RETURN_CONTROL"
+                    },
+                    "functionSchema": {
+                        "functions": []
+                    }
+                }
+                
+                for func_info in functions:
+                    function_def = {
+                        "name": func_info["name"],
+                        "description": func_info["description"],
+                        "requireConfirmation": "DISABLED"
+                    }
+                    
+                    # Add parameters if they exist
+                    if func_info["parameters"]:
+                        function_def["parameters"] = func_info["parameters"]
+                    
+                    action_group["functionSchema"]["functions"].append(function_def)
+                
+                action_groups.append(action_group)
+                
+            if self.sdk_logs:
+                print(f"[SDK LOG] Built {len(action_groups)} action groups from agent.functions")
         
         # Add code interpreter action group if enabled
         if agent.enable_code_interpreter:

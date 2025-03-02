@@ -41,12 +41,21 @@ class Agent:
         
         # Handle dictionary format for functions
         if 'functions' in data and isinstance(data['functions'], dict):
-            action_groups = data.pop('functions')
+            action_groups_dict = data.pop('functions')
             processed_functions = []
             
-            for action_group, funcs in action_groups.items():
+            # Create ActionGroup objects from the dictionary
+            for group_name, funcs in action_groups_dict.items():
+                action_group = ActionGroup(
+                    name=group_name,
+                    description=f"Functions related to {group_name}",
+                    functions=funcs
+                )
+                self.action_groups.append(action_group)
+                
+                # Also add the functions to the functions list with action_group name
                 for func in funcs:
-                    processed_functions.append(self._create_function(func, action_group=action_group))
+                    processed_functions.append(self._create_function(func, action_group=group_name))
             
             data['functions'] = processed_functions
             
@@ -55,6 +64,9 @@ class Agent:
             setattr(self, key, value)
             
         self._process_functions()
+        
+        # Process action groups to ensure all functions are in the functions list
+        self._process_action_groups()
         
     def _process_functions(self):
         """Process functions provided in the constructor"""
@@ -71,6 +83,20 @@ class Agent:
         
         # Replace the original functions list with processed functions
         self.functions = processed_functions
+    
+    def _process_action_groups(self):
+        """Process action groups to ensure all functions are in the functions list"""
+        for action_group in self.action_groups:
+            for func in action_group.functions:
+                # Check if this function is already in the functions list
+                func_names = [f.name for f in self.functions]
+                if isinstance(func, Function):
+                    if func.name not in func_names:
+                        self.functions.append(func)
+                elif callable(func):
+                    func_obj = self._create_function(func, action_group=action_group.name)
+                    if func_obj.name not in func_names:
+                        self.functions.append(func_obj)
     
     def _create_function(self, function: Callable, description: Optional[str] = None, action_group: Optional[str] = None) -> Function:
         """Create a Function object from a callable"""
@@ -95,6 +121,32 @@ class Agent:
     def add_function(self, function: Callable, description: Optional[str] = None, action_group: Optional[str] = None):
         """Add a function to the agent"""
         self.functions.append(self._create_function(function, description, action_group))
+        return self
+
+    def add_action_group(self, action_group: ActionGroup):
+        """
+        Add an action group to the agent
+        
+        Args:
+            action_group: The action group to add
+        
+        Returns:
+            self: For method chaining
+        """
+        self.action_groups.append(action_group)
+        
+        # Also add the functions to the functions list
+        for func in action_group.functions:
+            if isinstance(func, Function):
+                # Check if function already exists in functions list
+                if func.name not in [f.name for f in self.functions]:
+                    self.functions.append(func)
+            elif callable(func):
+                func_obj = self._create_function(func, action_group=action_group.name)
+                # Check if function already exists in functions list
+                if func_obj.name not in [f.name for f in self.functions]:
+                    self.functions.append(func_obj)
+        
         return self
 
     def add_file(self, name: str, content: bytes, media_type: str, use_case: str = "CODE_INTERPRETER") -> InputFile:
