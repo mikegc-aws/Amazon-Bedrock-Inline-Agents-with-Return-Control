@@ -4,33 +4,6 @@
 
 This SDK provides a simple yet powerful way to create and interact with Amazon Bedrock Agents using the Return Control pattern. It allows you to easily define function tools, organize them into action groups, and handle the entire conversation flow with minimal boilerplate code.
 
-## Table of Contents
-- [Why Use This SDK?](#why-use-this-sdk)
-- [Benefits](#benefits)
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Project Structure](#project-structure)
-- [Quick Start](#quick-start)
-- [Core Concepts](#core-concepts)
-- [Creating Function Tools](#creating-function-tools)
-- [Parameter Handling](#parameter-handling)
-- [Action Groups](#action-groups)
-- [Code Interpreter](#code-interpreter)
-- [Debugging and Running](#debugging-and-running)
-- [Complete Example](#complete-example)
-- [Advanced Usage](#advanced-usage)
-- [Running Tests](#running-tests)
-- [Using the Module in Test Mode](#using-the-module-in-test-mode)
-- [Working with Files](#working-with-files)
-- [Using Plugins](#using-plugins)
-- [Advanced Configuration](#advanced-configuration)
-- [Command Line Interface](#command-line-interface)
-- [Deploying Agents to AWS](#deploying-agents-to-aws)
-- [Contributing](#contributing)
-- [Documentation](#documentation)
-- [Conclusion](#conclusion)
-
 ## TL;DR
 
 The Amazon Bedrock Agents with Return Control SDK lets you:
@@ -60,6 +33,40 @@ agent = Agent(
 # Start chatting with your agent
 BedrockAgents().chat(agent=agent)
 ```
+
+The above code will run the agent with tools running locally.  When you are ready to deploy, remove the `chat()` line and add: 
+
+```python
+# Deploy the agent using AWS SAM
+agent.deploy()
+```
+
+## Table of Contents
+- [Why Use This SDK?](#why-use-this-sdk)
+- [Benefits](#benefits)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Project Structure](#project-structure)
+- [Quick Start](#quick-start)
+- [Core Concepts](#core-concepts)
+- [Creating Function Tools](#creating-function-tools)
+- [Parameter Handling](#parameter-handling)
+- [Action Groups](#action-groups)
+- [Code Interpreter](#code-interpreter)
+- [Debugging and Running](#debugging-and-running)
+- [Complete Example](#complete-example)
+- [Advanced Usage](#advanced-usage)
+- [Running Tests](#running-tests)
+- [Using the Module in Test Mode](#using-the-module-in-test-mode)
+- [Working with Files](#working-with-files)
+- [Using Plugins](#using-plugins)
+- [Advanced Configuration](#advanced-configuration)
+- [Command Line Interface](#command-line-interface)
+- [Deploying Agents to AWS](#deploying-agents-to-aws)
+- [Contributing](#contributing)
+- [Documentation](#documentation)
+- [Conclusion](#conclusion)
 
 ## Why Use This SDK?
 
