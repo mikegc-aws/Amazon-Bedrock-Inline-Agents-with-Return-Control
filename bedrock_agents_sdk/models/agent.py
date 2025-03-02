@@ -40,6 +40,9 @@ class Agent(BaseModel):
             
         super().__init__(**data)
         self._process_functions()
+        
+        # Store custom dependencies
+        self._custom_dependencies = {}
     
     def _process_functions(self):
         """Process functions provided in the constructor"""
@@ -101,6 +104,28 @@ class Agent(BaseModel):
         
         return self.add_file(name, content, media_type, use_case)
         
+    def add_dependency(self, dependency: str, version: Optional[str] = None, action_group: Optional[str] = None):
+        """
+        Add a custom dependency for deployment
+        
+        This method allows you to specify dependencies that should be included in the
+        requirements.txt file when deploying the agent to AWS Lambda.
+        
+        Args:
+            dependency: The name of the dependency (e.g., "pandas")
+            version: Optional version constraint (e.g., ">=1.0.0")
+            action_group: Optional action group to add the dependency to.
+                          If not provided, the dependency will be added to all action groups.
+        
+        Returns:
+            self: For method chaining
+        """
+        if action_group not in self._custom_dependencies:
+            self._custom_dependencies[action_group] = {}
+        
+        self._custom_dependencies[action_group][dependency] = version
+        return self
+    
     def deploy(self, 
                output_dir: str = "./deployment", 
                foundation_model: Optional[str] = None,
@@ -109,53 +134,31 @@ class Agent(BaseModel):
                auto_build: bool = False,
                auto_deploy: bool = False) -> str:
         """
-        Generate a SAM template and supporting files for deploying the agent to AWS
-        
-        This method creates a complete SAM project that can be deployed to AWS using the
-        AWS SAM CLI. The project includes a Lambda function that implements all the agent's
-        functions, a SAM template that defines the AWS resources, and deployment instructions.
+        Deploy the agent to AWS using SAM
         
         Args:
-            output_dir: Directory to output the SAM template and code to
+            output_dir: The directory to output the SAM template and code to
             foundation_model: The foundation model to use (defaults to the agent's model)
             parameters: Additional parameters to add to the template
             description: Description for the SAM template
-            auto_build: Whether to automatically build the SAM project
-            auto_deploy: Whether to automatically deploy the SAM project (implies auto_build)
+            auto_build: Whether to automatically run 'sam build'
+            auto_deploy: Whether to automatically run 'sam deploy --guided'
             
         Returns:
             str: Path to the generated template file
-            
-        Example:
-            ```python
-            agent = Agent(
-                name="MyAgent",
-                model="anthropic.claude-3-sonnet-20240229-v1:0",
-                instructions="You are a helpful assistant",
-                functions={
-                    "TimeActions": [get_time, get_date],
-                    "MathActions": [add_numbers]
-                }
-            )
-            
-            # Generate the SAM template and supporting files
-            template_path = agent.deploy(
-                output_dir="./my_agent_deployment",
-                description="My awesome agent deployment"
-            )
-            
-            print(f"SAM template generated at: {template_path}")
-            print("To deploy, run:")
-            print("  cd my_agent_deployment")
-            print("  sam build")
-            print("  sam deploy --guided")
-            ```
         """
+        import os
+        
         # Create the SAM template generator
         generator = SAMTemplateGenerator(
             agent=self,
             output_dir=output_dir
         )
+        
+        # Add custom dependencies to the generator
+        for action_group, deps in self._custom_dependencies.items():
+            for dep, version in deps.items():
+                generator.add_custom_dependency(action_group, dep, version)
         
         # Generate the SAM template and supporting files
         template_path = generator.generate(

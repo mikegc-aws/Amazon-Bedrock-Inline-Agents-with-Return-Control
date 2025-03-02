@@ -124,7 +124,7 @@ bedrock_agents_sdk/
 
 - **models/agent.py**: Contains the `Agent` class that represents a Bedrock agent configuration, including its name, model, instructions, and functions.
 
-- **models/function.py**: Contains the `Function` class that represents a function that can be called by the agent, including parameter extraction and validation.
+- **models/function.py**: Contains the `Function` class that represents a function that can be called by the agent. These functions run locally on your machine, but are orchestrated by the cloud-based agent.
 
 - **plugins/base.py**: Contains the `BedrockAgentsPlugin` base class that plugins extend to add functionality to the SDK.
 
@@ -1040,6 +1040,122 @@ When you deploy an agent using the SDK:
 1. A SAM template is generated that defines all necessary AWS resources
 2. Lambda function code is created that implements all your agent's functions
 3. Deployment instructions are provided to guide you through the process
+
+### Dependency Management for Lambda Functions
+
+The SDK includes intelligent dependency management for Lambda functions:
+
+#### Automatic Dependency Detection
+
+The SDK automatically analyzes your function code to detect third-party library imports:
+
+```python
+def analyze_data(data_points: str) -> dict:
+    """Analyze data using pandas and numpy"""
+    import pandas as pd
+    import numpy as np
+    
+    # Parse the input data
+    numbers = [float(x.strip()) for x in data_points.split(',')]
+    df = pd.DataFrame({'values': numbers})
+    
+    return {
+        'mean': np.mean(numbers),
+        'median': np.median(numbers)
+    }
+```
+
+When deploying this function, the SDK will:
+1. Detect the `pandas` and `numpy` imports
+2. Add them to the `requirements.txt` file for the Lambda function
+3. Include the imports in the Lambda function code
+
+#### Specifying Custom Dependencies
+
+You can also manually specify dependencies and version constraints:
+
+```python
+# Add dependencies for all action groups
+agent.add_dependency("pandas", ">=1.3.0")
+agent.add_dependency("numpy", ">=1.20.0")
+
+# Add a dependency for a specific action group
+agent.add_dependency("matplotlib", ">=3.4.0", action_group="VisualizationActions")
+```
+
+This is useful for:
+- Specifying version constraints for automatically detected dependencies
+- Adding dependencies that aren't directly imported in your code
+- Adding dependencies only needed by specific action groups
+
+#### Parameter Handling in Lambda Functions
+
+When your Lambda functions are invoked by Bedrock Agents, parameters are passed in a specific format. The SDK automatically handles this format for you:
+
+```python
+# Parameters in the Lambda event come as a list of dictionaries:
+# [
+#   {"name": "query", "type": "string", "value": "search term"},
+#   {"name": "num_results", "type": "number", "value": "5"}
+# ]
+```
+
+The SDK generates Lambda code that:
+1. Extracts parameter values using a helper function
+2. Converts parameters to the correct type based on your function's type hints
+3. Handles both list and dictionary parameter formats for compatibility
+4. Provides appropriate default values for missing parameters
+
+For example, if your function has this signature:
+
+```python
+def search_internet(query: str, num_results: int = 5) -> dict:
+    """Search the internet"""
+    # Function implementation
+```
+
+The generated Lambda code will:
+1. Extract the `query` parameter as a string
+2. Extract the `num_results` parameter and convert it to an integer
+3. Use the default value (5) if `num_results` is not provided or cannot be converted
+
+#### Best Practices for Dependencies
+
+1. **Use explicit imports**: Import libraries directly in your function code for automatic detection
+2. **Specify version constraints**: Use the `add_dependency` method to set version constraints
+3. **Minimize dependencies**: Keep your Lambda functions lightweight by only including necessary libraries
+4. **Group related functions**: Organize functions with similar dependencies into the same action group
+5. **Use type hints**: Add proper type hints to your function parameters for correct type conversion
+
+#### Example
+
+```python
+from bedrock_agents_sdk import BedrockAgents, Agent
+
+# Define a function that uses pandas
+def analyze_data(data: str) -> dict:
+    import pandas as pd
+    # Function implementation...
+
+# Create the agent
+agent = Agent(
+    name="DataAnalysisAgent",
+    model="anthropic.claude-3-sonnet-20240229-v1:0",
+    instructions="You are a data analysis assistant.",
+    functions=[analyze_data]
+)
+
+# Add version constraints for automatically detected dependencies
+agent.add_dependency("pandas", ">=1.3.0")
+
+# Add dependencies not directly imported
+agent.add_dependency("openpyxl", ">=3.0.0")  # For Excel support in pandas
+
+# Deploy the agent
+agent.deploy(output_dir="./data_analysis_agent")
+```
+
+See the [dependency_example.py](examples/dependency_example.py) for a complete example of deploying an agent with custom dependencies.
 
 ### Deployment Example
 

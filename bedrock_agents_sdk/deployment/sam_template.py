@@ -5,7 +5,9 @@ import os
 import yaml
 import inspect
 import textwrap
-from typing import Dict, Any, List, Optional, Union, Callable, TYPE_CHECKING
+import ast
+import re
+from typing import Dict, Any, List, Optional, Union, Callable, TYPE_CHECKING, Set
 from pathlib import Path
 
 from bedrock_agents_sdk.models.function import Function
@@ -28,6 +30,8 @@ class SAMTemplateGenerator:
         self.agent = agent
         self.output_dir = output_dir
         self.lambda_dir = os.path.join(output_dir, "lambda_function")
+        # Dictionary to store custom dependencies provided by the developer
+        self.custom_dependencies = {}
         
     def generate(self, 
                  foundation_model: Optional[str] = None,
@@ -347,6 +351,130 @@ class SAMTemplateGenerator:
             
         return function_def
     
+    def _detect_imports(self, function: Callable) -> Set[str]:
+        """
+        Detect imports in a function's source code
+        
+        Args:
+            function: The function to analyze
+            
+        Returns:
+            Set of imported module names
+        """
+        # Get the source code of the function
+        source = inspect.getsource(function)
+        
+        # Parse the source code into an AST
+        try:
+            tree = ast.parse(source)
+        except SyntaxError:
+            # If there's a syntax error, return an empty set
+            return set()
+        
+        # Extract imports from the AST
+        imports = set()
+        for node in ast.walk(tree):
+            # Handle 'import x' statements
+            if isinstance(node, ast.Import):
+                for name in node.names:
+                    # Get the top-level module name (e.g., 'pandas' from 'pandas.DataFrame')
+                    module_name = name.name.split('.')[0]
+                    imports.add(module_name)
+            
+            # Handle 'from x import y' statements
+            elif isinstance(node, ast.ImportFrom):
+                if node.module:
+                    # Get the top-level module name
+                    module_name = node.module.split('.')[0]
+                    imports.add(module_name)
+        
+        # Filter out standard library modules
+        # This is a simplified approach - a more comprehensive solution would use importlib.util.find_spec
+        std_lib_modules = {
+            'os', 'sys', 'time', 'datetime', 'json', 'math', 'random', 
+            're', 'collections', 'itertools', 'functools', 'logging',
+            'io', 'tempfile', 'pathlib', 'uuid', 'hashlib', 'base64',
+            'typing', 'enum', 'abc', 'copy', 'inspect', 'traceback'
+        }
+        
+        # Return only non-standard library imports
+        return imports - std_lib_modules
+    
+    def add_custom_dependency(self, action_group: str, dependency: str, version: Optional[str] = None):
+        """
+        Add a custom dependency for a specific action group
+        
+        Args:
+            action_group: The action group to add the dependency to
+            dependency: The name of the dependency
+            version: Optional version constraint (e.g., ">=1.0.0")
+        """
+        if action_group not in self.custom_dependencies:
+            self.custom_dependencies[action_group] = {}
+        
+        self.custom_dependencies[action_group][dependency] = version
+    
+    def _generate_requirements(self):
+        """Generate the requirements.txt file"""
+        # Group functions by action group
+        action_group_map = {}
+        for func in self.agent.functions:
+            group_name = func.action_group or "DefaultActions"
+            if group_name not in action_group_map:
+                action_group_map[group_name] = []
+            action_group_map[group_name].append(func)
+        
+        # Basic requirements for all Lambda functions
+        base_requirements = [
+            "boto3>=1.28.0",
+            "pydantic>=2.0.0"
+        ]
+        
+        # Generate requirements.txt for each action group
+        for group_name, functions in action_group_map.items():
+            # Create a safe name for the Lambda function directory
+            safe_group_name = ''.join(c if c.isalnum() else '' for c in group_name)
+            lambda_dir = os.path.join(self.lambda_dir, safe_group_name.lower())
+            
+            # Detect imports from all functions in this action group
+            detected_imports = set()
+            for func in functions:
+                detected_imports.update(self._detect_imports(func.function))
+            
+            # Convert detected imports to requirements
+            detected_requirements = []
+            for module_name in detected_imports:
+                detected_requirements.append(f"{module_name}")
+            
+            # Add custom dependencies for this action group
+            custom_requirements = []
+            if group_name in self.custom_dependencies:
+                for dep, version in self.custom_dependencies[group_name].items():
+                    if version:
+                        custom_requirements.append(f"{dep}{version}")
+                    else:
+                        custom_requirements.append(dep)
+            
+            # Combine all requirements
+            all_requirements = base_requirements + detected_requirements + custom_requirements
+            
+            # Remove duplicates while preserving order
+            unique_requirements = []
+            seen = set()
+            for req in all_requirements:
+                # Extract package name (without version)
+                package_name = re.split(r'[<>=]', req)[0].strip()
+                if package_name not in seen:
+                    seen.add(package_name)
+                    unique_requirements.append(req)
+            
+            # Create requirements.txt for this action group
+            requirements_path = os.path.join(lambda_dir, "requirements.txt")
+            
+            # Write the requirements file
+            with open(requirements_path, "w") as f:
+                f.write("\n".join(unique_requirements))
+    
     def _generate_lambda_code(self):
         """Generate the Lambda function code for each action group"""
         # Group functions by action group
@@ -367,6 +495,11 @@ class SAMTemplateGenerator:
             # Create app.py for this action group
             app_py_path = os.path.join(lambda_dir, "app.py")
             
+            # Detect all imports from functions in this action group
+            all_imports = set()
+            for func in functions:
+                all_imports.update(self._detect_imports(func.function))
+            
             with open(app_py_path, "w") as f:
                 # Write imports and setup
                 f.write('"""\n')
@@ -375,13 +508,16 @@ class SAMTemplateGenerator:
                 f.write('"""\n')
                 f.write('import json\n')
                 f.write('import logging\n')
+                f.write('import datetime\n')
+                
+                # Add detected imports
+                for module in sorted(all_imports):
+                    f.write(f'import {module}\n')
+                
                 f.write('\n')
                 f.write('# Configure logging\n')
                 f.write('logger = logging.getLogger()\n')
                 f.write('logger.setLevel(logging.INFO)\n')
-                f.write('\n')
-                f.write('# Import function dependencies\n')
-                f.write('import datetime\n')
                 f.write('\n')
                 f.write('# Function implementations\n')
                 
@@ -392,6 +528,32 @@ class SAMTemplateGenerator:
                     f.write('\n')
                     f.write(source)
                     f.write('\n')
+                
+                # Add parameter extraction helper function
+                f.write('def extract_parameter_value(parameters, param_name, default=None):\n')
+                f.write('    """\n')
+                f.write('    Extract a parameter value from the parameters list or dictionary\n')
+                f.write('    \n')
+                f.write('    Args:\n')
+                f.write('        parameters: List of parameter dictionaries or a dictionary\n')
+                f.write('        param_name: Name of the parameter to extract\n')
+                f.write('        default: Default value if parameter is not found\n')
+                f.write('        \n')
+                f.write('    Returns:\n')
+                f.write('        The parameter value or default if not found\n')
+                f.write('    """\n')
+                f.write('    if isinstance(parameters, list):\n')
+                f.write('        # Parameters is a list of dictionaries\n')
+                f.write('        for param in parameters:\n')
+                f.write('            if isinstance(param, dict) and param.get("name") == param_name:\n')
+                f.write('                return param.get("value", default)\n')
+                f.write('    elif isinstance(parameters, dict):\n')
+                f.write('        # Parameters is a dictionary\n')
+                f.write('        return parameters.get(param_name, default)\n')
+                f.write('    \n')
+                f.write('    # If we get here, parameter was not found\n')
+                f.write('    return default\n')
+                f.write('\n')
                 
                 # Add the Lambda handler
                 f.write('def lambda_handler(event, context):\n')
@@ -407,9 +569,8 @@ class SAMTemplateGenerator:
                 f.write('        action_group = event.get("actionGroup", "")\n')
                 f.write('        \n')
                 f.write('        # Get parameters from the event if available\n')
-                f.write('        parameters = {}\n')
-                f.write('        if "parameters" in event:\n')
-                f.write('            parameters = event["parameters"]\n')
+                f.write('        parameters = event.get("parameters", [])\n')
+                f.write('        logger.info(f"Parameters received: {parameters}")\n')
                 f.write('        \n')
                 f.write('        # Call the appropriate function based on the function name\n')
                 
@@ -421,12 +582,39 @@ class SAMTemplateGenerator:
                     signature = inspect.signature(func.function)
                     param_list = []
                     
-                    # Build the parameter list
-                    for param_name in signature.parameters:
-                        param_list.append(f'{param_name}=parameters.get("{param_name}")')
+                    # Build the parameter list with proper extraction
+                    for param_name, param in signature.parameters.items():
+                        # Handle different parameter types
+                        if param.annotation == int:
+                            # For integer parameters, convert string to int
+                            f.write(f'            {param_name}_str = extract_parameter_value(parameters, "{param_name}", "{param.default if param.default != inspect.Parameter.empty else 0}")\n')
+                            f.write(f'            try:\n')
+                            f.write(f'                {param_name} = int({param_name}_str)\n')
+                            f.write(f'            except (ValueError, TypeError):\n')
+                            f.write(f'                {param_name} = {param.default if param.default != inspect.Parameter.empty else 0}\n')
+                            param_list.append(param_name)
+                        elif param.annotation == float:
+                            # For float parameters, convert string to float
+                            f.write(f'            {param_name}_str = extract_parameter_value(parameters, "{param_name}", "{param.default if param.default != inspect.Parameter.empty else 0.0}")\n')
+                            f.write(f'            try:\n')
+                            f.write(f'                {param_name} = float({param_name}_str)\n')
+                            f.write(f'            except (ValueError, TypeError):\n')
+                            f.write(f'                {param_name} = {param.default if param.default != inspect.Parameter.empty else 0.0}\n')
+                            param_list.append(param_name)
+                        elif param.annotation == bool:
+                            # For boolean parameters, convert string to bool
+                            f.write(f'            {param_name}_str = extract_parameter_value(parameters, "{param_name}", "{str(param.default).lower() if param.default != inspect.Parameter.empty else "false"}")\n')
+                            f.write(f'            {param_name} = {param_name}_str.lower() in ["true", "yes", "1", "t", "y"]\n')
+                            param_list.append(param_name)
+                        else:
+                            # For string and other parameters, use as is
+                            default_value = f'"{param.default}"' if param.default != inspect.Parameter.empty else '""'
+                            f.write(f'            {param_name} = extract_parameter_value(parameters, "{param_name}", {default_value})\n')
+                            param_list.append(param_name)
                     
                     # Call the function with the parameters
-                    params_str = ", ".join(param_list)
+                    params_str = ", ".join([f'{param_name}={param_name}' for param_name in param_list])
+                    f.write(f'            logger.info(f"Calling {func.name} with {params_str}")\n')
                     f.write(f'            output_from_logic = {func.name}({params_str})\n')
                     f.write('            \n')
                     f.write('            # Format the response\n')
@@ -506,35 +694,6 @@ class SAMTemplateGenerator:
                 f.write('        }\n')
                 f.write('        \n')
                 f.write('        return function_response\n')
-    
-    def _generate_requirements(self):
-        """Generate the requirements.txt file"""
-        # Group functions by action group
-        action_group_map = {}
-        for func in self.agent.functions:
-            group_name = func.action_group or "DefaultActions"
-            if group_name not in action_group_map:
-                action_group_map[group_name] = []
-            action_group_map[group_name].append(func)
-        
-        # Basic requirements
-        requirements = [
-            "boto3>=1.28.0",
-            "pydantic>=2.0.0"
-        ]
-        
-        # Generate requirements.txt for each action group
-        for group_name, functions in action_group_map.items():
-            # Create a safe name for the Lambda function directory
-            safe_group_name = ''.join(c if c.isalnum() else '' for c in group_name)
-            lambda_dir = os.path.join(self.lambda_dir, safe_group_name.lower())
-            
-            # Create requirements.txt for this action group
-            requirements_path = os.path.join(lambda_dir, "requirements.txt")
-            
-            # Write the requirements file
-            with open(requirements_path, "w") as f:
-                f.write("\n".join(requirements))
     
     def _generate_readme(self):
         """Generate a README file for the deployment"""
