@@ -1,0 +1,1655 @@
+Run started:2025-03-02 08:17:53.549457
+
+Test results:
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./bedrock_agents_sdk/models/agent.py:180:12
+179	        if auto_build or auto_deploy:
+180	            import subprocess
+181	            import sys
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b607_start_process_with_partial_path.html
+   Location: ./bedrock_agents_sdk/models/agent.py:191:31
+190	                # Run sam build
+191	                build_result = subprocess.run(
+192	                    ["sam", "build"],
+193	                    capture_output=True,
+194	                    text=True,
+195	                    check=True
+196	                )
+197	                
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./bedrock_agents_sdk/models/agent.py:191:31
+190	                # Run sam build
+191	                build_result = subprocess.run(
+192	                    ["sam", "build"],
+193	                    capture_output=True,
+194	                    text=True,
+195	                    check=True
+196	                )
+197	                
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b607_start_process_with_partial_path.html
+   Location: ./bedrock_agents_sdk/models/agent.py:206:36
+205	                    # Run sam deploy
+206	                    deploy_result = subprocess.run(
+207	                        ["sam", "deploy", "--guided", "--capabilities", "CAPABILITY_NAMED_IAM"],
+208	                        check=True
+209	                    )
+210	                    
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./bedrock_agents_sdk/models/agent.py:206:36
+205	                    # Run sam deploy
+206	                    deploy_result = subprocess.run(
+207	                        ["sam", "deploy", "--guided", "--capabilities", "CAPABILITY_NAMED_IAM"],
+208	                        check=True
+209	                    )
+210	                    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_action_group.py:38:8
+37	        
+38	        assert action_group.name == "TestActions"
+39	        assert action_group.description == "Test actions"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_action_group.py:39:8
+38	        assert action_group.name == "TestActions"
+39	        assert action_group.description == "Test actions"
+40	        assert len(action_group.functions) == 2
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_action_group.py:40:8
+39	        assert action_group.description == "Test actions"
+40	        assert len(action_group.functions) == 2
+41	        assert action_group.functions[0].name == "sample_function"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_action_group.py:41:8
+40	        assert len(action_group.functions) == 2
+41	        assert action_group.functions[0].name == "sample_function"
+42	        assert action_group.functions[1].name == "sample_function_with_params"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_action_group.py:42:8
+41	        assert action_group.functions[0].name == "sample_function"
+42	        assert action_group.functions[1].name == "sample_function_with_params"
+43	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_action_group.py:66:8
+65	        
+66	        assert action_group_dict["name"] == "TestActions"
+67	        assert action_group_dict["description"] == "Test actions"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_action_group.py:67:8
+66	        assert action_group_dict["name"] == "TestActions"
+67	        assert action_group_dict["description"] == "Test actions"
+68	        assert len(action_group_dict["functions"]) == 2
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_action_group.py:68:8
+67	        assert action_group_dict["description"] == "Test actions"
+68	        assert len(action_group_dict["functions"]) == 2
+69	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_action_group.py:71:8
+70	        # Check that the functions were properly serialized
+71	        assert action_group_dict["functions"][0]["name"] == "sample_function"
+72	        assert action_group_dict["functions"][1]["name"] == "sample_function_with_params" 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_action_group.py:72:8
+71	        assert action_group_dict["functions"][0]["name"] == "sample_function"
+72	        assert action_group_dict["functions"][1]["name"] == "sample_function_with_params" 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:27:8
+26	        
+27	        assert agent.name == "TestAgent"
+28	        assert agent.model == "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:28:8
+27	        assert agent.name == "TestAgent"
+28	        assert agent.model == "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+29	        assert agent.instructions == "You are a test agent"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:29:8
+28	        assert agent.model == "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+29	        assert agent.instructions == "You are a test agent"
+30	        assert len(agent.functions) == 2
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:30:8
+29	        assert agent.instructions == "You are a test agent"
+30	        assert len(agent.functions) == 2
+31	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:34:8
+33	        func_names = [func.name for func in agent.functions]
+34	        assert "sample_function" in func_names
+35	        assert "sample_function_with_params" in func_names
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:35:8
+34	        assert "sample_function" in func_names
+35	        assert "sample_function_with_params" in func_names
+36	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:49:8
+48	        
+49	        assert len(agent.functions) == 2
+50	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:54:16
+53	            if func.name == "sample_function":
+54	                assert func.action_group == "TestActions"
+55	            elif func.name == "sample_function_with_params":
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:56:16
+55	            elif func.name == "sample_function_with_params":
+56	                assert func.action_group == "ParamActions"
+57	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:67:8
+66	        # Initially no functions
+67	        assert len(agent.functions) == 0
+68	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:71:8
+70	        agent.add_function(sample_function)
+71	        assert len(agent.functions) == 1
+72	        assert agent.functions[0].name == "sample_function"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:72:8
+71	        assert len(agent.functions) == 1
+72	        assert agent.functions[0].name == "sample_function"
+73	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:76:8
+75	        agent.add_function(sample_function_with_params, action_group="ParamActions")
+76	        assert len(agent.functions) == 2
+77	        assert agent.functions[1].name == "sample_function_with_params"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:77:8
+76	        assert len(agent.functions) == 2
+77	        assert agent.functions[1].name == "sample_function_with_params"
+78	        assert agent.functions[1].action_group == "ParamActions" 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_agent.py:78:8
+77	        assert agent.functions[1].name == "sample_function_with_params"
+78	        assert agent.functions[1].action_group == "ParamActions" 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:69:8
+68	        # Check that the client properties were set correctly
+69	        assert client.verbosity == "normal"
+70	        assert client.sdk_logs == True
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:70:8
+69	        assert client.verbosity == "normal"
+70	        assert client.sdk_logs == True
+71	        assert client.debug_logs == False
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:71:8
+70	        assert client.sdk_logs == True
+71	        assert client.debug_logs == False
+72	        assert client.trace_level == "standard"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:72:8
+71	        assert client.debug_logs == False
+72	        assert client.trace_level == "standard"
+73	        assert client.agent_traces == True
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:73:8
+72	        assert client.trace_level == "standard"
+73	        assert client.agent_traces == True
+74	        assert client.max_tool_calls == 5
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:74:8
+73	        assert client.agent_traces == True
+74	        assert client.max_tool_calls == 5
+75	        assert client.plugins == []
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:75:8
+74	        assert client.max_tool_calls == 5
+75	        assert client.plugins == []
+76	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:83:8
+82	        
+83	        assert len(client.plugins) == 1
+84	        assert client.plugins[0] == plugin
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:84:8
+83	        assert len(client.plugins) == 1
+84	        assert client.plugins[0] == plugin
+85	        assert plugin.client == client
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:85:8
+84	        assert client.plugins[0] == plugin
+85	        assert plugin.client == client
+86	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:91:8
+90	        
+91	        assert len(action_groups) == 1
+92	        assert action_groups[0]["actionGroupName"] == "DefaultActions"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:92:8
+91	        assert len(action_groups) == 1
+92	        assert action_groups[0]["actionGroupName"] == "DefaultActions"
+93	        assert action_groups[0]["description"] == "Actions related to Default"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:93:8
+92	        assert action_groups[0]["actionGroupName"] == "DefaultActions"
+93	        assert action_groups[0]["description"] == "Actions related to Default"
+94	        assert action_groups[0]["actionGroupExecutor"]["customControl"] == "RETURN_CONTROL"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:94:8
+93	        assert action_groups[0]["description"] == "Actions related to Default"
+94	        assert action_groups[0]["actionGroupExecutor"]["customControl"] == "RETURN_CONTROL"
+95	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:98:8
+97	        functions = action_groups[0]["functionSchema"]["functions"]
+98	        assert len(functions) == 2
+99	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:101:8
+100	        # Check the first function
+101	        assert functions[0]["name"] == "sample_function"
+102	        assert functions[0]["description"] == "A sample function that returns a dictionary"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:102:8
+101	        assert functions[0]["name"] == "sample_function"
+102	        assert functions[0]["description"] == "A sample function that returns a dictionary"
+103	        assert functions[0]["requireConfirmation"] == "DISABLED"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:103:8
+102	        assert functions[0]["description"] == "A sample function that returns a dictionary"
+103	        assert functions[0]["requireConfirmation"] == "DISABLED"
+104	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:106:8
+105	        # Check the second function
+106	        assert functions[1]["name"] == "sample_function_with_params"
+107	        assert functions[1]["description"] == "A sample function that takes parameters and returns a dictionary"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:107:8
+106	        assert functions[1]["name"] == "sample_function_with_params"
+107	        assert functions[1]["description"] == "A sample function that takes parameters and returns a dictionary"
+108	        assert functions[1]["requireConfirmation"] == "DISABLED"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:108:8
+107	        assert functions[1]["description"] == "A sample function that takes parameters and returns a dictionary"
+108	        assert functions[1]["requireConfirmation"] == "DISABLED"
+109	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:111:8
+110	        # Check that the parameters were added to the second function
+111	        assert "parameters" in functions[1]
+112	        assert "param1" in functions[1]["parameters"]
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:112:8
+111	        assert "parameters" in functions[1]
+112	        assert "param1" in functions[1]["parameters"]
+113	        assert "param2" in functions[1]["parameters"]
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:113:8
+112	        assert "param1" in functions[1]["parameters"]
+113	        assert "param2" in functions[1]["parameters"]
+114	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:116:8
+115	        # Check the parameter types
+116	        assert functions[1]["parameters"]["param1"]["type"] == "string"
+117	        assert functions[1]["parameters"]["param1"]["required"] == True
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:117:8
+116	        assert functions[1]["parameters"]["param1"]["type"] == "string"
+117	        assert functions[1]["parameters"]["param1"]["required"] == True
+118	        assert functions[1]["parameters"]["param2"]["type"] == "number"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:118:8
+117	        assert functions[1]["parameters"]["param1"]["required"] == True
+118	        assert functions[1]["parameters"]["param2"]["type"] == "number"
+119	        assert functions[1]["parameters"]["param2"]["required"] == False
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:119:8
+118	        assert functions[1]["parameters"]["param2"]["type"] == "number"
+119	        assert functions[1]["parameters"]["param2"]["required"] == False
+120	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:130:8
+129	        result = client._execute_function(function_map, "sample_function", {})
+130	        assert result == {"status": "success"}
+131	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:134:8
+133	        result = client._execute_function(function_map, "sample_function_with_params", {"param1": "test", "param2": 456})
+134	        assert result == {"param1": "test", "param2": 456}
+135	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:138:8
+137	        result = client._execute_function(function_map, "non_existent_function", {})
+138	        assert result is None
+139	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:160:8
+159	        # Check that the input text is correct
+160	        assert call_args['inputText'] == "Hello, world!"
+161	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:163:8
+162	        # Check that the response is correct
+163	        assert result['response'] == 'This is a test response'
+164	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:174:8
+173	        
+174	        assert "Only one of 'message' or 'messages' should be provided, not both" in str(excinfo.value)
+175	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_client.py:181:8
+180	        
+181	        assert "Either 'message' or 'messages' must be provided" in str(excinfo.value) 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_custom_plugin.py:39:8
+38	        
+39	        assert plugin.custom_param == "test"
+40	        assert plugin.client is None
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_custom_plugin.py:40:8
+39	        assert plugin.custom_param == "test"
+40	        assert plugin.client is None
+41	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_custom_plugin.py:49:8
+48	        
+49	        assert plugin.client == "mock_client"
+50	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_custom_plugin.py:58:8
+57	        
+58	        assert result["customParam"] == "test"
+59	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_custom_plugin.py:67:8
+66	        
+67	        assert "custom" in result
+68	        assert result["custom"]["plugin"] == "CustomPlugin"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_custom_plugin.py:68:8
+67	        assert "custom" in result
+68	        assert result["custom"]["plugin"] == "CustomPlugin"
+69	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_custom_plugin.py:77:8
+76	        
+77	        assert "custom_data" in final_result
+78	        assert final_result["custom_data"] == "test" 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_custom_plugin.py:78:8
+77	        assert "custom_data" in final_result
+78	        assert final_result["custom_data"] == "test" 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:15:8
+14	        
+15	        assert file.name == "test.txt"
+16	        assert file.content == b"test content"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:16:8
+15	        assert file.name == "test.txt"
+16	        assert file.content == b"test content"
+17	        assert file.media_type == "text/plain"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:17:8
+16	        assert file.content == b"test content"
+17	        assert file.media_type == "text/plain"
+18	        assert file.use_case == "CODE_INTERPRETER"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:18:8
+17	        assert file.media_type == "text/plain"
+18	        assert file.use_case == "CODE_INTERPRETER"
+19	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:30:8
+29	        
+30	        assert file_dict["name"] == "test.txt"
+31	        assert file_dict["source"]["byteContent"]["data"] == b"test content"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:31:8
+30	        assert file_dict["name"] == "test.txt"
+31	        assert file_dict["source"]["byteContent"]["data"] == b"test content"
+32	        assert file_dict["source"]["byteContent"]["mediaType"] == "text/plain"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:32:8
+31	        assert file_dict["source"]["byteContent"]["data"] == b"test content"
+32	        assert file_dict["source"]["byteContent"]["mediaType"] == "text/plain"
+33	        assert file_dict["source"]["sourceType"] == "BYTE_CONTENT"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:33:8
+32	        assert file_dict["source"]["byteContent"]["mediaType"] == "text/plain"
+33	        assert file_dict["source"]["sourceType"] == "BYTE_CONTENT"
+34	        assert file_dict["useCase"] == "CODE_INTERPRETER"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:34:8
+33	        assert file_dict["source"]["sourceType"] == "BYTE_CONTENT"
+34	        assert file_dict["useCase"] == "CODE_INTERPRETER"
+35	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:45:8
+44	        
+45	        assert file.name == "test.txt"
+46	        assert file.content == b"test content"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:46:8
+45	        assert file.name == "test.txt"
+46	        assert file.content == b"test content"
+47	        assert file.type == "text/plain"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:47:8
+46	        assert file.content == b"test content"
+47	        assert file.type == "text/plain"
+48	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:59:8
+58	        
+59	        assert file.name == "test.txt"
+60	        assert file.content == b"test content"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:60:8
+59	        assert file.name == "test.txt"
+60	        assert file.content == b"test content"
+61	        assert file.type == "text/plain"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:61:8
+60	        assert file.content == b"test content"
+61	        assert file.type == "text/plain"
+62	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:77:12
+76	            # Check that the file exists
+77	            assert os.path.exists(path)
+78	            
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_files.py:82:16
+81	                content = f.read()
+82	                assert content == b"test content" 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_function.py:26:8
+25	        
+26	        assert func.name == "test_function"
+27	        assert func.description == "A test function"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_function.py:27:8
+26	        assert func.name == "test_function"
+27	        assert func.description == "A test function"
+28	        assert func.function == sample_function
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_function.py:28:8
+27	        assert func.description == "A test function"
+28	        assert func.function == sample_function
+29	        assert func.action_group is None
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_function.py:29:8
+28	        assert func.function == sample_function
+29	        assert func.action_group is None
+30	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_function.py:40:8
+39	        
+40	        assert func.name == "test_function"
+41	        assert func.description == "A test function"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_function.py:41:8
+40	        assert func.name == "test_function"
+41	        assert func.description == "A test function"
+42	        assert func.function == sample_function
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_function.py:42:8
+41	        assert func.description == "A test function"
+42	        assert func.function == sample_function
+43	        assert func.action_group == "TestActions"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_function.py:43:8
+42	        assert func.function == sample_function
+43	        assert func.action_group == "TestActions"
+44	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_function.py:54:8
+53	        result = func.function()
+54	        assert result == {"status": "success"}
+55	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_function.py:65:8
+64	        result = func.function(param1="test", param2=456)
+65	        assert result == {"param1": "test", "param2": 456} 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_message.py:9:8
+8	        
+9	        assert message.role == "user"
+10	        assert message.content == "Hello, world!"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_message.py:10:8
+9	        assert message.role == "user"
+10	        assert message.content == "Hello, world!"
+11	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_message.py:17:8
+16	        
+17	        assert message.role == "user"
+18	        assert message.content == "Hello, world!"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_message.py:18:8
+17	        assert message.role == "user"
+18	        assert message.content == "Hello, world!"
+19	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_message.py:25:8
+24	        
+25	        assert message_dict == {"role": "user", "content": "Hello, world!"} 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_conversion.py:14:8
+13	        
+14	        assert result == {
+15	            "param1": "value1",
+16	            "param2": "value2"
+17	        }
+18	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_conversion.py:28:8
+27	        
+28	        assert result == {
+29	            "int_param": 123,
+30	            "float_param": 123.45
+31	        }
+32	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_conversion.py:34:8
+33	        # Check that the types are correct
+34	        assert isinstance(result["int_param"], int)
+35	        assert isinstance(result["float_param"], float)
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_conversion.py:35:8
+34	        assert isinstance(result["int_param"], int)
+35	        assert isinstance(result["float_param"], float)
+36	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_conversion.py:50:8
+49	        
+50	        assert result == {
+51	            "true_param1": True,
+52	            "true_param2": True,
+53	            "true_param3": True,
+54	            "false_param1": False,
+55	            "false_param2": False,
+56	            "false_param3": False
+57	        }
+58	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_conversion.py:70:8
+69	        
+70	        assert result == {
+71	            "string_param": "value",
+72	            "int_param": 123,
+73	            "float_param": 123.45,
+74	            "bool_param": True
+75	        }
+76	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_conversion.py:86:8
+85	        # The invalid number should be skipped
+86	        assert result == {} 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:31:8
+30	        params = extract_parameter_info(function_with_no_params)
+31	        assert params == {}
+32	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:37:8
+36	        
+37	        assert "param1" in params
+38	        assert "param2" in params
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:38:8
+37	        assert "param1" in params
+38	        assert "param2" in params
+39	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:40:8
+39	        
+40	        assert params["param1"]["type"] == "string"
+41	        assert params["param1"]["required"] == True
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:41:8
+40	        assert params["param1"]["type"] == "string"
+41	        assert params["param1"]["required"] == True
+42	        assert params["param1"]["description"] == "A string parameter"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:42:8
+41	        assert params["param1"]["required"] == True
+42	        assert params["param1"]["description"] == "A string parameter"
+43	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:44:8
+43	        
+44	        assert params["param2"]["type"] == "number"
+45	        assert params["param2"]["required"] == False
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:45:8
+44	        assert params["param2"]["type"] == "number"
+45	        assert params["param2"]["required"] == False
+46	        assert params["param2"]["description"] == "An integer parameter with default value"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:46:8
+45	        assert params["param2"]["required"] == False
+46	        assert params["param2"]["description"] == "An integer parameter with default value"
+47	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:52:8
+51	        
+52	        assert "enable" in params
+53	        assert params["enable"]["type"] == "boolean"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:53:8
+52	        assert "enable" in params
+53	        assert params["enable"]["type"] == "boolean"
+54	        assert params["enable"]["required"] == False
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:54:8
+53	        assert params["enable"]["type"] == "boolean"
+54	        assert params["enable"]["required"] == False
+55	        assert params["enable"]["description"] == "A boolean parameter"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:55:8
+54	        assert params["enable"]["required"] == False
+55	        assert params["enable"]["description"] == "A boolean parameter"
+56	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:61:8
+60	        
+61	        assert "param1" in params
+62	        assert "param2" in params
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:62:8
+61	        assert "param1" in params
+62	        assert "param2" in params
+63	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:64:8
+63	        
+64	        assert params["param1"]["type"] == "string"
+65	        assert params["param1"]["required"] == True
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:65:8
+64	        assert params["param1"]["type"] == "string"
+65	        assert params["param1"]["required"] == True
+66	        assert params["param1"]["description"] == "The param1 parameter"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:66:8
+65	        assert params["param1"]["required"] == True
+66	        assert params["param1"]["description"] == "The param1 parameter"
+67	        
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:68:8
+67	        
+68	        assert params["param2"]["type"] == "number"
+69	        assert params["param2"]["required"] == False
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:69:8
+68	        assert params["param2"]["type"] == "number"
+69	        assert params["param2"]["required"] == False
+70	        assert params["param2"]["description"] == "The param2 parameter" 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_parameter_extraction.py:70:8
+69	        assert params["param2"]["required"] == False
+70	        assert params["param2"]["description"] == "The param2 parameter" 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:12:8
+11	        
+12	        assert plugin.customer_encryption_key_arn == "test-arn"
+13	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:21:8
+20	        
+21	        assert result["customerEncryptionKeyArn"] == "test-arn"
+22	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:30:8
+29	        
+30	        assert result == {}
+31	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:37:8
+36	        
+37	        assert plugin.guardrail_id == "test-id"
+38	        assert plugin.guardrail_version == "1.0"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:38:8
+37	        assert plugin.guardrail_id == "test-id"
+38	        assert plugin.guardrail_version == "1.0"
+39	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:47:8
+46	        
+47	        assert "guardrailConfiguration" in result
+48	        assert result["guardrailConfiguration"]["guardrailIdentifier"] == "test-id"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:48:8
+47	        assert "guardrailConfiguration" in result
+48	        assert result["guardrailConfiguration"]["guardrailIdentifier"] == "test-id"
+49	        assert result["guardrailConfiguration"]["guardrailVersion"] == "1.0"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:49:8
+48	        assert result["guardrailConfiguration"]["guardrailIdentifier"] == "test-id"
+49	        assert result["guardrailConfiguration"]["guardrailVersion"] == "1.0"
+50	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:58:8
+57	        
+58	        assert "guardrailConfiguration" in result
+59	        assert result["guardrailConfiguration"]["guardrailIdentifier"] == "test-id"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:59:8
+58	        assert "guardrailConfiguration" in result
+59	        assert result["guardrailConfiguration"]["guardrailIdentifier"] == "test-id"
+60	        assert "guardrailVersion" not in result["guardrailConfiguration"]
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:60:8
+59	        assert result["guardrailConfiguration"]["guardrailIdentifier"] == "test-id"
+60	        assert "guardrailVersion" not in result["guardrailConfiguration"]
+61	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:71:8
+70	        
+71	        assert plugin.knowledge_base_id == "test-id"
+72	        assert plugin.description == "test description"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:72:8
+71	        assert plugin.knowledge_base_id == "test-id"
+72	        assert plugin.description == "test description"
+73	        assert plugin.retrieval_config == {"maxResults": 5}
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:73:8
+72	        assert plugin.description == "test description"
+73	        assert plugin.retrieval_config == {"maxResults": 5}
+74	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:86:8
+85	        
+86	        assert "knowledgeBases" in result
+87	        assert len(result["knowledgeBases"]) == 1
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:87:8
+86	        assert "knowledgeBases" in result
+87	        assert len(result["knowledgeBases"]) == 1
+88	        assert result["knowledgeBases"][0]["knowledgeBaseId"] == "test-id"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:88:8
+87	        assert len(result["knowledgeBases"]) == 1
+88	        assert result["knowledgeBases"][0]["knowledgeBaseId"] == "test-id"
+89	        assert result["knowledgeBases"][0]["description"] == "test description"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:89:8
+88	        assert result["knowledgeBases"][0]["knowledgeBaseId"] == "test-id"
+89	        assert result["knowledgeBases"][0]["description"] == "test description"
+90	        assert result["knowledgeBases"][0]["retrievalConfiguration"] == {"maxResults": 5}
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:90:8
+89	        assert result["knowledgeBases"][0]["description"] == "test description"
+90	        assert result["knowledgeBases"][0]["retrievalConfiguration"] == {"maxResults": 5}
+91	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:99:8
+98	        
+99	        assert "knowledgeBases" in result
+100	        assert len(result["knowledgeBases"]) == 1
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:100:8
+99	        assert "knowledgeBases" in result
+100	        assert len(result["knowledgeBases"]) == 1
+101	        assert result["knowledgeBases"][0]["knowledgeBaseId"] == "test-id"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:101:8
+100	        assert len(result["knowledgeBases"]) == 1
+101	        assert result["knowledgeBases"][0]["knowledgeBaseId"] == "test-id"
+102	        assert "description" not in result["knowledgeBases"][0]
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:102:8
+101	        assert result["knowledgeBases"][0]["knowledgeBaseId"] == "test-id"
+102	        assert "description" not in result["knowledgeBases"][0]
+103	        assert "retrievalConfiguration" not in result["knowledgeBases"][0]
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:103:8
+102	        assert "description" not in result["knowledgeBases"][0]
+103	        assert "retrievalConfiguration" not in result["knowledgeBases"][0]
+104	    
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:116:8
+115	        
+116	        assert "knowledgeBases" in result
+117	        assert len(result["knowledgeBases"]) == 2
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:117:8
+116	        assert "knowledgeBases" in result
+117	        assert len(result["knowledgeBases"]) == 2
+118	        assert result["knowledgeBases"][0]["knowledgeBaseId"] == "test-id-1"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:118:8
+117	        assert len(result["knowledgeBases"]) == 2
+118	        assert result["knowledgeBases"][0]["knowledgeBaseId"] == "test-id-1"
+119	        assert result["knowledgeBases"][1]["knowledgeBaseId"] == "test-id-2" 
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.3/plugins/b101_assert_used.html
+   Location: ./tests/test_plugins.py:119:8
+118	        assert result["knowledgeBases"][0]["knowledgeBaseId"] == "test-id-1"
+119	        assert result["knowledgeBases"][1]["knowledgeBaseId"] == "test-id-2" 
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 3129
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 161
+		Medium: 0
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 0
+		High: 161
+Files skipped (0):
