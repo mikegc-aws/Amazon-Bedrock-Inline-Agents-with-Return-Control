@@ -14,7 +14,7 @@ from bedrock_agents_sdk.utils.parameter_extraction import extract_parameter_info
 from bedrock_agents_sdk.utils.parameter_conversion import convert_parameters
 from bedrock_agents_sdk.utils.trace_processing import process_trace_data
 
-class BedrockAgents:
+class Client:
     """Client for interacting with Amazon Bedrock Agents"""
     
     def __init__(self, 
@@ -52,7 +52,7 @@ class BedrockAgents:
         self.max_tool_calls = max_tool_calls
         
         if self.sdk_logs:
-            print(f"[SDK LOG] Initialized BedrockAgents client (region: {region_name or 'default'}, verbosity: {verbosity}, trace level: {trace_level})")
+            print(f"[SDK LOG] Initialized Bedrock Agents client (region: {region_name or 'default'}, verbosity: {verbosity}, trace level: {trace_level})")
     
     def _build_action_groups(self, agent: Agent) -> List[Dict[str, Any]]:
         """Build action groups from agent functions"""
