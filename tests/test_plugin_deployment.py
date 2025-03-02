@@ -226,11 +226,11 @@ class TestPluginDeployment:
         
         # Check that the knowledge base plugin modified the template
         agent_props = mock_template["Resources"]["BedrockAgent"]["Properties"]
-        assert "knowledgeBases" in agent_props
-        assert len(agent_props["knowledgeBases"]) == 1
-        assert agent_props["knowledgeBases"][0]["knowledgeBaseId"] == "test-kb-id"
-        assert agent_props["knowledgeBases"][0]["description"] == "Test KB"
-        assert agent_props["knowledgeBases"][0]["retrievalConfiguration"]["maxResults"] == 5
+        assert "KnowledgeBases" in agent_props
+        assert len(agent_props["KnowledgeBases"]) == 1
+        assert agent_props["KnowledgeBases"][0]["knowledgeBaseId"] == "test-kb-id"
+        assert agent_props["KnowledgeBases"][0]["description"] == "Test KB"
+        assert agent_props["KnowledgeBases"][0]["retrievalConfiguration"]["maxResults"] == 5
         
         # Check that the IAM permissions were added
         statements = mock_template["Resources"]["BedrockAgentRole"]["Properties"]["Policies"][0]["PolicyDocument"]["Statement"]

@@ -45,8 +45,8 @@ class KnowledgeBasePlugin(AgentPlugin):
             agent_props = template["Resources"]["BedrockAgent"]["Properties"]
             
             # Add knowledge base configuration to the agent
-            if "knowledgeBases" not in agent_props:
-                agent_props["knowledgeBases"] = []
+            if "KnowledgeBases" not in agent_props:
+                agent_props["KnowledgeBases"] = []
                 
             # Add the knowledge base if it's not already in the list
             kb_entry = {
@@ -58,8 +58,8 @@ class KnowledgeBasePlugin(AgentPlugin):
             if self.retrieval_config:
                 kb_entry["retrievalConfiguration"] = self.retrieval_config
             
-            if not any(kb.get("knowledgeBaseId") == self.knowledge_base_id for kb in agent_props["knowledgeBases"]):
-                agent_props["knowledgeBases"].append(kb_entry)
+            if not any(kb.get("knowledgeBaseId") == self.knowledge_base_id for kb in agent_props["KnowledgeBases"]):
+                agent_props["KnowledgeBases"].append(kb_entry)
             
             # Add IAM permissions for knowledge base
             if "BedrockAgentRole" in template["Resources"]:
