@@ -1297,10 +1297,6 @@ The deployment process generates the following files:
 
 See the [deployment_example.py](examples/deployment_example.py) for a complete example of deploying an agent to AWS.
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## Documentation
 
 Comprehensive documentation for the SDK is available in the `docs` directory. The documentation is built using Sphinx and includes:
@@ -1331,6 +1327,10 @@ make html
 The documentation will be available in the `docs/build/html` directory. Open `index.html` in your browser to view it.
 
 For more information about the Amazon Bedrock service, see the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-inline.html).
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Conclusion
 
