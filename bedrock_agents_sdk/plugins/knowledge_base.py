@@ -50,15 +50,15 @@ class KnowledgeBasePlugin(AgentPlugin):
                 
             # Add the knowledge base if it's not already in the list
             kb_entry = {
-                "knowledgeBaseId": self.knowledge_base_id,
-                "description": self.description
+                "KnowledgeBaseId": self.knowledge_base_id,
+                "Description": self.description
             }
             
             # Add retrieval configuration if provided
             if self.retrieval_config:
-                kb_entry["retrievalConfiguration"] = self.retrieval_config
+                kb_entry["RetrievalConfiguration"] = self.retrieval_config
             
-            if not any(kb.get("knowledgeBaseId") == self.knowledge_base_id for kb in agent_props["KnowledgeBases"]):
+            if not any(kb.get("KnowledgeBaseId") == self.knowledge_base_id for kb in agent_props["KnowledgeBases"]):
                 agent_props["KnowledgeBases"].append(kb_entry)
             
             # Add IAM permissions for knowledge base

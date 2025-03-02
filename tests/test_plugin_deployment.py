@@ -228,9 +228,9 @@ class TestPluginDeployment:
         agent_props = mock_template["Resources"]["BedrockAgent"]["Properties"]
         assert "KnowledgeBases" in agent_props
         assert len(agent_props["KnowledgeBases"]) == 1
-        assert agent_props["KnowledgeBases"][0]["knowledgeBaseId"] == "test-kb-id"
-        assert agent_props["KnowledgeBases"][0]["description"] == "Test KB"
-        assert agent_props["KnowledgeBases"][0]["retrievalConfiguration"]["maxResults"] == 5
+        assert agent_props["KnowledgeBases"][0]["KnowledgeBaseId"] == "test-kb-id"
+        assert agent_props["KnowledgeBases"][0]["Description"] == "Test KB"
+        assert agent_props["KnowledgeBases"][0]["RetrievalConfiguration"]["maxResults"] == 5
         
         # Check that the IAM permissions were added
         statements = mock_template["Resources"]["BedrockAgentRole"]["Properties"]["Policies"][0]["PolicyDocument"]["Statement"]
