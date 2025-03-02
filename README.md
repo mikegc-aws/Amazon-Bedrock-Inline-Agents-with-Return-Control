@@ -198,7 +198,7 @@ def get_time() -> dict:
 # Create the agent - the LLM runs in Amazon Bedrock's cloud
 agent = Agent(
     name="TimeAgent",
-    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant that can tell the time.",
     functions=[get_time]
 )
@@ -271,7 +271,7 @@ def get_date() -> dict:
 # All functions in the same action group (default)
 agent = Agent(
     name="TimeAgent",
-    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant that can tell time.",
     functions=[get_time, get_date]
 )
@@ -293,7 +293,7 @@ def add_numbers(a: int, b: int) -> dict:
 # Organize functions into action groups
 agent = Agent(
     name="HelperAgent",
-    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant.",
     functions={
         "TimeActions": [get_time, get_date],
@@ -307,7 +307,7 @@ agent = Agent(
 ```python
 agent = Agent(
     name="HelperAgent",
-    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant."
 )
 
@@ -370,7 +370,7 @@ Action groups organize related functions together. You can specify the action gr
 ```python
 agent = Agent(
     name="HelperAgent",
-    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant.",
     functions={
         "TimeActions": [get_time, get_date],
@@ -401,7 +401,7 @@ To enable Code Interpreter:
 ```python
 agent = Agent(
     name="CodeAgent",
-    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant that can write and execute code.",
     enable_code_interpreter=True
 )
@@ -633,7 +633,7 @@ def main():
     # Create the agent with functions directly in the definition
     agent = Agent(
         name="HelperAgent",
-        model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        model="anthropic.claude-3-5-sonnet-20241022-v2:0",
         instructions="You are a helpful and friendly assistant helping to test this new agent.",
         functions={
             "TimeActions": [get_time, get_date],
@@ -778,7 +778,7 @@ def test_my_agent(mock_boto3_session):
     # Create your agent
     agent = Agent(
         name="TestAgent",
-        model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        model="anthropic.claude-3-5-sonnet-20241022-v2:0",
         instructions="You are a helpful assistant.",
         functions=[my_function]
     )
@@ -812,7 +812,7 @@ def test_function_calls(mock_boto3_session):
     # Create your agent
     agent = Agent(
         name="TestAgent",
-        model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        model="anthropic.claude-3-5-sonnet-20241022-v2:0",
         instructions="You are a helpful assistant.",
         functions=[my_function]
     )
@@ -892,7 +892,7 @@ You can add files to an agent using the `add_file` or `add_file_from_path` metho
 # Create an agent with code interpreter enabled
 agent = Agent(
     name="FileAgent",
-    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant that can analyze data files.",
     enable_code_interpreter=True
 )
@@ -990,7 +990,7 @@ guardrail_plugin = GuardrailPlugin(
 # Create the agent with plugins
 agent = Agent(
     name="MyAgent",
-    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant.",
     plugins=[kb_plugin, guardrail_plugin]
 )
@@ -1047,7 +1047,7 @@ class MyCustomPlugin(AgentPlugin):
 # Add your custom plugin to an agent
 agent = Agent(
     name="MyAgent",
-    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant.",
     plugins=[MyCustomPlugin(custom_param="value")]
 )
@@ -1067,7 +1067,7 @@ For advanced users who need access to the full Amazon Bedrock Agents API, you ca
 ```python
 agent = Agent(
     name="AdvancedAgent",
-    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant.",
     advanced_config={
         "customerEncryptionKeyArn": "arn:aws:kms:us-west-2:123456789012:key/abcd1234-ab12-cd34-ef56-abcdef123456",
