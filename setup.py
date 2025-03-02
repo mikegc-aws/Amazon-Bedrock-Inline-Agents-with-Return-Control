@@ -6,12 +6,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="bedrock-agents-sdk",
     version="0.1.0",
-    author="Amazon Web Services",
-    author_email="aws@amazon.com",
+    author="Mike Chambers",
+    author_email="mikegc@amazon.com",
     description="A Python SDK for Amazon Bedrock Agents with Return Control",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/aws-samples/bedrock-agents-sdk",
+    url="https://github.com/mikegc-aws/Amazon-Bedrock-Inline-Agents-with-Return-Control",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -32,6 +32,10 @@ setup(
             "black",
             "isort",
             "flake8",
+        ],
+        "docs": [
+            "sphinx>=8.2.0",
+            "sphinx-rtd-theme>=3.0.0",
         ],
     },
 ) 

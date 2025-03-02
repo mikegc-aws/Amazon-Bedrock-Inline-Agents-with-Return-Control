@@ -1,5 +1,7 @@
 # Amazon Bedrock Agents with Return Control SDK
 
+> **DISCLAIMER**: This is an unofficial SDK developed by Mike Chambers and is not an official AWS product or service. This project is not affiliated with, endorsed by, or sponsored by Amazon Web Services (AWS). Amazon Bedrock is a service provided by AWS, but this SDK is a community-developed tool to work with that service.
+
 This SDK provides a simple yet powerful way to create and interact with Amazon Bedrock Agents using the Return Control pattern. It allows you to easily define function tools, organize them into action groups, and handle the entire conversation flow with minimal boilerplate code.
 
 ## Table of Contents
@@ -26,6 +28,7 @@ This SDK provides a simple yet powerful way to create and interact with Amazon B
 - [Command Line Interface](#command-line-interface)
 - [Deploying Agents to AWS](#deploying-agents-to-aws)
 - [Contributing](#contributing)
+- [Documentation](#documentation)
 - [Conclusion](#conclusion)
 
 ## TL;DR
@@ -35,7 +38,7 @@ The Amazon Bedrock Agents with Return Control SDK lets you:
 1. **Build agents fast** with minimal code - define Python functions locally that your cloud-hosted agent can call
 2. **Zero conversation management** - AWS handles all the state tracking and agent orchestration
 3. **Test locally, run in cloud** - develop on your machine, then deploy to AWS with auto-generated SAM templates
-4. **Quick setup:** Just `pip install git+https://github.com/aws-samples/bedrock-agents-sdk.git`
+4. **Quick setup:** Just `pip install git+https://github.com/mikegc-aws/Amazon-Bedrock-Inline-Agents-with-Return-Control.git`
 
 ```python
 # Minimal working example
@@ -109,14 +112,14 @@ As a developer, you want to build powerful AI agents quickly without managing co
 You can install the package directly from GitHub:
 
 ```bash
-pip install git+https://github.com/aws-samples/bedrock-agents-sdk.git
+pip install git+https://github.com/mikegc-aws/Amazon-Bedrock-Inline-Agents-with-Return-Control.git
 ```
 
 Or for development:
 
 ```bash
-git clone https://github.com/aws-samples/bedrock-agents-sdk.git
-cd bedrock-agents-sdk
+git clone https://github.com/mikegc-aws/Amazon-Bedrock-Inline-Agents-with-Return-Control.git
+cd Amazon-Bedrock-Inline-Agents-with-Return-Control
 pip install -e ".[dev]"
 ```
 
@@ -1298,6 +1301,37 @@ See the [deployment_example.py](examples/deployment_example.py) for a complete e
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## Documentation
+
+Comprehensive documentation for the SDK is available in the `docs` directory. The documentation is built using Sphinx and includes:
+
+- API Reference
+- Getting Started Guide
+- Core Concepts
+- Advanced Usage
+- Examples
+- Deployment Guide
+- Plugin System
+
+### Building the Documentation
+
+To build the documentation locally, first install the documentation dependencies:
+
+```bash
+pip install -e ".[docs]"
+```
+
+Then build the HTML documentation:
+
+```bash
+cd docs
+make html
+```
+
+The documentation will be available in the `docs/build/html` directory. Open `index.html` in your browser to view it.
+
+For more information about the Amazon Bedrock service, see the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-inline.html).
+
 ## Conclusion
 
 This SDK empowers developers to build sophisticated AI agents with Amazon Bedrock while maintaining a streamlined development experience:
@@ -1311,5 +1345,9 @@ This SDK empowers developers to build sophisticated AI agents with Amazon Bedroc
 
 By eliminating the boilerplate code for function registration, parameter extraction, and conversation flow, this SDK allows you to focus on what matters most - building valuable AI experiences for your users.
 
-For more information, see the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-inline.html).
+For more information about the Amazon Bedrock service, see the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-inline.html).
+
+## Disclaimer
+
+This project is not affiliated with, endorsed by, or sponsored by Amazon Web Services (AWS). All product names, logos, and brands are property of their respective owners. Amazon Bedrock is a trademark of Amazon Web Services, Inc. or its affiliates in the United States and/or other countries.
 
