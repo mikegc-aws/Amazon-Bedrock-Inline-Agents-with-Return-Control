@@ -10,7 +10,6 @@ from botocore.exceptions import ClientError
 from bedrock_agents_sdk.models.agent import Agent
 from bedrock_agents_sdk.models.message import Message
 from bedrock_agents_sdk.models.files import OutputFile
-from bedrock_agents_sdk.plugins.base import BedrockAgentsPlugin
 from bedrock_agents_sdk.utils.parameter_extraction import extract_parameter_info
 from bedrock_agents_sdk.utils.parameter_conversion import convert_parameters
 from bedrock_agents_sdk.utils.trace_processing import process_trace_data
@@ -52,21 +51,8 @@ class BedrockAgents:
         # Set maximum tool calls
         self.max_tool_calls = max_tool_calls
         
-        # Initialize plugins list
-        self.plugins = []
-        
         if self.sdk_logs:
             print(f"[SDK LOG] Initialized BedrockAgents client (region: {region_name or 'default'}, verbosity: {verbosity}, trace level: {trace_level})")
-    
-    def register_plugin(self, plugin: BedrockAgentsPlugin):
-        """Register a plugin with the client"""
-        plugin.initialize(self)
-        self.plugins.append(plugin)
-        
-        if self.sdk_logs:
-            print(f"[SDK LOG] Registered plugin: {plugin.__class__.__name__}")
-        
-        return self
     
     def _build_action_groups(self, agent: Agent) -> List[Dict[str, Any]]:
         """Build action groups from agent functions"""
@@ -235,15 +221,15 @@ class BedrockAgents:
                 
                 params["inlineSessionState"] = inline_session_state
             
-            # Apply pre-invoke plugins
-            for plugin in self.plugins:
+            # Apply agent plugins pre-invoke
+            for plugin in agent.plugins:
                 params = plugin.pre_invoke(params)
             
             # Call the API
             response = self.bedrock_agent_runtime.invoke_inline_agent(**params)
             
-            # Apply post-invoke plugins
-            for plugin in self.plugins:
+            # Apply agent plugins post-invoke
+            for plugin in agent.plugins:
                 response = plugin.post_invoke(response)
             
             # Process the response
@@ -287,8 +273,8 @@ class BedrockAgents:
                     "files": output_files
                 }
                 
-                # Apply post-process plugins
-                for plugin in self.plugins:
+                # Apply agent plugins post-process
+                for plugin in agent.plugins:
                     result = plugin.post_process(result)
                 
                 return result
@@ -320,8 +306,8 @@ class BedrockAgents:
                     "files": output_files
                 }
                 
-                # Apply post-process plugins
-                for plugin in self.plugins:
+                # Apply agent plugins post-process
+                for plugin in agent.plugins:
                     final_result = plugin.post_process(final_result)
                 
                 return final_result
@@ -362,8 +348,8 @@ class BedrockAgents:
                 "files": all_files
             }
             
-            # Apply post-process plugins
-            for plugin in self.plugins:
+            # Apply agent plugins post-process
+            for plugin in agent.plugins:
                 final_result = plugin.post_process(final_result)
             
             return final_result

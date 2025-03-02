@@ -68,6 +68,10 @@ class SAMTemplateGenerator:
             description=description or f"SAM template for {self.agent.name}"
         )
         
+        # Apply plugins to the template
+        for plugin in self.agent.plugins:
+            template = plugin.pre_deploy(template)
+        
         # Write the template to a file
         template_path = os.path.join(self.output_dir, "template.yaml")
         with open(template_path, "w") as f:

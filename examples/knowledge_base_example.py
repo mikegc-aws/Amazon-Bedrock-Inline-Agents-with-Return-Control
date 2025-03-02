@@ -14,10 +14,7 @@ def main():
         description="Knowledge base containing company documentation and FAQs"
     )
     
-    # Register the plugin with the client
-    client.register_plugin(kb_plugin)
-    
-    # Create the agent
+    # Create the agent with the knowledge base plugin
     agent = Agent(
         name="SupportAgent",
         model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
@@ -25,7 +22,8 @@ def main():
         You are a helpful support assistant for our company.
         Use the knowledge base to answer questions about our products and services.
         If you don't know the answer, say so and don't make up information.
-        """
+        """,
+        plugins=[kb_plugin]  # Add the plugin directly to the agent
     )
     
     # Run the agent with a user query

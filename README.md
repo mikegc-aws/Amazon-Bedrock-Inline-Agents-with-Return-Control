@@ -949,36 +949,41 @@ The SDK comes with several built-in plugins:
 2. **GuardrailPlugin**: For adding guardrails to your agent
 3. **KnowledgeBasePlugin**: For integrating knowledge bases with your agent
 
+### Adding Plugins to Agents
+
+Plugins are added directly to the agent. This approach:
+- Makes the agent definition self-contained
+- Ensures plugins are applied during deployment
+- Allows different agents to use different plugins
+
 Example usage:
 
 ```python
-# Create the client
-client = BedrockAgents(region_name="us-west-2")
-
-# Register security plugin
-client.register_plugin(
-    SecurityPlugin(customer_encryption_key_arn="arn:aws:kms:us-west-2:123456789012:key/abcd1234-ab12-cd34-ef56-abcdef123456")
+# Create plugins
+kb_plugin = KnowledgeBasePlugin(
+    knowledge_base_id="my-kb-id", 
+    description="My knowledge base"
 )
 
-# Register guardrail plugin
-client.register_plugin(
-    GuardrailPlugin(guardrail_id="my-guardrail-id", guardrail_version="1.0")
+guardrail_plugin = GuardrailPlugin(
+    guardrail_id="my-guardrail-id", 
+    guardrail_version="1.0"
 )
 
-# Register knowledge base plugin
-client.register_plugin(
-    KnowledgeBasePlugin(knowledge_base_id="my-kb-id", description="My knowledge base")
-)
-
-# Create and use the agent as normal
+# Create the agent with plugins
 agent = Agent(
     name="MyAgent",
     model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
-    instructions="You are a helpful assistant."
+    instructions="You are a helpful assistant.",
+    plugins=[kb_plugin, guardrail_plugin]
 )
 
-# The plugins will automatically add their configurations
-response = client.run(agent=agent, messages=[...])
+# Create the client and run the agent
+client = BedrockAgents(region_name="us-west-2")
+result = client.run(agent=agent, message="Hello!")
+
+# When deploying, the plugins will be applied to the SAM template
+agent.deploy(description="My agent with plugins")
 ```
 
 ### Creating Custom Plugins
@@ -986,7 +991,7 @@ response = client.run(agent=agent, messages=[...])
 You can create your own plugins by extending the `BedrockAgentsPlugin` class:
 
 ```python
-from bedrock_agents_sdk import BedrockAgentsPlugin
+from bedrock_agents_sdk.plugins.base import BedrockAgentsPlugin
 
 class MyCustomPlugin(BedrockAgentsPlugin):
     def __init__(self, custom_param):
@@ -1007,10 +1012,36 @@ class MyCustomPlugin(BedrockAgentsPlugin):
         # Add custom data to the result
         result["custom_data"] = "Some custom data"
         return result
+        
+    def pre_deploy(self, template):
+        """Called before generating the SAM template, can modify the template"""
+        # Add custom resources or properties to the template
+        if "Resources" in template and "BedrockAgent" in template["Resources"]:
+            agent_props = template["Resources"]["BedrockAgent"]["Properties"]
+            
+            # Add custom properties to the agent
+            if "CustomProperties" not in agent_props:
+                agent_props["CustomProperties"] = {}
+                
+            agent_props["CustomProperties"]["MyCustomProperty"] = self.custom_param
+            
+        return template
 
-# Register your custom plugin
-client.register_plugin(MyCustomPlugin(custom_param="value"))
+# Add your custom plugin to an agent
+agent = Agent(
+    name="MyAgent",
+    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    instructions="You are a helpful assistant.",
+    plugins=[MyCustomPlugin(custom_param="value")]
+)
 ```
+
+The plugin lifecycle methods are:
+
+1. `pre_invoke(params)`: Called before invoking the agent, can modify request parameters
+2. `post_invoke(response)`: Called after invoking the agent, can modify the raw response
+3. `post_process(result)`: Called after processing the response, can modify the final result
+4. `pre_deploy(template)`: Called before generating the SAM template, can modify the deployment template
 
 ## Advanced Configuration
 

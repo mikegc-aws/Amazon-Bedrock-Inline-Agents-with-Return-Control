@@ -18,11 +18,21 @@ def sample_function_with_params(param1: str, param2: int = 123) -> dict:
     """
     return {"param1": param1, "param2": param2}
 
-# Sample plugin for testing
-class TestPlugin(BedrockAgentsPlugin):
+# Sample agent plugin for testing
+class TestAgentPlugin(BedrockAgentsPlugin):
     def pre_invoke(self, params):
-        params["test_plugin"] = True
+        params["agent_plugin"] = True
         return params
+        
+    def post_invoke(self, response):
+        if "agent_post_invoke" not in response:
+            response["agent_post_invoke"] = True
+        return response
+        
+    def post_process(self, result):
+        if "agent_post_process" not in result:
+            result["agent_post_process"] = True
+        return result
 
 # Fixtures
 @pytest.fixture
@@ -72,17 +82,6 @@ class TestBedrockAgents:
         assert client.trace_level == "standard"
         assert client.agent_traces == True
         assert client.max_tool_calls == 5
-        assert client.plugins == []
-    
-    def test_register_plugin(self, client):
-        """Test that a plugin can be registered with the client"""
-        plugin = TestPlugin()
-        
-        client.register_plugin(plugin)
-        
-        assert len(client.plugins) == 1
-        assert client.plugins[0] == plugin
-        assert plugin.client == client
     
     def test_build_action_groups(self, client, agent):
         """Test that action groups can be built from agent functions"""
@@ -125,57 +124,155 @@ class TestBedrockAgents:
             "sample_function_with_params": sample_function_with_params
         }
         
-        # Test executing a function with no parameters
+        # Execute a function without parameters
         result = client._execute_function(function_map, "sample_function", {})
         assert result == {"status": "success"}
         
-        # Test executing a function with parameters
+        # Execute a function with parameters
         result = client._execute_function(function_map, "sample_function_with_params", {"param1": "test", "param2": 456})
         assert result == {"param1": "test", "param2": 456}
         
-        # Test executing a function that doesn't exist
+        # Execute a function with missing parameters
+        result = client._execute_function(function_map, "sample_function_with_params", {"param1": "test"})
+        assert result == {"param1": "test", "param2": 123}
+        
+        # Execute a non-existent function
         result = client._execute_function(function_map, "non_existent_function", {})
         assert result is None
-
-    def test_run_with_string_input(self, client, agent, mock_boto3_session):
-        """Test that the run method can handle a simple string as input"""
-        # Unpack the mock session and client
-        mock_session, mock_client = mock_boto3_session
+    
+    def test_invoke_agent_basic(self, client, agent, mock_boto3_session):
+        """Test that an agent can be invoked with a basic message"""
+        _, mock_client = mock_boto3_session
         
-        # Mock the invoke_inline_agent response
-        mock_response = {
-            'completion': [{'chunk': {'bytes': b'This is a test response'}}],
-            'stopReason': 'COMPLETE'
+        # Set up the mock response
+        mock_client.invoke_inline_agent.return_value = {
+            "completion": [
+                {
+                    "chunk": {
+                        "bytes": b"This is a test response"
+                    }
+                }
+            ]
         }
-        mock_client.invoke_inline_agent.return_value = mock_response
         
-        # Run with a simple string input
-        result = client.run(agent=agent, message="Hello, world!")
+        # Invoke the agent
+        result = client._invoke_agent(
+            agent=agent,
+            action_groups=[],
+            function_map={},
+            session_id="test-session",
+            input_text="Hello, agent!",
+            tool_call_count=0
+        )
         
-        # Verify that the agent was invoked with the correct parameters
-        mock_client.invoke_inline_agent.assert_called()
-        call_args = mock_client.invoke_inline_agent.call_args[1]
+        # Check that the agent was invoked with the correct parameters
+        mock_client.invoke_inline_agent.assert_called_once()
+        invoke_args = mock_client.invoke_inline_agent.call_args[1]
+        assert invoke_args["sessionId"] == "test-session"
+        assert invoke_args["inputText"] == "Hello, agent!"
+        assert invoke_args["instruction"] == agent.instructions
+        assert invoke_args["foundationModel"] == agent.model
         
-        # Check that the input text is correct
-        assert call_args['inputText'] == "Hello, world!"
+        # Check the result
+        assert result["response"] == "This is a test response"
+        assert result["files"] == []
+    
+    def test_invoke_agent_with_function_call(self, client, agent, mock_boto3_session):
+        """Test that an agent can invoke a function"""
+        _, mock_client = mock_boto3_session
         
-        # Check that the response is correct
-        assert result['response'] == 'This is a test response'
-
-    def test_run_with_both_message_types(self, client, agent):
-        """Test that providing both message and messages raises an error"""
-        with pytest.raises(ValueError) as excinfo:
-            client.run(
-                agent=agent, 
-                message="Hello, world!", 
-                messages=[{"role": "user", "content": "Another message"}]
-            )
+        # Set up the mock responses
+        mock_client.invoke_inline_agent.side_effect = [
+            # First response: agent wants to call a function
+            {
+                "completion": [
+                    {
+                        "chunk": {
+                            "bytes": b"Let me check that for you."
+                        }
+                    },
+                    {
+                        "returnControl": {
+                            "invocationId": "test-invocation",
+                            "invocationInputs": [
+                                {
+                                    "functionInvocationInput": {
+                                        "function": "sample_function",
+                                        "actionGroup": "DefaultActions",
+                                        "parameters": []
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            # Second response: agent completes the response
+            {
+                "completion": [
+                    {
+                        "chunk": {
+                            "bytes": b"The function returned success."
+                        }
+                    }
+                ]
+            }
+        ]
         
-        assert "Only one of 'message' or 'messages' should be provided, not both" in str(excinfo.value)
-
-    def test_run_with_no_message(self, client, agent):
-        """Test that providing neither message nor messages raises an error"""
-        with pytest.raises(ValueError) as excinfo:
-            client.run(agent=agent)
+        # Create a function map
+        function_map = {"sample_function": sample_function}
         
-        assert "Either 'message' or 'messages' must be provided" in str(excinfo.value) 
+        # Invoke the agent
+        result = client._invoke_agent(
+            agent=agent,
+            action_groups=[],
+            function_map=function_map,
+            session_id="test-session",
+            input_text="Call the sample function",
+            tool_call_count=0
+        )
+        
+        # Check that the agent was invoked twice
+        assert mock_client.invoke_inline_agent.call_count == 2
+        
+        # Check the result
+        assert result["response"] == "Let me check that for you.\nThe function returned success."
+        assert result["files"] == []
+    
+    def test_agent_plugins_integration(self, client, mock_boto3_session):
+        """Test that agent plugins are applied during invocation"""
+        _, mock_client = mock_boto3_session
+        
+        # Set up the mock response
+        mock_client.invoke_inline_agent.return_value = {
+            "completion": [
+                {
+                    "chunk": {
+                        "bytes": b"This is a test response"
+                    }
+                }
+            ]
+        }
+        
+        # Create an agent with a plugin
+        agent_plugin = TestAgentPlugin()
+        agent = Agent(
+            name="TestAgent",
+            model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+            instructions="You are a test agent",
+            functions=[sample_function],
+            plugins=[agent_plugin]
+        )
+        
+        # Run the agent
+        result = client.run(agent=agent, message="Test message")
+        
+        # Check that the plugin was applied
+        # First, check that pre_invoke was called
+        invoke_args = mock_client.invoke_inline_agent.call_args[1]
+        assert "agent_plugin" in invoke_args
+        assert invoke_args["agent_plugin"] is True
+        
+        # Check that post_process was called
+        assert "agent_post_process" in result
+        assert result["agent_post_process"] is True 

@@ -8,6 +8,7 @@ import os
 from bedrock_agents_sdk.models.function import Function
 from bedrock_agents_sdk.models.files import InputFile
 from bedrock_agents_sdk.deployment.sam_template import SAMTemplateGenerator
+from bedrock_agents_sdk.plugins.base import BedrockAgentsPlugin
 
 class Agent(BaseModel):
     """Represents a Bedrock agent configuration"""
@@ -17,6 +18,7 @@ class Agent(BaseModel):
     functions: List[Union[Function, Callable]] = []
     enable_code_interpreter: bool = False
     files: List[InputFile] = []
+    plugins: List[BedrockAgentsPlugin] = []
     advanced_config: Optional[Dict[str, Any]] = None
     
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -37,6 +39,10 @@ class Agent(BaseModel):
         # Initialize files list if not provided
         if 'files' not in data:
             data['files'] = []
+            
+        # Initialize plugins list if not provided
+        if 'plugins' not in data:
+            data['plugins'] = []
             
         super().__init__(**data)
         self._process_functions()
@@ -103,7 +109,20 @@ class Agent(BaseModel):
             content = f.read()
         
         return self.add_file(name, content, media_type, use_case)
+    
+    def add_plugin(self, plugin: BedrockAgentsPlugin):
+        """
+        Add a plugin to the agent
         
+        Args:
+            plugin: The plugin to add
+            
+        Returns:
+            self: For method chaining
+        """
+        self.plugins.append(plugin)
+        return self
+
     def add_dependency(self, dependency: str, version: Optional[str] = None, action_group: Optional[str] = None):
         """
         Add a custom dependency for deployment

@@ -6,11 +6,6 @@ class CustomPlugin(BedrockAgentsPlugin):
     
     def __init__(self, custom_param="default"):
         self.custom_param = custom_param
-        self.client = None
-    
-    def initialize(self, client):
-        """Called when the plugin is registered with the client"""
-        self.client = client
     
     def pre_invoke(self, params):
         """Called before invoke_inline_agent, can modify params"""
@@ -37,16 +32,6 @@ class TestCustomPlugin:
         plugin = CustomPlugin(custom_param="test")
         
         assert plugin.custom_param == "test"
-        assert plugin.client is None
-    
-    def test_custom_plugin_initialize(self):
-        """Test that a custom plugin can be initialized with a client"""
-        plugin = CustomPlugin(custom_param="test")
-        client = "mock_client"
-        
-        plugin.initialize(client)
-        
-        assert plugin.client == "mock_client"
     
     def test_custom_plugin_pre_invoke(self):
         """Test that a custom plugin can modify parameters before invocation"""

@@ -6,10 +6,6 @@ from typing import Dict, Any
 class BedrockAgentsPlugin:
     """Base class for all plugins for the BedrockAgents SDK"""
     
-    def initialize(self, client):
-        """Called when the plugin is registered with the client"""
-        self.client = client
-    
     def pre_invoke(self, params):
         """Called before invoke_inline_agent, can modify params"""
         return params
@@ -20,4 +16,16 @@ class BedrockAgentsPlugin:
     
     def post_process(self, result):
         """Called after processing the response, can modify the final result"""
-        return result 
+        return result
+    
+    def pre_deploy(self, template):
+        """
+        Called before generating the SAM template, can modify the template
+        
+        Args:
+            template: The SAM template dictionary
+            
+        Returns:
+            The modified SAM template dictionary
+        """
+        return template 
