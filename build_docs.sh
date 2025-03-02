@@ -18,8 +18,8 @@ if [ "$1" == "--deploy" ]; then
     rm -rf temp_docs
     mkdir -p temp_docs
     
-    # Clone the gh-pages branch to the temporary directory
-    git clone -b gh-pages https://github.com/mikegc-aws/Amazon-Bedrock-Inline-Agents-with-Return-Control.git temp_docs 2>/dev/null || git clone https://github.com/mikegc-aws/Amazon-Bedrock-Inline-Agents-with-Return-Control.git temp_docs
+    # Clone the gh-pages branch to the temporary directory using SSH instead of HTTPS
+    git clone -b gh-pages git@github.com:mikegc-aws/Amazon-Bedrock-Inline-Agents-with-Return-Control.git temp_docs 2>/dev/null || git clone git@github.com:mikegc-aws/Amazon-Bedrock-Inline-Agents-with-Return-Control.git temp_docs
     
     # Create and switch to gh-pages branch if it doesn't exist
     cd temp_docs
