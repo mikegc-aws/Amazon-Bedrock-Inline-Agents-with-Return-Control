@@ -1,101 +1,92 @@
 """
-Knowledge Base plugin for Bedrock Agents SDK.
+Knowledge base plugin for Bedrock Agents SDK.
 """
-from bedrock_agents_sdk.plugins.base import BedrockAgentsPlugin
+from bedrock_agents_sdk.plugins.base import AgentPlugin
 
-class KnowledgeBasePlugin(BedrockAgentsPlugin):
-    """Plugin for knowledge base integration"""
+class KnowledgeBasePlugin(AgentPlugin):
+    """Plugin for adding knowledge base integration to Bedrock Agents"""
     
-    def __init__(self, knowledge_base_id, description=None, retrieval_config=None):
-        """Initialize the knowledge base plugin"""
+    def __init__(self, knowledge_base_id: str, description: str = None, retrieval_config: dict = None):
+        """
+        Initialize the knowledge base plugin
+        
+        Args:
+            knowledge_base_id: The ID of the knowledge base to use
+            description: Optional description of the knowledge base
+            retrieval_config: Optional retrieval configuration for the knowledge base
+        """
         self.knowledge_base_id = knowledge_base_id
-        self.description = description
-        self.retrieval_config = retrieval_config or {}
+        self.description = description or f"Knowledge base {knowledge_base_id}"
+        self.retrieval_config = retrieval_config
     
     def pre_invoke(self, params):
-        """Add knowledge base configuration before invocation"""
-        kb_config = {
-            "knowledgeBaseId": self.knowledge_base_id
-        }
-        
-        if self.description:
-            kb_config["description"] = self.description
-            
-        if self.retrieval_config:
-            kb_config["retrievalConfiguration"] = self.retrieval_config
-        
+        """Add knowledge base configuration to the request parameters"""
         if "knowledgeBases" not in params:
             params["knowledgeBases"] = []
             
-        params["knowledgeBases"].append(kb_config)
+        # Add the knowledge base if it's not already in the list
+        kb_entry = {
+            "knowledgeBaseId": self.knowledge_base_id,
+            "description": self.description
+        }
+        
+        # Add retrieval configuration if provided
+        if self.retrieval_config:
+            kb_entry["retrievalConfiguration"] = self.retrieval_config
+        
+        if not any(kb.get("knowledgeBaseId") == self.knowledge_base_id for kb in params["knowledgeBases"]):
+            params["knowledgeBases"].append(kb_entry)
+            
         return params
     
     def pre_deploy(self, template):
-        """Add knowledge base configuration to the SAM template"""
-        # Add knowledge base ID to agent properties
+        """Add knowledge base configuration to the agent in the SAM template"""
         if "Resources" in template and "BedrockAgent" in template["Resources"]:
             agent_props = template["Resources"]["BedrockAgent"]["Properties"]
             
-            # Add KnowledgeBases property if it doesn't exist
+            # Add knowledge base configuration to the agent
             if "KnowledgeBases" not in agent_props:
                 agent_props["KnowledgeBases"] = []
                 
-            # Create knowledge base configuration
-            kb_config = {
-                "KnowledgeBaseId": self.knowledge_base_id
+            # Add the knowledge base if it's not already in the list
+            kb_entry = {
+                "KnowledgeBaseId": self.knowledge_base_id,
+                "Description": self.description
             }
             
-            if self.description:
-                kb_config["Description"] = self.description
-                
+            # Add retrieval configuration if provided
             if self.retrieval_config:
-                # Convert retrieval configuration to proper format
-                # The CloudFormation property names are typically PascalCase
-                retrieval_config = {}
-                for key, value in self.retrieval_config.items():
-                    # Convert camelCase to PascalCase
-                    pascal_key = key[0].upper() + key[1:]
-                    retrieval_config[pascal_key] = value
-                
-                kb_config["RetrievalConfiguration"] = retrieval_config
-                
-            # Add the knowledge base configuration to the agent properties
-            agent_props["KnowledgeBases"].append(kb_config)
+                kb_entry["RetrievalConfiguration"] = self.retrieval_config
             
-            # Add IAM permissions for the knowledge base
-            # Get the agent role
-            agent_role = template["Resources"].get("BedrockAgentRole")
-            if agent_role and "Properties" in agent_role and "Policies" in agent_role["Properties"]:
-                # Get the first policy (or create one if it doesn't exist)
-                if not agent_role["Properties"]["Policies"]:
-                    agent_role["Properties"]["Policies"] = [
-                        {
-                            "PolicyName": {"Fn::Sub": "BedrockAgentPolicy-${AWS::StackName}"},
-                            "PolicyDocument": {
-                                "Version": "2012-10-17",
-                                "Statement": []
+            if not any(kb.get("KnowledgeBaseId") == self.knowledge_base_id for kb in agent_props["KnowledgeBases"]):
+                agent_props["KnowledgeBases"].append(kb_entry)
+            
+            # Add IAM permissions for knowledge base
+            if "BedrockAgentRole" in template["Resources"]:
+                role_props = template["Resources"]["BedrockAgentRole"]["Properties"]
+                
+                # Get the policy document
+                if "Policies" in role_props:
+                    for policy in role_props["Policies"]:
+                        if "PolicyDocument" in policy and "Statement" in policy["PolicyDocument"]:
+                            statements = policy["PolicyDocument"]["Statement"]
+                            
+                            # Add knowledge base permissions
+                            kb_statement = {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "bedrock:RetrieveAndGenerate",
+                                    "bedrock:Retrieve"
+                                ],
+                                "Resource": {
+                                    "Fn::Sub": "arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:knowledge-base/" + self.knowledge_base_id
+                                }
                             }
-                        }
-                    ]
-                
-                policy = agent_role["Properties"]["Policies"][0]
-                
-                # Add knowledge base permissions to the policy
-                if "PolicyDocument" in policy and "Statement" in policy["PolicyDocument"]:
-                    kb_statement = {
-                        "Effect": "Allow",
-                        "Action": [
-                            "bedrock:RetrieveAndGenerate",
-                            "bedrock:Retrieve"
-                        ],
-                        "Resource": {"Fn::Sub": f"arn:aws:bedrock:${{AWS::Region}}:${{AWS::AccountId}}:knowledge-base/{self.knowledge_base_id}"}
-                    }
-                    
-                    # Add the statement if it doesn't already exist
-                    statements = policy["PolicyDocument"]["Statement"]
-                    if not any(self._is_same_kb_resource(s, self.knowledge_base_id) for s in statements):
-                        statements.append(kb_statement)
-        
+                            
+                            # Check if statement already exists
+                            if not any(self._is_same_kb_resource(stmt, self.knowledge_base_id) for stmt in statements):
+                                statements.append(kb_statement)
+            
         return template
         
     def _is_same_kb_resource(self, statement, kb_id):

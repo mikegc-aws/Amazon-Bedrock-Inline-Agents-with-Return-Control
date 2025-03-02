@@ -1,30 +1,44 @@
 """
 Agent model for Bedrock Agents SDK.
 """
-from typing import List, Dict, Any, Optional, Union, Callable
+from typing import List, Dict, Any, Optional, Union, Callable, Type
 from pydantic import BaseModel, ConfigDict
 import os
+from dataclasses import dataclass, field
 
 from bedrock_agents_sdk.models.function import Function
+from bedrock_agents_sdk.models.action_group import ActionGroup
 from bedrock_agents_sdk.models.files import InputFile
 from bedrock_agents_sdk.deployment.sam_template import SAMTemplateGenerator
-from bedrock_agents_sdk.plugins.base import BedrockAgentsPlugin
+from bedrock_agents_sdk.plugins.base import AgentPlugin, BedrockAgentsPlugin, ClientPlugin
 
-class Agent(BaseModel):
-    """Represents a Bedrock agent configuration"""
+@dataclass
+class Agent:
+    """Agent configuration for Amazon Bedrock Agents"""
+    
     name: str
     model: str
     instructions: str
-    functions: List[Union[Function, Callable]] = []
+    functions: Union[List[Callable], Dict[str, List[Callable]]] = field(default_factory=list)
+    action_groups: List[ActionGroup] = field(default_factory=list)
     enable_code_interpreter: bool = False
-    files: List[InputFile] = []
-    plugins: List[BedrockAgentsPlugin] = []
+    files: List[InputFile] = field(default_factory=list)
+    plugins: List[Union[AgentPlugin, BedrockAgentsPlugin, ClientPlugin]] = field(default_factory=list)
     advanced_config: Optional[Dict[str, Any]] = None
     
     model_config = ConfigDict(arbitrary_types_allowed=True)
     
     def __init__(self, **data):
         """Initialize the agent and process functions if provided"""
+        # Set default values for attributes
+        self.functions = []
+        self.files = []
+        self.plugins = []
+        self.action_groups = []
+        self.enable_code_interpreter = False
+        self.advanced_config = None
+        self._custom_dependencies = {}
+        
         # Handle dictionary format for functions
         if 'functions' in data and isinstance(data['functions'], dict):
             action_groups = data.pop('functions')
@@ -35,21 +49,13 @@ class Agent(BaseModel):
                     processed_functions.append(self._create_function(func, action_group=action_group))
             
             data['functions'] = processed_functions
-        
-        # Initialize files list if not provided
-        if 'files' not in data:
-            data['files'] = []
             
-        # Initialize plugins list if not provided
-        if 'plugins' not in data:
-            data['plugins'] = []
+        # Initialize attributes from data
+        for key, value in data.items():
+            setattr(self, key, value)
             
-        super().__init__(**data)
         self._process_functions()
         
-        # Store custom dependencies
-        self._custom_dependencies = {}
-    
     def _process_functions(self):
         """Process functions provided in the constructor"""
         processed_functions = []
@@ -110,15 +116,12 @@ class Agent(BaseModel):
         
         return self.add_file(name, content, media_type, use_case)
     
-    def add_plugin(self, plugin: BedrockAgentsPlugin):
+    def add_plugin(self, plugin: Union[AgentPlugin, BedrockAgentsPlugin, ClientPlugin]):
         """
         Add a plugin to the agent
         
         Args:
             plugin: The plugin to add
-            
-        Returns:
-            self: For method chaining
         """
         self.plugins.append(plugin)
         return self

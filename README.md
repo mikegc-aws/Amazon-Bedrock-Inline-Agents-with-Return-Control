@@ -16,7 +16,7 @@ The Amazon Bedrock Agents with Return Control SDK lets you:
 ```python
 # Minimal working example
 import datetime
-from bedrock_agents_sdk import BedrockAgents, Agent
+from bedrock_agents_sdk import Client, Agent
 
 def get_time() -> dict:
     """Get the current time"""
@@ -31,7 +31,7 @@ agent = Agent(
 )
 
 # Start chatting with your agent
-BedrockAgents().chat(agent=agent)
+Client().chat(agent=agent)
 ```
 
 The above code will run the agent with tools running locally.  When you are ready to deploy, remove the `chat()` line and add: 

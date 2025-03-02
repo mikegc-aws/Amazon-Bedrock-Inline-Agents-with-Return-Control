@@ -3,8 +3,8 @@ Base plugin class for Bedrock Agents SDK.
 """
 from typing import Dict, Any
 
-class BedrockAgentsPlugin:
-    """Base class for all plugins for the BedrockAgents SDK"""
+class AgentPlugin:
+    """Base class for all plugins for the Bedrock Agents SDK"""
     
     def pre_invoke(self, params):
         """Called before invoke_inline_agent, can modify params"""
@@ -28,4 +28,8 @@ class BedrockAgentsPlugin:
         Returns:
             The modified SAM template dictionary
         """
-        return template 
+        return template
+
+# For backward compatibility
+BedrockAgentsPlugin = AgentPlugin
+ClientPlugin = AgentPlugin 

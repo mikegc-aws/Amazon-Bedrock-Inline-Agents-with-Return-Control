@@ -15,7 +15,7 @@ The ``SecurityPlugin`` adds security features to your agent:
 
 .. code-block:: python
 
-    from bedrock_agents_sdk import BedrockAgents, Agent
+    from bedrock_agents_sdk import Client, Agent
     from bedrock_agents_sdk import SecurityPlugin
 
     agent = Agent(
@@ -41,7 +41,7 @@ The ``GuardrailPlugin`` adds content filtering and guardrails to your agent:
 
 .. code-block:: python
 
-    from bedrock_agents_sdk import BedrockAgents, Agent
+    from bedrock_agents_sdk import Client, Agent
     from bedrock_agents_sdk import GuardrailPlugin
 
     agent = Agent(
@@ -70,7 +70,7 @@ The ``KnowledgeBasePlugin`` connects your agent to an Amazon Bedrock Knowledge B
 
 .. code-block:: python
 
-    from bedrock_agents_sdk import BedrockAgents, Agent
+    from bedrock_agents_sdk import Client, Agent
     from bedrock_agents_sdk import KnowledgeBasePlugin
 
     agent = Agent(
@@ -102,13 +102,13 @@ The ``KnowledgeBasePlugin`` connects your agent to an Amazon Bedrock Knowledge B
 Creating Custom Plugins
 ---------------------
 
-You can create your own plugins by extending the ``BasePlugin`` class:
+You can create your own plugins by extending the ``AgentPlugin`` class:
 
 .. code-block:: python
 
-    from bedrock_agents_sdk.plugins.base import BasePlugin
+    from bedrock_agents_sdk.plugins.base import AgentPlugin
 
-    class MyCustomPlugin(BasePlugin):
+    class MyCustomPlugin(AgentPlugin):
         def __init__(self, custom_param1, custom_param2):
             self.custom_param1 = custom_param1
             self.custom_param2 = custom_param2

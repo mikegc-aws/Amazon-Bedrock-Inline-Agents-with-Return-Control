@@ -17,10 +17,10 @@ Key properties of an Agent:
 * **Functions**: The functions that the agent can call
 * **Action Groups**: Logical groupings of related functions
 
-BedrockAgents Client
+Client
 -------------------
 
-The ``BedrockAgents`` class is the main client for interacting with Amazon Bedrock Agents. It provides methods for:
+The ``Client`` class (formerly ``BedrockAgents``) is the main client for interacting with Amazon Bedrock Agents. It provides methods for:
 
 * Adding agents
 * Running agents locally
@@ -77,6 +77,8 @@ Plugins extend the functionality of the SDK by adding new capabilities to agents
 * **SecurityPlugin**: Adds security features to the agent
 * **GuardrailPlugin**: Adds content filtering and guardrails
 * **KnowledgeBasePlugin**: Connects the agent to an Amazon Bedrock Knowledge Base
+
+All plugins inherit from the ``AgentPlugin`` base class (formerly ``ClientPlugin``).
 
 Deployment
 ---------
