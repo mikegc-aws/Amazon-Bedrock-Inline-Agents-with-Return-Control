@@ -1,0 +1,884 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bedrock_agents_sdk.deployment.sam_template &mdash; Amazon Bedrock Agents with Return Control SDK 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Amazon Bedrock Agents with Return Control SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_concepts.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deployment.html">Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Amazon Bedrock Agents with Return Control SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bedrock_agents_sdk.deployment.sam_template</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bedrock_agents_sdk.deployment.sam_template</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">SAM template generation for Bedrock Agents SDK.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">textwrap</span>
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Set</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.models.function</span> <span class="kn">import</span> <span class="n">Function</span>
+
+<span class="c1"># Use TYPE_CHECKING to avoid circular imports</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">bedrock_agents_sdk.models.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<div class="viewcode-block" id="SAMTemplateGenerator">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.deployment.html#bedrock_agents_sdk.SAMTemplateGenerator">[docs]</a>
+<span class="k">class</span> <span class="nc">SAMTemplateGenerator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a SAM template for deploying a Bedrock Agent&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="s2">&quot;Agent&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the SAM template generator</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            agent: The agent to generate a template for</span>
+<span class="sd">            output_dir: The directory to output the SAM template and code to.</span>
+<span class="sd">                        If None, defaults to &quot;./[agent_name]_deployment&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="n">agent</span>
+        
+        <span class="c1"># If output_dir is not provided, use agent name to create a default path</span>
+        <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Create a safe name for the directory (lowercase, alphanumeric with underscores)</span>
+            <span class="n">safe_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;_&#39;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">agent</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">safe_name</span> <span class="o">=</span> <span class="n">safe_name</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>  <span class="c1"># Remove leading/trailing underscores</span>
+            <span class="n">output_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;./</span><span class="si">{</span><span class="n">safe_name</span><span class="si">}</span><span class="s2">_deployment&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">output_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lambda_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;lambda_function&quot;</span><span class="p">)</span>
+        <span class="c1"># Dictionary to store custom dependencies provided by the developer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_dependencies</span> <span class="o">=</span> <span class="p">{}</span>
+        
+<div class="viewcode-block" id="SAMTemplateGenerator.generate">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.deployment.html#bedrock_agents_sdk.SAMTemplateGenerator.generate">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                 <span class="n">foundation_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the SAM template and supporting files</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            foundation_model: The foundation model to use (defaults to the agent&#39;s model)</span>
+<span class="sd">            parameters: Additional parameters to add to the template</span>
+<span class="sd">            description: Description for the SAM template</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Path to the generated template file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create output directories</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># Generate the SAM template</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_template</span><span class="p">(</span>
+            <span class="n">foundation_model</span><span class="o">=</span><span class="n">foundation_model</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;SAM template for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Apply plugins to the template</span>
+        <span class="k">for</span> <span class="n">plugin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">plugins</span><span class="p">:</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">pre_deploy</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+        
+        <span class="c1"># Write the template to a file</span>
+        <span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;template.yaml&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="c1"># Generate the Lambda function code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_lambda_code</span><span class="p">()</span>
+        
+        <span class="c1"># Generate requirements.txt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_requirements</span><span class="p">()</span>
+        
+        <span class="c1"># Generate README</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_readme</span><span class="p">()</span>
+        
+        <span class="c1"># Print deployment instructions</span>
+        <span class="n">safe_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;-&#39;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">safe_name</span> <span class="o">=</span> <span class="n">safe_name</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>  <span class="c1"># Remove leading/trailing hyphens</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Deployment files generated for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAM template: </span><span class="si">{</span><span class="n">template_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">To deploy the agent to AWS, run the following commands:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  cd </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  sam build&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  sam deploy --guided --capabilities CAPABILITY_NAMED_IAM --stack-name </span><span class="si">{</span><span class="n">safe_name</span><span class="si">}</span><span class="s2">-agent&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">template_path</span></div>
+
+    
+    <span class="k">def</span> <span class="nf">_create_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                         <span class="n">foundation_model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                         <span class="n">parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SAM template for Bedrock Agent&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the SAM template dictionary&quot;&quot;&quot;</span>
+        <span class="c1"># Remove region prefix from model ID for IAM policy</span>
+        <span class="n">model_for_policy</span> <span class="o">=</span> <span class="n">foundation_model</span>
+        <span class="k">if</span> <span class="n">model_for_policy</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;us.&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">model_for_policy</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;eu.&quot;</span><span class="p">):</span>
+            <span class="n">model_for_policy</span> <span class="o">=</span> <span class="n">model_for_policy</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            
+        <span class="n">template</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;AWSTemplateFormatVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;2010-09-09&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Transform&quot;</span><span class="p">:</span> <span class="s2">&quot;AWS::Serverless-2016-10-31&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+            <span class="s2">&quot;Parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;FoundationModel&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;String&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="s2">&quot;Foundation model used by the agent&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Default&quot;</span><span class="p">:</span> <span class="n">foundation_model</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;ModelForPolicy&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;String&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="s2">&quot;Foundation model ID used in IAM policy (without region prefix)&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Default&quot;</span><span class="p">:</span> <span class="n">model_for_policy</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;Globals&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;Function&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;Timeout&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+                    <span class="s2">&quot;MemorySize&quot;</span><span class="p">:</span> <span class="mi">128</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;Resources&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="c1"># The Bedrock Agent</span>
+                <span class="s2">&quot;BedrockAgent&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;AWS::Bedrock::Agent&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;ActionGroups&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_action_groups</span><span class="p">(),</span>
+                        <span class="s2">&quot;AgentName&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="s2">&quot;AgentResourceRoleArn&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::GetAtt&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;BedrockAgentRole&quot;</span><span class="p">,</span> <span class="s2">&quot;Arn&quot;</span><span class="p">]},</span>
+                        <span class="s2">&quot;AutoPrepare&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Agent for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;FoundationModel&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Ref&quot;</span><span class="p">:</span> <span class="s2">&quot;FoundationModel&quot;</span><span class="p">},</span>
+                        <span class="s2">&quot;IdleSessionTTLInSeconds&quot;</span><span class="p">:</span> <span class="mi">1800</span><span class="p">,</span>
+                        <span class="s2">&quot;Instruction&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">instructions</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="c1"># IAM role for the Bedrock Agent</span>
+                <span class="s2">&quot;BedrockAgentRole&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;AWS::IAM::Role&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;RoleName&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="s2">&quot;AmazonBedrockExecutionRoleForAgents_${AWS::StackName}&quot;</span><span class="p">},</span>
+                        <span class="s2">&quot;AssumeRolePolicyDocument&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[{</span>
+                                <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Principal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Service&quot;</span><span class="p">:</span> <span class="s2">&quot;bedrock.amazonaws.com&quot;</span><span class="p">},</span>
+                                <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;sts:AssumeRole&quot;</span>
+                            <span class="p">}]</span>
+                        <span class="p">},</span>
+                        <span class="s2">&quot;Policies&quot;</span><span class="p">:</span> <span class="p">[{</span>
+                            <span class="s2">&quot;PolicyName&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="s2">&quot;BedrockAgentFunctionPolicy-${AWS::StackName}&quot;</span><span class="p">},</span>
+                            <span class="s2">&quot;PolicyDocument&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s2">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                    <span class="p">{</span>
+                                        <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;bedrock:InvokeModel&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="s2">&quot;arn:aws:bedrock:${AWS::Region}::foundation-model/$</span><span class="si">{ModelForPolicy}</span><span class="s2">&quot;</span><span class="p">}</span>
+                                    <span class="p">}</span>
+                                <span class="p">]</span>
+                            <span class="p">}</span>
+                        <span class="p">}]</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="c1"># Alias for the Bedrock Agent</span>
+                <span class="s2">&quot;BedrockAgentAlias&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;AWS::Bedrock::AgentAlias&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;AgentAliasName&quot;</span><span class="p">:</span> <span class="s2">&quot;AgentAlias&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;AgentId&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::GetAtt&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;BedrockAgent&quot;</span><span class="p">,</span> <span class="s2">&quot;AgentId&quot;</span><span class="p">]},</span>
+                        <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="s2">&quot;Created by SAM template&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;Outputs&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;BedrockAgent&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="s2">&quot;Bedrock Agent ARN&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Value&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Ref&quot;</span><span class="p">:</span> <span class="s2">&quot;BedrockAgent&quot;</span><span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Group functions by action group</span>
+        <span class="n">action_group_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
+            <span class="n">group_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">action_group</span> <span class="ow">or</span> <span class="s2">&quot;DefaultActions&quot;</span>
+            <span class="k">if</span> <span class="n">group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="p">:</span>
+                <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        
+        <span class="c1"># Create Lambda functions and permissions for each action group</span>
+        <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">functions</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Create a safe name for CloudFormation resources</span>
+            <span class="n">safe_group_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">group_name</span><span class="p">)</span>
+            
+            <span class="c1"># Add Lambda function for this action group</span>
+            <span class="n">lambda_function_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">safe_group_name</span><span class="si">}</span><span class="s2">Function&quot;</span>
+            <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">][</span><span class="n">lambda_function_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;AWS::Serverless::Function&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;CodeUri&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;lambda_function/</span><span class="si">{</span><span class="n">safe_group_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Handler&quot;</span><span class="p">:</span> <span class="s2">&quot;app.lambda_handler&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Runtime&quot;</span><span class="p">:</span> <span class="s2">&quot;python3.9&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Architectures&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x86_64&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;Role&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::GetAtt&quot;</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">safe_group_name</span><span class="si">}</span><span class="s2">FunctionRole&quot;</span><span class="p">,</span> <span class="s2">&quot;Arn&quot;</span><span class="p">]}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            
+            <span class="c1"># Add IAM role for the Lambda function</span>
+            <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">safe_group_name</span><span class="si">}</span><span class="s2">FunctionRole&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;AWS::IAM::Role&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;RoleName&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">safe_group_name</span><span class="si">}</span><span class="s2">FunctionRole-$</span><span class="se">{{</span><span class="s2">AWS::StackName</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">},</span>
+                    <span class="s2">&quot;AssumeRolePolicyDocument&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[{</span>
+                            <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;Principal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Service&quot;</span><span class="p">:</span> <span class="s2">&quot;lambda.amazonaws.com&quot;</span><span class="p">},</span>
+                            <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;sts:AssumeRole&quot;</span>
+                        <span class="p">}]</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;Policies&quot;</span><span class="p">:</span> <span class="p">[{</span>
+                        <span class="s2">&quot;PolicyName&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::Sub&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Lambda</span><span class="si">{</span><span class="n">safe_group_name</span><span class="si">}</span><span class="s2">FunctionPolicy-$</span><span class="se">{{</span><span class="s2">AWS::StackName</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">},</span>
+                        <span class="s2">&quot;PolicyDocument&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[{</span>
+                                <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                    <span class="s2">&quot;logs:CreateLogGroup&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;logs:CreateLogStream&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;logs:PutLogEvents&quot;</span>
+                                <span class="p">],</span>
+                                <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="s2">&quot;arn:aws:logs:*:*:*&quot;</span>
+                            <span class="p">}]</span>
+                        <span class="p">}</span>
+                    <span class="p">}]</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            
+            <span class="c1"># Add permission for Bedrock to invoke the Lambda function</span>
+            <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">safe_group_name</span><span class="si">}</span><span class="s2">FunctionInvocationPermission&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;AWS::Lambda::Permission&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;FunctionName&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::GetAtt&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">lambda_function_name</span><span class="p">,</span> <span class="s2">&quot;Arn&quot;</span><span class="p">]},</span>
+                    <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;lambda:InvokeFunction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Principal&quot;</span><span class="p">:</span> <span class="s2">&quot;bedrock.amazonaws.com&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SourceAccount&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Ref&quot;</span><span class="p">:</span> <span class="s2">&quot;AWS::AccountId&quot;</span><span class="p">},</span>
+                    <span class="s2">&quot;SourceArn&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::GetAtt&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;BedrockAgent&quot;</span><span class="p">,</span> <span class="s2">&quot;AgentArn&quot;</span><span class="p">]}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            
+            <span class="c1"># Add Lambda ARN to Bedrock Agent Role policy</span>
+            <span class="n">lambda_invoke_statement</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;lambda:InvokeFunction&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::GetAtt&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">lambda_function_name</span><span class="p">,</span> <span class="s2">&quot;Arn&quot;</span><span class="p">]}</span>
+            <span class="p">}</span>
+            
+            <span class="c1"># Add the statement to the existing policy</span>
+            <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">][</span><span class="s2">&quot;BedrockAgentRole&quot;</span><span class="p">][</span><span class="s2">&quot;Properties&quot;</span><span class="p">][</span><span class="s2">&quot;Policies&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;PolicyDocument&quot;</span><span class="p">][</span><span class="s2">&quot;Statement&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">lambda_invoke_statement</span>
+            <span class="p">)</span>
+        
+        <span class="c1"># Add user-provided parameters</span>
+        <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Parameters&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">template</span>
+    
+    <span class="k">def</span> <span class="nf">_generate_action_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the action groups configuration for the SAM template&quot;&quot;&quot;</span>
+        <span class="n">action_groups</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># Group functions by action group</span>
+        <span class="n">action_group_map</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
+            <span class="c1"># Determine action group name</span>
+            <span class="n">group_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">action_group</span> <span class="ow">or</span> <span class="s2">&quot;DefaultActions&quot;</span>
+            
+            <span class="c1"># Create action group if it doesn&#39;t exist</span>
+            <span class="k">if</span> <span class="n">group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="p">:</span>
+                <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            
+            <span class="c1"># Add function to action group</span>
+            <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        
+        <span class="c1"># Create action groups</span>
+        <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">functions</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Create a safe name for CloudFormation resources</span>
+            <span class="n">safe_group_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">group_name</span><span class="p">)</span>
+            <span class="n">lambda_function_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">safe_group_name</span><span class="si">}</span><span class="s2">Function&quot;</span>
+            
+            <span class="n">action_group</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;ActionGroupName&quot;</span><span class="p">:</span> <span class="n">group_name</span><span class="p">,</span>
+                <span class="s2">&quot;ActionGroupExecutor&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;Lambda&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Fn::GetAtt&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">lambda_function_name</span><span class="p">,</span> <span class="s2">&quot;Arn&quot;</span><span class="p">]}</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;ActionGroupState&quot;</span><span class="p">:</span> <span class="s2">&quot;ENABLED&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Functions related to </span><span class="si">{</span><span class="n">group_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Actions&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FunctionSchema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;Functions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_generate_function_schema</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            
+            <span class="n">action_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_group</span><span class="p">)</span>
+        
+        <span class="c1"># Add code interpreter action group if enabled</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">enable_code_interpreter</span><span class="p">:</span>
+            <span class="n">code_interpreter_action</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;ActionGroupName&#39;</span><span class="p">:</span> <span class="s1">&#39;CodeInterpreterAction&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;ParentActionGroupSignature&#39;</span><span class="p">:</span> <span class="s1">&#39;AMAZON.CodeInterpreter&#39;</span>
+            <span class="p">}</span>
+            <span class="n">action_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">code_interpreter_action</span><span class="p">)</span>
+        
+        <span class="c1"># Add user input action group</span>
+        <span class="n">user_input_action</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;ActionGroupName&#39;</span><span class="p">:</span> <span class="s1">&#39;UserInputAction&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ParentActionGroupSignature&#39;</span><span class="p">:</span> <span class="s1">&#39;AMAZON.UserInput&#39;</span>
+        <span class="p">}</span>
+        <span class="n">action_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user_input_action</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">action_groups</span>
+    
+    <span class="k">def</span> <span class="nf">_generate_function_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Function</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the function schema for a function&quot;&quot;&quot;</span>
+        <span class="c1"># Get the function signature</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">function</span><span class="p">)</span>
+        
+        <span class="c1"># Create the function definition</span>
+        <span class="n">function_def</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="n">func</span><span class="o">.</span><span class="n">description</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Add parameters if they exist</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">signature</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Skip return annotation</span>
+            <span class="k">if</span> <span class="n">param_name</span> <span class="o">==</span> <span class="s2">&quot;return&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+                
+            <span class="c1"># Get parameter type</span>
+            <span class="n">param_type</span> <span class="o">=</span> <span class="s2">&quot;string&quot;</span>  <span class="c1"># Default type</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="o">!=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+                    <span class="n">param_type</span> <span class="o">=</span> <span class="s2">&quot;number&quot;</span>
+                <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+                    <span class="n">param_type</span> <span class="o">=</span> <span class="s2">&quot;boolean&quot;</span>
+                <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+                    <span class="n">param_type</span> <span class="o">=</span> <span class="s2">&quot;object&quot;</span>
+            
+            <span class="c1"># Add parameter to the parameters dictionary</span>
+            <span class="n">parameters</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Required&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span>
+                <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="n">param_type</span>
+            <span class="p">}</span>
+        
+        <span class="c1"># Add parameters to the function definition if they exist</span>
+        <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="n">function_def</span><span class="p">[</span><span class="s2">&quot;Parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span>
+            
+        <span class="k">return</span> <span class="n">function_def</span>
+    
+    <span class="k">def</span> <span class="nf">_detect_imports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Detect imports in a function&#39;s source code</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            function: The function to analyze</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Set of imported module names</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the source code of the function</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+        
+        <span class="c1"># Parse the source code into an AST</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">SyntaxError</span><span class="p">:</span>
+            <span class="c1"># If there&#39;s a syntax error, return an empty set</span>
+            <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
+        
+        <span class="c1"># Extract imports from the AST</span>
+        <span class="n">imports</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+            <span class="c1"># Handle &#39;import x&#39; statements</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Import</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+                    <span class="c1"># Get the top-level module name (e.g., &#39;pandas&#39; from &#39;pandas.DataFrame&#39;)</span>
+                    <span class="n">module_name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">imports</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+            
+            <span class="c1"># Handle &#39;from x import y&#39; statements</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">ImportFrom</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="p">:</span>
+                    <span class="c1"># Get the top-level module name</span>
+                    <span class="n">module_name</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">imports</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+        
+        <span class="c1"># Filter out standard library modules</span>
+        <span class="c1"># This is a simplified approach - a more comprehensive solution would use importlib.util.find_spec</span>
+        <span class="n">std_lib_modules</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;os&#39;</span><span class="p">,</span> <span class="s1">&#39;sys&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span> <span class="s1">&#39;math&#39;</span><span class="p">,</span> <span class="s1">&#39;random&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;re&#39;</span><span class="p">,</span> <span class="s1">&#39;collections&#39;</span><span class="p">,</span> <span class="s1">&#39;itertools&#39;</span><span class="p">,</span> <span class="s1">&#39;functools&#39;</span><span class="p">,</span> <span class="s1">&#39;logging&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;io&#39;</span><span class="p">,</span> <span class="s1">&#39;tempfile&#39;</span><span class="p">,</span> <span class="s1">&#39;pathlib&#39;</span><span class="p">,</span> <span class="s1">&#39;uuid&#39;</span><span class="p">,</span> <span class="s1">&#39;hashlib&#39;</span><span class="p">,</span> <span class="s1">&#39;base64&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;typing&#39;</span><span class="p">,</span> <span class="s1">&#39;enum&#39;</span><span class="p">,</span> <span class="s1">&#39;abc&#39;</span><span class="p">,</span> <span class="s1">&#39;copy&#39;</span><span class="p">,</span> <span class="s1">&#39;inspect&#39;</span><span class="p">,</span> <span class="s1">&#39;traceback&#39;</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Return only non-standard library imports</span>
+        <span class="k">return</span> <span class="n">imports</span> <span class="o">-</span> <span class="n">std_lib_modules</span>
+    
+<div class="viewcode-block" id="SAMTemplateGenerator.add_custom_dependency">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.deployment.html#bedrock_agents_sdk.SAMTemplateGenerator.add_custom_dependency">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_custom_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_group</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dependency</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a custom dependency for a specific action group</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            action_group: The action group to add the dependency to</span>
+<span class="sd">            dependency: The name of the dependency</span>
+<span class="sd">            version: Optional version constraint (e.g., &quot;&gt;=1.0.0&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">action_group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_dependencies</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">custom_dependencies</span><span class="p">[</span><span class="n">action_group</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_dependencies</span><span class="p">[</span><span class="n">action_group</span><span class="p">][</span><span class="n">dependency</span><span class="p">]</span> <span class="o">=</span> <span class="n">version</span></div>
+
+    
+    <span class="k">def</span> <span class="nf">_generate_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the requirements.txt file&quot;&quot;&quot;</span>
+        <span class="c1"># Group functions by action group</span>
+        <span class="n">action_group_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
+            <span class="n">group_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">action_group</span> <span class="ow">or</span> <span class="s2">&quot;DefaultActions&quot;</span>
+            <span class="k">if</span> <span class="n">group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="p">:</span>
+                <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        
+        <span class="c1"># Basic requirements for all Lambda functions</span>
+        <span class="n">base_requirements</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;boto3&gt;=1.28.0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pydantic&gt;=2.0.0&quot;</span>
+        <span class="p">]</span>
+        
+        <span class="c1"># Generate requirements.txt for each action group</span>
+        <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">functions</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Create a safe name for the Lambda function directory</span>
+            <span class="n">safe_group_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">group_name</span><span class="p">)</span>
+            <span class="n">lambda_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda_dir</span><span class="p">,</span> <span class="n">safe_group_name</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            
+            <span class="c1"># Detect imports from all functions in this action group</span>
+            <span class="n">detected_imports</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
+                <span class="n">detected_imports</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_detect_imports</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">function</span><span class="p">))</span>
+            
+            <span class="c1"># Convert detected imports to requirements</span>
+            <span class="n">detected_requirements</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">module_name</span> <span class="ow">in</span> <span class="n">detected_imports</span><span class="p">:</span>
+                <span class="n">detected_requirements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Add custom dependencies for this action group</span>
+            <span class="n">custom_requirements</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">group_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_dependencies</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">dep</span><span class="p">,</span> <span class="n">version</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_dependencies</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">version</span><span class="p">:</span>
+                        <span class="n">custom_requirements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dep</span><span class="si">}{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">custom_requirements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dep</span><span class="p">)</span>
+            
+            <span class="c1"># Combine all requirements</span>
+            <span class="n">all_requirements</span> <span class="o">=</span> <span class="n">base_requirements</span> <span class="o">+</span> <span class="n">detected_requirements</span> <span class="o">+</span> <span class="n">custom_requirements</span>
+            
+            <span class="c1"># Remove duplicates while preserving order</span>
+            <span class="n">unique_requirements</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">all_requirements</span><span class="p">:</span>
+                <span class="c1"># Extract package name (without version)</span>
+                <span class="n">package_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[&lt;&gt;=]&#39;</span><span class="p">,</span> <span class="n">req</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">package_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">package_name</span><span class="p">)</span>
+                    <span class="n">unique_requirements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+            
+            <span class="c1"># Create requirements.txt for this action group</span>
+            <span class="n">requirements_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lambda_dir</span><span class="p">,</span> <span class="s2">&quot;requirements.txt&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Write the requirements file</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">requirements_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unique_requirements</span><span class="p">))</span>
+    
+    <span class="k">def</span> <span class="nf">_generate_lambda_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the Lambda function code for each action group&quot;&quot;&quot;</span>
+        <span class="c1"># Group functions by action group</span>
+        <span class="n">action_group_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
+            <span class="n">group_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">action_group</span> <span class="ow">or</span> <span class="s2">&quot;DefaultActions&quot;</span>
+            <span class="k">if</span> <span class="n">group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="p">:</span>
+                <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        
+        <span class="c1"># Generate Lambda function code for each action group</span>
+        <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">functions</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Create a safe name for the Lambda function directory</span>
+            <span class="n">safe_group_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">group_name</span><span class="p">)</span>
+            <span class="n">lambda_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda_dir</span><span class="p">,</span> <span class="n">safe_group_name</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">lambda_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            
+            <span class="c1"># Create app.py for this action group</span>
+            <span class="n">app_py_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lambda_dir</span><span class="p">,</span> <span class="s2">&quot;app.py&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Detect all imports from functions in this action group</span>
+            <span class="n">all_imports</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
+                <span class="n">all_imports</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_detect_imports</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">function</span><span class="p">))</span>
+            
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">app_py_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="c1"># Write imports and setup</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&quot;&quot;&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Lambda function for handling Bedrock Agent requests.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Generated by Bedrock Agents SDK.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&quot;&quot;&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;import json</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;import logging</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;import datetime</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                
+                <span class="c1"># Add detected imports</span>
+                <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">all_imports</span><span class="p">):</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;import </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Configure logging</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;logger = logging.getLogger()</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;logger.setLevel(logging.INFO)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Function implementations</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                
+                <span class="c1"># Add function implementations for this action group</span>
+                <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
+                    <span class="c1"># Get the function source code</span>
+                    <span class="n">source</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">function</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                
+                <span class="c1"># Add parameter extraction helper function</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;def extract_parameter_value(parameters, param_name, default=None):</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    &quot;&quot;&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    Extract a parameter value from the parameters list or dictionary</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    Args:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        parameters: List of parameter dictionaries or a dictionary</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        param_name: Name of the parameter to extract</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        default: Default value if parameter is not found</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    Returns:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        The parameter value or default if not found</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    &quot;&quot;&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    if isinstance(parameters, list):</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        # Parameters is a list of dictionaries</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        for param in parameters:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            if isinstance(param, dict) and param.get(&quot;name&quot;) == param_name:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                return param.get(&quot;value&quot;, default)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    elif isinstance(parameters, dict):</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        # Parameters is a dictionary</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        return parameters.get(param_name, default)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    # If we get here, parameter was not found</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    return default</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                
+                <span class="c1"># Add the Lambda handler</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;def lambda_handler(event, context):</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    &quot;&quot;&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    Lambda function handler for Bedrock Agent requests</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    &quot;&quot;&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    logger.info(&quot;Received event: </span><span class="si">%s</span><span class="s1">&quot;, json.dumps(event))</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    try:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        # Extract information from the event</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        message_version = event.get(&quot;messageVersion&quot;, &quot;1.0&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        function_name = event.get(&quot;function&quot;, &quot;&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        action_group = event.get(&quot;actionGroup&quot;, &quot;&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        # Get parameters from the event if available</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        parameters = event.get(&quot;parameters&quot;, [])</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        logger.info(f&quot;Parameters received: </span><span class="si">{parameters}</span><span class="s1">&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        # Call the appropriate function based on the function name</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                
+                <span class="c1"># Add function dispatch logic for this action group only</span>
+                <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;        if function_name == &quot;</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    
+                    <span class="c1"># Get the function signature</span>
+                    <span class="n">signature</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">function</span><span class="p">)</span>
+                    <span class="n">param_list</span> <span class="o">=</span> <span class="p">[]</span>
+                    
+                    <span class="c1"># Build the parameter list with proper extraction</span>
+                    <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">signature</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="c1"># Handle different parameter types</span>
+                        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+                            <span class="c1"># For integer parameters, convert string to int</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;            </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">_str = extract_parameter_value(parameters, &quot;</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">&quot;, &quot;</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mi">0</span><span class="si">}</span><span class="s1">&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;            try:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;                </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1"> = int(</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">_str)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;            except (ValueError, TypeError):</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;                </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mi">0</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">param_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
+                            <span class="c1"># For float parameters, convert string to float</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;            </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">_str = extract_parameter_value(parameters, &quot;</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">&quot;, &quot;</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mf">0.0</span><span class="si">}</span><span class="s1">&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;            try:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;                </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1"> = float(</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">_str)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;            except (ValueError, TypeError):</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;                </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mf">0.0</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">param_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+                            <span class="c1"># For boolean parameters, convert string to bool</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;            </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">_str = extract_parameter_value(parameters, &quot;</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">&quot;, &quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;false&quot;</span><span class="si">}</span><span class="s1">&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;            </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">_str.lower() in [&quot;true&quot;, &quot;yes&quot;, &quot;1&quot;, &quot;t&quot;, &quot;y&quot;]</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">param_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1"># For string and other parameters, use as is</span>
+                            <span class="n">default_value</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="si">}</span><span class="s1">&quot;&#39;</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">!=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span> <span class="k">else</span> <span class="s1">&#39;&quot;&quot;&#39;</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;            </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1"> = extract_parameter_value(parameters, &quot;</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">&quot;, </span><span class="si">{</span><span class="n">default_value</span><span class="si">}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">param_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+                    
+                    <span class="c1"># Call the function with the parameters</span>
+                    <span class="n">params_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">param_list</span><span class="p">])</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;            logger.info(f&quot;Calling </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> with </span><span class="si">{</span><span class="n">params_str</span><span class="si">}</span><span class="s1">&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;            output_from_logic = </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="n">params_str</span><span class="si">}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            # Format the response</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            response_body = {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                &quot;TEXT&quot;: {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                    &quot;body&quot;: json.dumps(output_from_logic)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            action_response = {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                &quot;actionGroup&quot;: action_group,</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                &quot;function&quot;: function_name,</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                &quot;functionResponse&quot;: {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                    &quot;responseBody&quot;: response_body</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            function_response = {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                &quot;response&quot;: action_response,</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                &quot;messageVersion&quot;: message_version</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            return function_response</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                
+                <span class="c1"># Add error handling</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        # If we get here, the function was not found</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        logger.error(&quot;Unknown function: </span><span class="si">%s</span><span class="s1">&quot;, function_name)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        error_message = f&quot;Unknown function: </span><span class="si">{function_name}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        response_body = {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;TEXT&quot;: {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                &quot;body&quot;: json.dumps({&quot;error&quot;: error_message})</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        action_response = {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;actionGroup&quot;: action_group,</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;function&quot;: function_name,</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;functionResponse&quot;: {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                &quot;responseBody&quot;: response_body</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        function_response = {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;response&quot;: action_response,</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;messageVersion&quot;: message_version</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        return function_response</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    except Exception as e:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        logger.error(&quot;Error processing request: </span><span class="si">%s</span><span class="s1">&quot;, str(e))</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        error_message = str(e)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        # Extract action group and function name from event if available</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        action_group = event.get(&quot;actionGroup&quot;, &quot;&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        function_name = event.get(&quot;function&quot;, &quot;&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        message_version = event.get(&quot;messageVersion&quot;, &quot;1.0&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        response_body = {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;TEXT&quot;: {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                &quot;body&quot;: json.dumps({&quot;error&quot;: error_message})</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        action_response = {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;actionGroup&quot;: action_group,</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;function&quot;: function_name,</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;functionResponse&quot;: {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;                &quot;responseBody&quot;: response_body</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        function_response = {</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;response&quot;: action_response,</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;            &quot;messageVersion&quot;: message_version</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        }</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;        return function_response</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_generate_readme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a README file for the deployment&quot;&quot;&quot;</span>
+        <span class="n">readme_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;README.md&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Create a safe name for the stack (lowercase, alphanumeric with hyphens)</span>
+        <span class="n">safe_stack_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;-&#39;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">safe_stack_name</span> <span class="o">=</span> <span class="n">safe_stack_name</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>  <span class="c1"># Remove leading/trailing hyphens</span>
+        
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">readme_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;# </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> Deployment</span>
+
+<span class="s2">This directory contains the AWS SAM template and supporting files for deploying the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> agent to AWS Bedrock.</span>
+
+<span class="s2">## Deployment Instructions</span>
+
+<span class="s2">1. Install the AWS SAM CLI if you haven&#39;t already:</span>
+<span class="s2">   ```</span>
+<span class="s2">   pip install aws-sam-cli</span>
+<span class="s2">   ```</span>
+
+<span class="s2">2. Build the SAM application:</span>
+<span class="s2">   ```</span>
+<span class="s2">   sam build</span>
+<span class="s2">   ```</span>
+
+<span class="s2">3. Deploy the SAM application:</span>
+<span class="s2">   ```</span>
+<span class="s2">   sam deploy --guided --capabilities CAPABILITY_NAMED_IAM --stack-name </span><span class="si">{</span><span class="n">safe_stack_name</span><span class="si">}</span><span class="s2">-agent</span>
+<span class="s2">   ```</span>
+<span class="s2">   </span>
+<span class="s2">   Note: The `CAPABILITY_NAMED_IAM` capability is required because this template creates named IAM resources.</span>
+
+<span class="s2">4. Follow the prompts to complete the deployment.</span>
+
+<span class="s2">## Resources Created</span>
+
+<span class="s2">- Lambda function for handling agent requests</span>
+<span class="s2">- IAM roles for the Lambda function and Bedrock Agent</span>
+<span class="s2">- Bedrock Agent with action groups</span>
+<span class="s2">- Bedrock Agent Alias</span>
+
+<span class="s2">## Customization</span>
+
+<span class="s2">You can customize the deployment by editing the `template.yaml` file.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span> </div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Mike Chambers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

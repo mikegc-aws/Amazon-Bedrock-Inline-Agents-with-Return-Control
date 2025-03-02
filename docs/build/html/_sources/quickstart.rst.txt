@@ -1,0 +1,70 @@
+Quick Start
+==========
+
+This guide will help you get started with the Amazon Bedrock Agents with Return Control SDK by creating a simple agent that can tell you the current time.
+
+Minimal Working Example
+----------------------
+
+.. code-block:: python
+
+    # Minimal working example
+    import datetime
+    from bedrock_agents_sdk import BedrockAgents, Agent
+
+    def get_time() -> dict:
+        """Get the current time"""
+        now = datetime.datetime.now()
+        return {"time": now.strftime("%H:%M:%S")}
+
+    agent = Agent(
+        name="TimeAgent",
+        description="An agent that can tell you the current time",
+        foundation_model="anthropic.claude-3-sonnet-20240229-v1:0",
+        instructions="You are a helpful assistant that can tell the time."
+    )
+
+    agent.add_function(get_time)
+
+    client = BedrockAgents()
+    client.add_agent(agent)
+
+    # Run the agent locally
+    client.run()
+
+Step-by-Step Guide
+-----------------
+
+1. Install the SDK
+~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    pip install git+https://github.com/aws-samples/bedrock-agents-sdk.git
+
+2. Create a Python File
+~~~~~~~~~~~~~~~~~~~~~~
+
+Create a new file called ``time_agent.py`` and add the code from the minimal working example above.
+
+3. Run the Agent Locally
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    python time_agent.py
+
+4. Deploy to AWS
+~~~~~~~~~~~~~~~
+
+To deploy your agent to AWS, use the ``deploy`` method:
+
+.. code-block:: python
+
+    client.deploy(
+        stack_name="time-agent",
+        s3_bucket="my-deployment-bucket",
+        s3_prefix="time-agent"
+    )
+
+That's it! You've created and deployed your first agent using the Amazon Bedrock Agents with Return Control SDK. 

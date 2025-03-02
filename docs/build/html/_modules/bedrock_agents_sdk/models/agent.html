@@ -1,0 +1,375 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bedrock_agents_sdk.models.agent &mdash; Amazon Bedrock Agents with Return Control SDK 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Amazon Bedrock Agents with Return Control SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core_concepts.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deployment.html">Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Amazon Bedrock Agents with Return Control SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bedrock_agents_sdk.models.agent</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bedrock_agents_sdk.models.agent</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Agent model for Bedrock Agents SDK.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.models.function</span> <span class="kn">import</span> <span class="n">Function</span>
+<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.models.files</span> <span class="kn">import</span> <span class="n">InputFile</span>
+<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.deployment.sam_template</span> <span class="kn">import</span> <span class="n">SAMTemplateGenerator</span>
+<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">BedrockAgentsPlugin</span>
+
+<div class="viewcode-block" id="Agent">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.models.html#bedrock_agents_sdk.Agent">[docs]</a>
+<span class="k">class</span> <span class="nc">Agent</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a Bedrock agent configuration&quot;&quot;&quot;</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">instructions</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">functions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Function</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">enable_code_interpreter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">InputFile</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">plugins</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BedrockAgentsPlugin</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">advanced_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">arbitrary_types_allowed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the agent and process functions if provided&quot;&quot;&quot;</span>
+        <span class="c1"># Handle dictionary format for functions</span>
+        <span class="k">if</span> <span class="s1">&#39;functions&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;functions&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">action_groups</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;functions&#39;</span><span class="p">)</span>
+            <span class="n">processed_functions</span> <span class="o">=</span> <span class="p">[]</span>
+            
+            <span class="k">for</span> <span class="n">action_group</span><span class="p">,</span> <span class="n">funcs</span> <span class="ow">in</span> <span class="n">action_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">funcs</span><span class="p">:</span>
+                    <span class="n">processed_functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">action_group</span><span class="o">=</span><span class="n">action_group</span><span class="p">))</span>
+            
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;functions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">processed_functions</span>
+        
+        <span class="c1"># Initialize files list if not provided</span>
+        <span class="k">if</span> <span class="s1">&#39;files&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            
+        <span class="c1"># Initialize plugins list if not provided</span>
+        <span class="k">if</span> <span class="s1">&#39;plugins&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;plugins&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_functions</span><span class="p">()</span>
+        
+        <span class="c1"># Store custom dependencies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_custom_dependencies</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">def</span> <span class="nf">_process_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process functions provided in the constructor&quot;&quot;&quot;</span>
+        <span class="n">processed_functions</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># Process each function</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+                <span class="c1"># Already a Function object, keep as is</span>
+                <span class="n">processed_functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+                <span class="c1"># Single function without action group</span>
+                <span class="n">processed_functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_function</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+        
+        <span class="c1"># Replace the original functions list with processed functions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">functions</span> <span class="o">=</span> <span class="n">processed_functions</span>
+    
+    <span class="k">def</span> <span class="nf">_create_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">action_group</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Function object from a callable&quot;&quot;&quot;</span>
+        <span class="n">func_name</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="vm">__name__</span>
+        
+        <span class="c1"># Use provided description or extract first line of docstring</span>
+        <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
+            <span class="n">func_desc</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="k">elif</span> <span class="n">function</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">:</span>
+            <span class="c1"># Extract only the first line of the docstring</span>
+            <span class="n">func_desc</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">func_desc</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Execute the </span><span class="si">{</span><span class="n">func_name</span><span class="si">}</span><span class="s2"> function&quot;</span>
+        
+        <span class="k">return</span> <span class="n">Function</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">func_name</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">func_desc</span><span class="p">,</span>
+            <span class="n">function</span><span class="o">=</span><span class="n">function</span><span class="p">,</span>
+            <span class="n">action_group</span><span class="o">=</span><span class="n">action_group</span>
+        <span class="p">)</span>
+    
+<div class="viewcode-block" id="Agent.add_function">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.models.html#bedrock_agents_sdk.Agent.add_function">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">action_group</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a function to the agent&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_function</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">action_group</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Agent.add_file">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.models.html#bedrock_agents_sdk.Agent.add_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">media_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CODE_INTERPRETER&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InputFile</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a file to be sent to the agent&quot;&quot;&quot;</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">InputFile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">media_type</span><span class="o">=</span><span class="n">media_type</span><span class="p">,</span> <span class="n">use_case</span><span class="o">=</span><span class="n">use_case</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">file</span></div>
+
+    
+<div class="viewcode-block" id="Agent.add_file_from_path">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.models.html#bedrock_agents_sdk.Agent.add_file_from_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_file_from_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CODE_INTERPRETER&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InputFile</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a file from a local path&quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">mimetypes</span>
+        <span class="kn">import</span> <span class="nn">os</span>
+        
+        <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">media_type</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">file_path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;application/octet-stream&#39;</span>
+        
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_file</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">media_type</span><span class="p">,</span> <span class="n">use_case</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="Agent.add_plugin">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.models.html#bedrock_agents_sdk.Agent.add_plugin">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_plugin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">:</span> <span class="n">BedrockAgentsPlugin</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a plugin to the agent</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            plugin: The plugin to add</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            self: For method chaining</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plugins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plugin</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Agent.add_dependency">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.models.html#bedrock_agents_sdk.Agent.add_dependency">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dependency</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">action_group</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a custom dependency for deployment</span>
+<span class="sd">        </span>
+<span class="sd">        This method allows you to specify dependencies that should be included in the</span>
+<span class="sd">        requirements.txt file when deploying the agent to AWS Lambda.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            dependency: The name of the dependency (e.g., &quot;pandas&quot;)</span>
+<span class="sd">            version: Optional version constraint (e.g., &quot;&gt;=1.0.0&quot;)</span>
+<span class="sd">            action_group: Optional action group to add the dependency to.</span>
+<span class="sd">                          If not provided, the dependency will be added to all action groups.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            self: For method chaining</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">action_group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_dependencies</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_custom_dependencies</span><span class="p">[</span><span class="n">action_group</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_custom_dependencies</span><span class="p">[</span><span class="n">action_group</span><span class="p">][</span><span class="n">dependency</span><span class="p">]</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    
+<div class="viewcode-block" id="Agent.deploy">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.models.html#bedrock_agents_sdk.Agent.deploy">[docs]</a>
+    <span class="k">def</span> <span class="nf">deploy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+               <span class="n">output_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+               <span class="n">foundation_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">auto_build</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+               <span class="n">auto_deploy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deploy the agent to AWS using SAM</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            output_dir: The directory to output the SAM template and code to.</span>
+<span class="sd">                       If None, defaults to &quot;./[agent_name]_deployment&quot;</span>
+<span class="sd">            foundation_model: The foundation model to use (defaults to the agent&#39;s model)</span>
+<span class="sd">            parameters: Additional parameters to add to the template</span>
+<span class="sd">            description: Description for the SAM template</span>
+<span class="sd">            auto_build: Whether to automatically run &#39;sam build&#39;</span>
+<span class="sd">            auto_deploy: Whether to automatically run &#39;sam deploy --guided&#39;</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Path to the generated template file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">os</span>
+        
+        <span class="c1"># Create the SAM template generator</span>
+        <span class="n">generator</span> <span class="o">=</span> <span class="n">SAMTemplateGenerator</span><span class="p">(</span>
+            <span class="n">agent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Add custom dependencies to the generator</span>
+        <span class="k">for</span> <span class="n">action_group</span><span class="p">,</span> <span class="n">deps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_dependencies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">dep</span><span class="p">,</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">deps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">add_custom_dependency</span><span class="p">(</span><span class="n">action_group</span><span class="p">,</span> <span class="n">dep</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+        
+        <span class="c1"># Generate the SAM template and supporting files</span>
+        <span class="n">template_path</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+            <span class="n">foundation_model</span><span class="o">=</span><span class="n">foundation_model</span><span class="p">,</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Create a safe name for the stack (lowercase, alphanumeric with hyphens)</span>
+        <span class="n">safe_stack_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;-&#39;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">safe_stack_name</span> <span class="o">=</span> <span class="n">safe_stack_name</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>  <span class="c1"># Remove leading/trailing hyphens</span>
+        
+        <span class="c1"># Automatically build the SAM project if requested</span>
+        <span class="k">if</span> <span class="n">auto_build</span> <span class="ow">or</span> <span class="n">auto_deploy</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">subprocess</span>
+            <span class="kn">import</span> <span class="nn">sys</span>
+            
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">🔨 Building SAM project...&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Change to the output directory</span>
+            <span class="n">original_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Run sam build</span>
+                <span class="n">build_result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;sam&quot;</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">],</span>
+                    <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                
+                <span class="nb">print</span><span class="p">(</span><span class="n">build_result</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">✅ SAM project built successfully&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># Automatically deploy the SAM project if requested</span>
+                <span class="k">if</span> <span class="n">auto_deploy</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">🚀 Deploying SAM project...&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># Run sam deploy with the agent name as the stack name</span>
+                    <span class="n">deploy_result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                        <span class="p">[</span><span class="s2">&quot;sam&quot;</span><span class="p">,</span> <span class="s2">&quot;deploy&quot;</span><span class="p">,</span> <span class="s2">&quot;--guided&quot;</span><span class="p">,</span> <span class="s2">&quot;--capabilities&quot;</span><span class="p">,</span> <span class="s2">&quot;CAPABILITY_NAMED_IAM&quot;</span><span class="p">,</span> 
+                         <span class="s2">&quot;--stack-name&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">safe_stack_name</span><span class="si">}</span><span class="s2">-agent&quot;</span><span class="p">],</span>
+                        <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                    
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">✅ SAM project deployed successfully&quot;</span><span class="p">)</span>
+            
+            <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">❌ Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+                
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">❌ Error: AWS SAM CLI not found&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please install the AWS SAM CLI:&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  pip install aws-sam-cli&quot;</span><span class="p">)</span>
+                
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="c1"># Change back to the original directory</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">original_dir</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">template_path</span> </div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Mike Chambers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

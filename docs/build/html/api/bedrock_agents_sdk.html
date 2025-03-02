@@ -1,0 +1,731 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bedrock_agents_sdk package &mdash; Amazon Bedrock Agents with Return Control SDK 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bedrock_agents_sdk.core package" href="bedrock_agents_sdk.core.html" />
+    <link rel="prev" title="API Reference" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Amazon Bedrock Agents with Return Control SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_concepts.html">Core Concepts</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">bedrock_agents_sdk package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.core.html">bedrock_agents_sdk.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html">bedrock_agents_sdk.models package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.deployment.html">bedrock_agents_sdk.deployment package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.plugins.html">bedrock_agents_sdk.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.utils.html">bedrock_agents_sdk.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-contents">Module contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bedrock_agents_sdk.ActionGroup"><code class="docutils literal notranslate"><span class="pre">ActionGroup</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bedrock_agents_sdk.Agent"><code class="docutils literal notranslate"><span class="pre">Agent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bedrock_agents_sdk.BedrockAgents"><code class="docutils literal notranslate"><span class="pre">BedrockAgents</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bedrock_agents_sdk.Function"><code class="docutils literal notranslate"><span class="pre">Function</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bedrock_agents_sdk.GuardrailPlugin"><code class="docutils literal notranslate"><span class="pre">GuardrailPlugin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bedrock_agents_sdk.InputFile"><code class="docutils literal notranslate"><span class="pre">InputFile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bedrock_agents_sdk.KnowledgeBasePlugin"><code class="docutils literal notranslate"><span class="pre">KnowledgeBasePlugin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bedrock_agents_sdk.Message"><code class="docutils literal notranslate"><span class="pre">Message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bedrock_agents_sdk.OutputFile"><code class="docutils literal notranslate"><span class="pre">OutputFile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bedrock_agents_sdk.SAMTemplateGenerator"><code class="docutils literal notranslate"><span class="pre">SAMTemplateGenerator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bedrock_agents_sdk.SecurityPlugin"><code class="docutils literal notranslate"><span class="pre">SecurityPlugin</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deployment.html">Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Amazon Bedrock Agents with Return Control SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">API Reference</a></li>
+      <li class="breadcrumb-item active">bedrock_agents_sdk package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/bedrock_agents_sdk.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bedrock-agents-sdk-package">
+<h1>bedrock_agents_sdk package<a class="headerlink" href="#bedrock-agents-sdk-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bedrock_agents_sdk.core.html">bedrock_agents_sdk.core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.core.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.core.html#bedrock-agents-sdk-core-client-module">bedrock_agents_sdk.core.client module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.core.html#bedrock_agents_sdk.core.client.BedrockAgents"><code class="docutils literal notranslate"><span class="pre">BedrockAgents</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.core.html#bedrock_agents_sdk.core.client.BedrockAgents.chat"><code class="docutils literal notranslate"><span class="pre">BedrockAgents.chat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.core.html#bedrock_agents_sdk.core.client.BedrockAgents.run"><code class="docutils literal notranslate"><span class="pre">BedrockAgents.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.core.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bedrock_agents_sdk.models.html">bedrock_agents_sdk.models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.models.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock-agents-sdk-models-action-group-module">bedrock_agents_sdk.models.action_group module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.action_group.ActionGroup"><code class="docutils literal notranslate"><span class="pre">ActionGroup</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.action_group.ActionGroup.description"><code class="docutils literal notranslate"><span class="pre">ActionGroup.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.action_group.ActionGroup.functions"><code class="docutils literal notranslate"><span class="pre">ActionGroup.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.action_group.ActionGroup.model_config"><code class="docutils literal notranslate"><span class="pre">ActionGroup.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.action_group.ActionGroup.name"><code class="docutils literal notranslate"><span class="pre">ActionGroup.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock-agents-sdk-models-agent-module">bedrock_agents_sdk.models.agent module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent"><code class="docutils literal notranslate"><span class="pre">Agent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.add_dependency"><code class="docutils literal notranslate"><span class="pre">Agent.add_dependency()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.add_file"><code class="docutils literal notranslate"><span class="pre">Agent.add_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.add_file_from_path"><code class="docutils literal notranslate"><span class="pre">Agent.add_file_from_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.add_function"><code class="docutils literal notranslate"><span class="pre">Agent.add_function()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.add_plugin"><code class="docutils literal notranslate"><span class="pre">Agent.add_plugin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.advanced_config"><code class="docutils literal notranslate"><span class="pre">Agent.advanced_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.deploy"><code class="docutils literal notranslate"><span class="pre">Agent.deploy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.enable_code_interpreter"><code class="docutils literal notranslate"><span class="pre">Agent.enable_code_interpreter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.files"><code class="docutils literal notranslate"><span class="pre">Agent.files</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.functions"><code class="docutils literal notranslate"><span class="pre">Agent.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.instructions"><code class="docutils literal notranslate"><span class="pre">Agent.instructions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.model"><code class="docutils literal notranslate"><span class="pre">Agent.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.model_config"><code class="docutils literal notranslate"><span class="pre">Agent.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.name"><code class="docutils literal notranslate"><span class="pre">Agent.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent.plugins"><code class="docutils literal notranslate"><span class="pre">Agent.plugins</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock-agents-sdk-models-files-module">bedrock_agents_sdk.models.files module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.InputFile"><code class="docutils literal notranslate"><span class="pre">InputFile</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.InputFile.content"><code class="docutils literal notranslate"><span class="pre">InputFile.content</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.InputFile.media_type"><code class="docutils literal notranslate"><span class="pre">InputFile.media_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.InputFile.model_config"><code class="docutils literal notranslate"><span class="pre">InputFile.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.InputFile.name"><code class="docutils literal notranslate"><span class="pre">InputFile.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.InputFile.to_dict"><code class="docutils literal notranslate"><span class="pre">InputFile.to_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.InputFile.use_case"><code class="docutils literal notranslate"><span class="pre">InputFile.use_case</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.OutputFile"><code class="docutils literal notranslate"><span class="pre">OutputFile</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.OutputFile.from_response"><code class="docutils literal notranslate"><span class="pre">OutputFile.from_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.OutputFile.save"><code class="docutils literal notranslate"><span class="pre">OutputFile.save()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock-agents-sdk-models-function-module">bedrock_agents_sdk.models.function module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.function.Function"><code class="docutils literal notranslate"><span class="pre">Function</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.function.Function.action_group"><code class="docutils literal notranslate"><span class="pre">Function.action_group</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.function.Function.description"><code class="docutils literal notranslate"><span class="pre">Function.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.function.Function.function"><code class="docutils literal notranslate"><span class="pre">Function.function</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.function.Function.model_config"><code class="docutils literal notranslate"><span class="pre">Function.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.function.Function.name"><code class="docutils literal notranslate"><span class="pre">Function.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock-agents-sdk-models-message-module">bedrock_agents_sdk.models.message module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.message.Message"><code class="docutils literal notranslate"><span class="pre">Message</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.message.Message.content"><code class="docutils literal notranslate"><span class="pre">Message.content</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.message.Message.model_config"><code class="docutils literal notranslate"><span class="pre">Message.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.message.Message.role"><code class="docutils literal notranslate"><span class="pre">Message.role</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.models.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bedrock_agents_sdk.deployment.html">bedrock_agents_sdk.deployment package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.deployment.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.deployment.html#bedrock-agents-sdk-deployment-sam-template-module">bedrock_agents_sdk.deployment.sam_template module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.deployment.html#bedrock_agents_sdk.deployment.sam_template.SAMTemplateGenerator"><code class="docutils literal notranslate"><span class="pre">SAMTemplateGenerator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.deployment.html#bedrock_agents_sdk.deployment.sam_template.SAMTemplateGenerator.add_custom_dependency"><code class="docutils literal notranslate"><span class="pre">SAMTemplateGenerator.add_custom_dependency()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.deployment.html#bedrock_agents_sdk.deployment.sam_template.SAMTemplateGenerator.generate"><code class="docutils literal notranslate"><span class="pre">SAMTemplateGenerator.generate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.deployment.html#module-contents">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.deployment.html#bedrock_agents_sdk.deployment.SAMTemplateGenerator"><code class="docutils literal notranslate"><span class="pre">SAMTemplateGenerator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.deployment.html#bedrock_agents_sdk.deployment.SAMTemplateGenerator.add_custom_dependency"><code class="docutils literal notranslate"><span class="pre">SAMTemplateGenerator.add_custom_dependency()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.deployment.html#bedrock_agents_sdk.deployment.SAMTemplateGenerator.generate"><code class="docutils literal notranslate"><span class="pre">SAMTemplateGenerator.generate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bedrock_agents_sdk.plugins.html">bedrock_agents_sdk.plugins package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock-agents-sdk-plugins-base-module">bedrock_agents_sdk.plugins.base module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin"><code class="docutils literal notranslate"><span class="pre">BedrockAgentsPlugin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin.post_invoke"><code class="docutils literal notranslate"><span class="pre">BedrockAgentsPlugin.post_invoke()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin.post_process"><code class="docutils literal notranslate"><span class="pre">BedrockAgentsPlugin.post_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin.pre_deploy"><code class="docutils literal notranslate"><span class="pre">BedrockAgentsPlugin.pre_deploy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin.pre_invoke"><code class="docutils literal notranslate"><span class="pre">BedrockAgentsPlugin.pre_invoke()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock-agents-sdk-plugins-guardrail-module">bedrock_agents_sdk.plugins.guardrail module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.guardrail.GuardrailPlugin"><code class="docutils literal notranslate"><span class="pre">GuardrailPlugin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.guardrail.GuardrailPlugin.pre_deploy"><code class="docutils literal notranslate"><span class="pre">GuardrailPlugin.pre_deploy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.guardrail.GuardrailPlugin.pre_invoke"><code class="docutils literal notranslate"><span class="pre">GuardrailPlugin.pre_invoke()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock-agents-sdk-plugins-knowledge-base-module">bedrock_agents_sdk.plugins.knowledge_base module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.knowledge_base.KnowledgeBasePlugin"><code class="docutils literal notranslate"><span class="pre">KnowledgeBasePlugin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.knowledge_base.KnowledgeBasePlugin.pre_deploy"><code class="docutils literal notranslate"><span class="pre">KnowledgeBasePlugin.pre_deploy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.knowledge_base.KnowledgeBasePlugin.pre_invoke"><code class="docutils literal notranslate"><span class="pre">KnowledgeBasePlugin.pre_invoke()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock-agents-sdk-plugins-security-module">bedrock_agents_sdk.plugins.security module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.security.SecurityPlugin"><code class="docutils literal notranslate"><span class="pre">SecurityPlugin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.security.SecurityPlugin.pre_deploy"><code class="docutils literal notranslate"><span class="pre">SecurityPlugin.pre_deploy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.security.SecurityPlugin.pre_invoke"><code class="docutils literal notranslate"><span class="pre">SecurityPlugin.pre_invoke()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bedrock_agents_sdk.utils.html">bedrock_agents_sdk.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bedrock_agents_sdk.utils.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<p id="module-bedrock_agents_sdk">Amazon Bedrock Agents with Return Control SDK</p>
+<p>This SDK provides a simple yet powerful way to create and interact with Amazon Bedrock Agents
+using the Return Control pattern. It allows you to easily define function tools, organize them
+into action groups, and handle the entire conversation flow with minimal boilerplate code.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.ActionGroup">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bedrock_agents_sdk.</span></span><span class="sig-name descname"><span class="pre">ActionGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.function.Function" title="bedrock_agents_sdk.models.function.Function"><span class="pre">Function</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/action_group.html#ActionGroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.ActionGroup" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Represents an action group in the agent</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.ActionGroup.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.ActionGroup.description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.ActionGroup.functions">
+<span class="sig-name descname"><span class="pre">functions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.function.Function" title="bedrock_agents_sdk.models.function.Function"><span class="pre">Function</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#bedrock_agents_sdk.ActionGroup.functions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.ActionGroup.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">True}</span></em><a class="headerlink" href="#bedrock_agents_sdk.ActionGroup.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.ActionGroup.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.ActionGroup.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bedrock_agents_sdk.</span></span><span class="sig-name descname"><span class="pre">Agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.function.Function" title="bedrock_agents_sdk.models.function.Function"><span class="pre">Function</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_code_interpreter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.InputFile" title="bedrock_agents_sdk.models.files.InputFile"><span class="pre">InputFile</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plugins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin" title="bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin"><span class="pre">BedrockAgentsPlugin</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advanced_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/agent.html#Agent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.Agent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Represents a Bedrock agent configuration</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.add_dependency">
+<span class="sig-name descname"><span class="pre">add_dependency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dependency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/agent.html#Agent.add_dependency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.Agent.add_dependency" title="Link to this definition"></a></dt>
+<dd><p>Add a custom dependency for deployment</p>
+<p>This method allows you to specify dependencies that should be included in the
+requirements.txt file when deploying the agent to AWS Lambda.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dependency</strong> – The name of the dependency (e.g., “pandas”)</p></li>
+<li><p><strong>version</strong> – Optional version constraint (e.g., “&gt;=1.0.0”)</p></li>
+<li><p><strong>action_group</strong> – Optional action group to add the dependency to.
+If not provided, the dependency will be added to all action groups.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>For method chaining</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.add_file">
+<span class="sig-name descname"><span class="pre">add_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CODE_INTERPRETER'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.InputFile" title="bedrock_agents_sdk.models.files.InputFile"><span class="pre">InputFile</span></a></span></span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/agent.html#Agent.add_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.Agent.add_file" title="Link to this definition"></a></dt>
+<dd><p>Add a file to be sent to the agent</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.add_file_from_path">
+<span class="sig-name descname"><span class="pre">add_file_from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CODE_INTERPRETER'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.InputFile" title="bedrock_agents_sdk.models.files.InputFile"><span class="pre">InputFile</span></a></span></span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/agent.html#Agent.add_file_from_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.Agent.add_file_from_path" title="Link to this definition"></a></dt>
+<dd><p>Add a file from a local path</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.add_function">
+<span class="sig-name descname"><span class="pre">add_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/agent.html#Agent.add_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.Agent.add_function" title="Link to this definition"></a></dt>
+<dd><p>Add a function to the agent</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.add_plugin">
+<span class="sig-name descname"><span class="pre">add_plugin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plugin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin" title="bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin"><span class="pre">BedrockAgentsPlugin</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/agent.html#Agent.add_plugin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.Agent.add_plugin" title="Link to this definition"></a></dt>
+<dd><p>Add a plugin to the agent</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>plugin</strong> – The plugin to add</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>For method chaining</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.advanced_config">
+<span class="sig-name descname"><span class="pre">advanced_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bedrock_agents_sdk.Agent.advanced_config" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.deploy">
+<span class="sig-name descname"><span class="pre">deploy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">foundation_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_build</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_deploy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/agent.html#Agent.deploy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.Agent.deploy" title="Link to this definition"></a></dt>
+<dd><p>Deploy the agent to AWS using SAM</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_dir</strong> – The directory to output the SAM template and code to.
+If None, defaults to “./[agent_name]_deployment”</p></li>
+<li><p><strong>foundation_model</strong> – The foundation model to use (defaults to the agent’s model)</p></li>
+<li><p><strong>parameters</strong> – Additional parameters to add to the template</p></li>
+<li><p><strong>description</strong> – Description for the SAM template</p></li>
+<li><p><strong>auto_build</strong> – Whether to automatically run ‘sam build’</p></li>
+<li><p><strong>auto_deploy</strong> – Whether to automatically run ‘sam deploy –guided’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the generated template file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.enable_code_interpreter">
+<span class="sig-name descname"><span class="pre">enable_code_interpreter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#bedrock_agents_sdk.Agent.enable_code_interpreter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.files">
+<span class="sig-name descname"><span class="pre">files</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.InputFile" title="bedrock_agents_sdk.models.files.InputFile"><span class="pre">InputFile</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#bedrock_agents_sdk.Agent.files" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.functions">
+<span class="sig-name descname"><span class="pre">functions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.function.Function" title="bedrock_agents_sdk.models.function.Function"><span class="pre">Function</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#bedrock_agents_sdk.Agent.functions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.instructions">
+<span class="sig-name descname"><span class="pre">instructions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.Agent.instructions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.model">
+<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.Agent.model" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">True}</span></em><a class="headerlink" href="#bedrock_agents_sdk.Agent.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.Agent.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Agent.plugins">
+<span class="sig-name descname"><span class="pre">plugins</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin" title="bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin"><span class="pre">BedrockAgentsPlugin</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#bedrock_agents_sdk.Agent.plugins" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.BedrockAgents">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bedrock_agents_sdk.</span></span><span class="sig-name descname"><span class="pre">BedrockAgents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'normal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_tool_calls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/core/client.html#BedrockAgents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.BedrockAgents" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Client for interacting with Amazon Bedrock Agents</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.BedrockAgents.chat">
+<span class="sig-name descname"><span class="pre">chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent" title="bedrock_agents_sdk.models.agent.Agent"><span class="pre">Agent</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/core/client.html#BedrockAgents.chat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.BedrockAgents.chat" title="Link to this definition"></a></dt>
+<dd><p>Start an interactive chat session with the agent</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agent</strong> – The agent configuration</p></li>
+<li><p><strong>session_id</strong> – Optional session ID to continue a conversation. If not provided, a new session will be created.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.BedrockAgents.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.agent.Agent" title="bedrock_agents_sdk.models.agent.Agent"><span class="pre">Agent</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.message.Message" title="bedrock_agents_sdk.models.message.Message"><span class="pre">Message</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/bedrock_agents_sdk/core/client.html#BedrockAgents.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.BedrockAgents.run" title="Link to this definition"></a></dt>
+<dd><p>Run the agent with either a simple message string or a list of structured messages</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agent</strong> – The agent configuration</p></li>
+<li><p><strong>message</strong> – A simple string message (mutually exclusive with messages)</p></li>
+<li><p><strong>messages</strong> – A list of messages in the conversation (mutually exclusive with message)</p></li>
+<li><p><strong>session_id</strong> – Optional session ID to continue a conversation. If not provided, a new session will be created.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary containing the response text and any files</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Function">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bedrock_agents_sdk.</span></span><span class="sig-name descname"><span class="pre">Function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/function.html#Function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.Function" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Represents a function that can be called by the agent</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Function.action_group">
+<span class="sig-name descname"><span class="pre">action_group</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bedrock_agents_sdk.Function.action_group" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Function.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.Function.description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Function.function">
+<span class="sig-name descname"><span class="pre">function</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span></em><a class="headerlink" href="#bedrock_agents_sdk.Function.function" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Function.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">True}</span></em><a class="headerlink" href="#bedrock_agents_sdk.Function.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Function.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.Function.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.GuardrailPlugin">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bedrock_agents_sdk.</span></span><span class="sig-name descname"><span class="pre">GuardrailPlugin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">guardrail_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guardrail_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/plugins/guardrail.html#GuardrailPlugin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.GuardrailPlugin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin" title="bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BedrockAgentsPlugin</span></code></a></p>
+<p>Plugin for guardrail features</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.GuardrailPlugin.pre_deploy">
+<span class="sig-name descname"><span class="pre">pre_deploy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/plugins/guardrail.html#GuardrailPlugin.pre_deploy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.GuardrailPlugin.pre_deploy" title="Link to this definition"></a></dt>
+<dd><p>Add guardrail configuration to the SAM template</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.GuardrailPlugin.pre_invoke">
+<span class="sig-name descname"><span class="pre">pre_invoke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/plugins/guardrail.html#GuardrailPlugin.pre_invoke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.GuardrailPlugin.pre_invoke" title="Link to this definition"></a></dt>
+<dd><p>Add guardrail configuration before invocation</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.InputFile">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bedrock_agents_sdk.</span></span><span class="sig-name descname"><span class="pre">InputFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CODE_INTERPRETER'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/files.html#InputFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.InputFile" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Represents a file to be sent to the agent</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.InputFile.content">
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bytes</span></em><a class="headerlink" href="#bedrock_agents_sdk.InputFile.content" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.InputFile.media_type">
+<span class="sig-name descname"><span class="pre">media_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.InputFile.media_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.InputFile.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#bedrock_agents_sdk.InputFile.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.InputFile.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.InputFile.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.InputFile.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/files.html#InputFile.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.InputFile.to_dict" title="Link to this definition"></a></dt>
+<dd><p>Convert to API parameters format</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.InputFile.use_case">
+<span class="sig-name descname"><span class="pre">use_case</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.InputFile.use_case" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.KnowledgeBasePlugin">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bedrock_agents_sdk.</span></span><span class="sig-name descname"><span class="pre">KnowledgeBasePlugin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">knowledge_base_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieval_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/plugins/knowledge_base.html#KnowledgeBasePlugin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.KnowledgeBasePlugin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin" title="bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BedrockAgentsPlugin</span></code></a></p>
+<p>Plugin for knowledge base integration</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.KnowledgeBasePlugin.pre_deploy">
+<span class="sig-name descname"><span class="pre">pre_deploy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/plugins/knowledge_base.html#KnowledgeBasePlugin.pre_deploy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.KnowledgeBasePlugin.pre_deploy" title="Link to this definition"></a></dt>
+<dd><p>Add knowledge base configuration to the SAM template</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.KnowledgeBasePlugin.pre_invoke">
+<span class="sig-name descname"><span class="pre">pre_invoke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/plugins/knowledge_base.html#KnowledgeBasePlugin.pre_invoke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.KnowledgeBasePlugin.pre_invoke" title="Link to this definition"></a></dt>
+<dd><p>Add knowledge base configuration before invocation</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Message">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bedrock_agents_sdk.</span></span><span class="sig-name descname"><span class="pre">Message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/message.html#Message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.Message" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Represents a message in the conversation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Message.content">
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.Message.content" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Message.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#bedrock_agents_sdk.Message.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.Message.role">
+<span class="sig-name descname"><span class="pre">role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bedrock_agents_sdk.Message.role" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.OutputFile">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bedrock_agents_sdk.</span></span><span class="sig-name descname"><span class="pre">OutputFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/files.html#OutputFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.OutputFile" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a file received from the agent</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.OutputFile.from_response">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="bedrock_agents_sdk.models.html#bedrock_agents_sdk.models.files.OutputFile" title="bedrock_agents_sdk.models.files.OutputFile"><span class="pre">OutputFile</span></a></span></span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/files.html#OutputFile.from_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.OutputFile.from_response" title="Link to this definition"></a></dt>
+<dd><p>Create an OutputFile from API response data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.OutputFile.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/bedrock_agents_sdk/models/files.html#OutputFile.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.OutputFile.save" title="Link to this definition"></a></dt>
+<dd><p>Save the file to disk</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.SAMTemplateGenerator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bedrock_agents_sdk.</span></span><span class="sig-name descname"><span class="pre">SAMTemplateGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bedrock_agents_sdk.Agent" title="bedrock_agents_sdk.Agent"><span class="pre">Agent</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/deployment/sam_template.html#SAMTemplateGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.SAMTemplateGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generates a SAM template for deploying a Bedrock Agent</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.SAMTemplateGenerator.add_custom_dependency">
+<span class="sig-name descname"><span class="pre">add_custom_dependency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/deployment/sam_template.html#SAMTemplateGenerator.add_custom_dependency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.SAMTemplateGenerator.add_custom_dependency" title="Link to this definition"></a></dt>
+<dd><p>Add a custom dependency for a specific action group</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action_group</strong> – The action group to add the dependency to</p></li>
+<li><p><strong>dependency</strong> – The name of the dependency</p></li>
+<li><p><strong>version</strong> – Optional version constraint (e.g., “&gt;=1.0.0”)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.SAMTemplateGenerator.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">foundation_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/bedrock_agents_sdk/deployment/sam_template.html#SAMTemplateGenerator.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.SAMTemplateGenerator.generate" title="Link to this definition"></a></dt>
+<dd><p>Generate the SAM template and supporting files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>foundation_model</strong> – The foundation model to use (defaults to the agent’s model)</p></li>
+<li><p><strong>parameters</strong> – Additional parameters to add to the template</p></li>
+<li><p><strong>description</strong> – Description for the SAM template</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the generated template file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.SecurityPlugin">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bedrock_agents_sdk.</span></span><span class="sig-name descname"><span class="pre">SecurityPlugin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">customer_encryption_key_arn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/plugins/security.html#SecurityPlugin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.SecurityPlugin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bedrock_agents_sdk.plugins.html#bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin" title="bedrock_agents_sdk.plugins.base.BedrockAgentsPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BedrockAgentsPlugin</span></code></a></p>
+<p>Plugin for security features</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.SecurityPlugin.pre_deploy">
+<span class="sig-name descname"><span class="pre">pre_deploy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/plugins/security.html#SecurityPlugin.pre_deploy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.SecurityPlugin.pre_deploy" title="Link to this definition"></a></dt>
+<dd><p>Add security configuration to the SAM template</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bedrock_agents_sdk.SecurityPlugin.pre_invoke">
+<span class="sig-name descname"><span class="pre">pre_invoke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bedrock_agents_sdk/plugins/security.html#SecurityPlugin.pre_invoke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bedrock_agents_sdk.SecurityPlugin.pre_invoke" title="Link to this definition"></a></dt>
+<dd><p>Add security parameters before invocation</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bedrock_agents_sdk.core.html" class="btn btn-neutral float-right" title="bedrock_agents_sdk.core package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Mike Chambers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
