@@ -16,18 +16,26 @@ The Amazon Bedrock Agents with Return Control SDK lets you:
 ```python
 # Minimal working example
 import datetime
-from bedrock_agents_sdk import Client, Agent
+from bedrock_agents_sdk import Client, Agent, ActionGroup
 
 def get_time() -> dict:
     """Get the current time"""
     now = datetime.datetime.now()
     return {"time": now.strftime("%H:%M:%S")}
 
+# Create an action group for time-related functions
+time_group = ActionGroup(
+    name="TimeService",
+    description="Provides time-related information",
+    functions=[get_time]
+)
+
+# Create the agent with the action group
 agent = Agent(
     name="TimeAgent",
     model="anthropic.claude-3-5-sonnet-20241022-v2:0",
     instructions="You are a helpful assistant that can tell the time.",
-    functions=[get_time]
+    action_groups=[time_group]
 )
 
 # Start chatting with your agent
@@ -41,6 +49,63 @@ The above code will run the agent with tools running locally.  When you are read
 agent.deploy()
 ```
 
+## Configuration Methods
+
+The SDK supports four ways to configure agents with action groups:
+
+1. **Using ActionGroup objects in constructor (Recommended)**:
+   ```python
+   weather_group = ActionGroup(
+       name="WeatherService",
+       description="Provides weather information",
+       functions=[get_weather, get_forecast]
+   )
+   agent = Agent(
+       name="WeatherAgent",
+       model="anthropic.claude-3-5-sonnet-20241022-v2:0",
+       instructions="You are a weather assistant.",
+       action_groups=[weather_group]
+   )
+   ```
+
+2. **Adding ActionGroup objects after creation**:
+   ```python
+   agent = Agent(
+       name="WeatherAgent",
+       model="anthropic.claude-3-5-sonnet-20241022-v2:0",
+       instructions="You are a weather assistant."
+   )
+   weather_group = ActionGroup(
+       name="WeatherService",
+       description="Provides weather information",
+       functions=[get_weather, get_forecast]
+   )
+   agent.add_action_group(weather_group)
+   ```
+
+3. **Functions Dictionary**:
+   ```python
+   agent = Agent(
+       name="WeatherAgent",
+       model="anthropic.claude-3-5-sonnet-20241022-v2:0",
+       instructions="You are a weather assistant.",
+       functions={
+           "WeatherService": [get_weather, get_forecast]
+       }
+   )
+   ```
+
+4. **Functions List**:
+   ```python
+   agent = Agent(
+       name="WeatherAgent",
+       model="anthropic.claude-3-5-sonnet-20241022-v2:0",
+       instructions="You are a weather assistant.",
+       functions=[get_weather, get_forecast]
+   )
+   ```
+
+The ActionGroup-first approach (options 1 and 2) is recommended as it provides the most explicit and clear way to organize your agent's capabilities.
 
 ## Documentation Pages
 

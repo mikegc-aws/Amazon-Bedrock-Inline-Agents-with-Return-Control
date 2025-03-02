@@ -10,18 +10,26 @@ Minimal Working Example
 
     # Minimal working example
     import datetime
-    from bedrock_agents_sdk import Client, Agent
+    from bedrock_agents_sdk import Client, Agent, ActionGroup
 
     def get_time() -> dict:
         """Get the current time"""
         now = datetime.datetime.now()
         return {"time": now.strftime("%H:%M:%S")}
 
+    # Create an action group for time-related functions
+    time_group = ActionGroup(
+        name="TimeService",
+        description="Provides time-related information",
+        functions=[get_time]
+    )
+
+    # Create the agent with the action group
     agent = Agent(
         name="TimeAgent",
-        foundation_model="anthropic.claude-3-sonnet-20240229-v1:0",
+        model="anthropic.claude-3-sonnet-20240229-v1:0",
         instructions="You are a helpful assistant that can tell the time.",
-        functions=[get_time]
+        action_groups=[time_group]
     )
 
     client = Client()

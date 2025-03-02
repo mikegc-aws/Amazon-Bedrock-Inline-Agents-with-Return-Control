@@ -3,7 +3,7 @@ Example of using action groups with the Bedrock Agents SDK.
 """
 import datetime
 from typing import List, Dict, Any
-from bedrock_agents_sdk import BedrockAgents, Agent, ActionGroup, Message
+from bedrock_agents_sdk import Client, Agent, ActionGroup, Message
 
 # Define action group functions
 def get_weather(location: str) -> Dict[str, Any]:
@@ -55,7 +55,7 @@ def get_forecast(location: str, days: int = 3) -> Dict[str, Any]:
 
 def main():
     # Create the client
-    client = BedrockAgents()
+    client = Client()
     
     # Create action groups
     weather_group = ActionGroup(

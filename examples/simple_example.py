@@ -1,7 +1,7 @@
 """
 Simple example of using the Bedrock Agents SDK.
 """
-from bedrock_agents_sdk import Client, Agent, Message
+from bedrock_agents_sdk import Client, Agent, ActionGroup, Message
 import datetime
 
 # Define a function - this will run locally on your machine
@@ -24,12 +24,25 @@ def add_numbers(a: int, b: int) -> dict:
     return {"result": a + b}
 
 def main():
-    # Create the agent
+    # Create action groups
+    time_group = ActionGroup(
+        name="TimeService",
+        description="Provides time-related information",
+        functions=[get_time, get_date]
+    )
+    
+    math_group = ActionGroup(
+        name="MathService",
+        description="Provides mathematical operations",
+        functions=[add_numbers]
+    )
+    
+    # Create the agent with action groups
     agent = Agent(
         name="SimpleAgent",
         model="anthropic.claude-3-sonnet-20240229-v1:0",
         instructions="You are a helpful assistant that can tell time and do simple math.",
-        functions=[get_time, get_date, add_numbers]
+        action_groups=[time_group, math_group]
     )
     
     # Create the client

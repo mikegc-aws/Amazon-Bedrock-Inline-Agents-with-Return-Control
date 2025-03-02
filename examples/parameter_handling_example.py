@@ -8,7 +8,7 @@ This example demonstrates how to:
 4. Deploy an agent that correctly handles parameters in Lambda
 """
 import os
-from bedrock_agents_sdk import BedrockAgents, Agent, Message
+from bedrock_agents_sdk import Client, Agent, ActionGroup, Message
 
 # Define functions with various parameter types
 def calculate(operation: str, a: int, b: int) -> dict:
@@ -49,7 +49,7 @@ def format_text(text: str, uppercase: bool = False, max_length: int = 100) -> di
     """
     # Truncate text if needed
     if len(text) > max_length:
-        text = text[:max_length] + "..."
+        text = text[:max_length]
     
     # Convert to uppercase if requested
     if uppercase:
@@ -66,50 +66,69 @@ def calculate_statistics(numbers: str, precision: float = 2.0) -> dict:
     """
     Calculate statistics for a list of numbers
     
-    :param numbers: Comma-separated list of numbers
-    :param precision: Number of decimal places for results
+    :param numbers: Comma-separated list of numbers (e.g., "1, 2, 3, 4, 5")
+    :param precision: Number of decimal places for results (default: 2.0)
     """
-    # Parse the numbers
+    # Parse the input string into a list of numbers
     try:
-        num_list = [float(n.strip()) for n in numbers.split(',')]
-    except ValueError:
-        return {"error": "Invalid number format. Please provide comma-separated numbers."}
-    
-    if not num_list:
-        return {"error": "No numbers provided"}
-    
-    # Calculate statistics
-    total = sum(num_list)
-    count = len(num_list)
-    mean = total / count
-    
-    # Sort the list for median and min/max
-    sorted_nums = sorted(num_list)
-    
-    # Calculate median
-    if count % 2 == 0:
-        # Even number of elements
-        median = (sorted_nums[count//2 - 1] + sorted_nums[count//2]) / 2
-    else:
-        # Odd number of elements
-        median = sorted_nums[count//2]
-    
-    # Round results to specified precision
-    mean = round(mean, int(precision))
-    median = round(median, int(precision))
-    
-    return {
-        "count": count,
-        "sum": round(total, int(precision)),
-        "mean": mean,
-        "median": median,
-        "min": round(min(num_list), int(precision)),
-        "max": round(max(num_list), int(precision)),
-        "precision": int(precision)
-    }
+        # Split by comma and convert each item to float
+        num_list = [float(n.strip()) for n in numbers.split(",")]
+        
+        if not num_list:
+            return {"error": "No numbers provided"}
+        
+        # Calculate statistics
+        count = len(num_list)
+        total = sum(num_list)
+        mean = total / count
+        
+        # Sort the list for median and min/max
+        sorted_nums = sorted(num_list)
+        
+        # Calculate median
+        if count % 2 == 0:
+            # Even number of items
+            median = (sorted_nums[count//2 - 1] + sorted_nums[count//2]) / 2
+        else:
+            # Odd number of items
+            median = sorted_nums[count//2]
+        
+        # Round results to specified precision
+        precision = int(precision)  # Convert to integer for rounding
+        
+        return {
+            "count": count,
+            "min": round(min(num_list), precision),
+            "max": round(max(num_list), precision),
+            "sum": round(total, precision),
+            "mean": round(mean, precision),
+            "median": round(median, precision),
+            "numbers": num_list
+        }
+    except Exception as e:
+        return {"error": f"Error processing numbers: {str(e)}"}
 
 def main():
-    # Create the agent
+    # Create action groups
+    math_group = ActionGroup(
+        name="MathActions",
+        description="Functions for performing mathematical calculations",
+        functions=[calculate]
+    )
+    
+    text_group = ActionGroup(
+        name="TextActions",
+        description="Functions for formatting and manipulating text",
+        functions=[format_text]
+    )
+    
+    stats_group = ActionGroup(
+        name="StatisticsActions",
+        description="Functions for calculating statistics on sets of numbers",
+        functions=[calculate_statistics]
+    )
+    
+    # Create the agent with action groups
     agent = Agent(
         name="ParameterDemoAgent",
         model="anthropic.claude-3-sonnet-20240229-v1:0",
@@ -122,16 +141,12 @@ def main():
         
         Please use these functions to help users with their requests.
         """,
-        functions={
-            "MathActions": [calculate],
-            "TextActions": [format_text],
-            "StatisticsActions": [calculate_statistics]
-        }
+        action_groups=[math_group, text_group, stats_group]
     )
     
     # Test the agent locally before deploying
     print("Testing agent locally before deployment...")
-    client = BedrockAgents(verbosity="normal")
+    client = Client(verbosity="normal")
     
     # Test with different parameter types
     test_messages = [

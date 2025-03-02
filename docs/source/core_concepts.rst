@@ -53,16 +53,68 @@ Action Group
 
 Action Groups are logical groupings of related functions. They help organize the agent's capabilities and make it easier for the agent to understand when to use specific functions.
 
-Example:
+The SDK supports multiple ways to configure agents with action groups, with the ActionGroup-first approach being the recommended method.
+
+1. **Using ActionGroup Objects in Constructor (Recommended)**:
 
 .. code-block:: python
 
     weather_group = ActionGroup(
-        name="weather",
-        description="Functions for getting weather information"
+        name="WeatherService",
+        description="Provides weather information",
+        functions=[get_weather, get_forecast]
     )
-    weather_group.add_function(get_weather)
+    
+    agent = Agent(
+        name="WeatherAgent",
+        model="anthropic.claude-3-sonnet-20240229-v1:0",
+        instructions="You are a weather assistant.",
+        action_groups=[weather_group]
+    )
+
+2. **Adding ActionGroup Objects After Creation**:
+
+.. code-block:: python
+
+    agent = Agent(
+        name="WeatherAgent",
+        model="anthropic.claude-3-sonnet-20240229-v1:0",
+        instructions="You are a weather assistant."
+    )
+    
+    weather_group = ActionGroup(
+        name="WeatherService",
+        description="Provides weather information",
+        functions=[get_weather, get_forecast]
+    )
+    
     agent.add_action_group(weather_group)
+
+3. **Using Functions Dictionary**:
+
+.. code-block:: python
+
+    agent = Agent(
+        name="WeatherAgent",
+        model="anthropic.claude-3-sonnet-20240229-v1:0",
+        instructions="You are a weather assistant.",
+        functions={
+            "WeatherService": [get_weather, get_forecast]
+        }
+    )
+
+4. **Using Functions List** (functions will be added to a default action group):
+
+.. code-block:: python
+
+    agent = Agent(
+        name="WeatherAgent",
+        model="anthropic.claude-3-sonnet-20240229-v1:0",
+        instructions="You are a weather assistant.",
+        functions=[get_weather, get_forecast]
+    )
+
+The ActionGroup-first approach (options 1 and 2) is recommended as it provides the most explicit and clear way to organize your agent's capabilities.
 
 Message
 ------
