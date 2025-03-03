@@ -73,8 +73,8 @@ def main():
                         choices=["quiet", "normal", "verbose", "debug"],
                         help="Verbosity level")
     parser.add_argument("--trace", type=str, default="none", 
-                        choices=["none", "minimal", "standard", "detailed"],
-                        help="Agent trace level")
+                        choices=["none", "minimal", "standard", "detailed", "raw"],
+                        help="Agent trace level (raw shows complete unprocessed trace data)")
     parser.add_argument("--file", type=str, help="Path to a file to send to the agent")
     parser.add_argument("--kms-key", type=str, help="Customer KMS key ARN for encryption")
     args = parser.parse_args()

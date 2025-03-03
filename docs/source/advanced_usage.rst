@@ -3,6 +3,62 @@ Advanced Usage
 
 This section covers advanced usage patterns for the Amazon Bedrock Agents with Return Control SDK.
 
+Verbosity and Trace Levels
+-------------------------
+
+The SDK provides two separate but complementary control systems for output:
+
+1. **Verbosity** - Controls SDK-level logs (client operations, function calls, etc.)
+2. **Trace Level** - Controls agent-level traces (reasoning, decisions, code execution, etc.)
+
+This separation allows you to independently control what you see from the SDK itself versus what you see from the agent's internal processes.
+
+.. code-block:: python
+
+    # Simple unified verbosity control
+    client = Client(verbosity="normal")  # Default level
+
+    # Available verbosity levels:
+    client = Client(verbosity="quiet")    # No output except errors
+    client = Client(verbosity="normal")   # Basic operational information
+    client = Client(verbosity="verbose")  # Detailed operational information
+    client = Client(verbosity="debug")    # All available information
+
+    # Trace level control (independent of verbosity)
+    client = Client(
+        verbosity="normal",     # Controls SDK logs
+        trace_level="standard"  # Controls agent trace information
+    )
+
+    # Advanced control (overrides specific aspects of verbosity)
+    client = Client(
+        verbosity="normal",     # Base verbosity level
+        sdk_logs=True,          # Override to show SDK-level logs
+        agent_traces=True,      # Override to show agent reasoning and decisions
+        trace_level="detailed"  # Override level of trace detail
+    )
+
+    # Example with raw trace level for seeing code interpreter output
+    client = Client(
+        verbosity="normal",
+        trace_level="raw"       # Show complete unprocessed trace data, including code interpreter output
+    )
+
+Why Two Separate Settings?
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Verbosity** focuses on the SDK's operations (what your code is doing)
+- **Trace Level** focuses on the agent's thinking process (what the AI is doing)
+
+This separation allows you to, for example, have minimal SDK logs but detailed agent traces, or vice versa, depending on what you're trying to debug or understand.
+
+For example:
+- When developing your function tools, you might want high verbosity but minimal trace level
+- When debugging agent reasoning, you might want low verbosity but detailed trace level
+- When viewing code interpreter output, you might want low verbosity but raw trace level
+
+The two settings give you fine-grained control over what information you see, making it easier to focus on what's important for your current task.
+
 Custom Function Schemas
 ---------------------
 
@@ -48,10 +104,16 @@ The SDK provides advanced configuration options for both agents and the client:
         instructions="You are a helpful assistant.",
         advanced_config={
             "timeout_seconds": 300,
-            "max_tokens": 4096,
-            "temperature": 0.7,
-            "top_p": 0.9,
-            "stop_sequences": ["User:"],
+            "customerEncryptionKeyArn": "arn:aws:kms:us-west-2:123456789012:key/abcd1234-ab12-cd34-ef56-abcdef123456",
+            "guardrailConfiguration": {
+                "guardrailIdentifier": "my-guardrail-id",
+                "guardrailVersion": "1.0"
+            },
+            "bedrockModelConfigurations": {
+                "performanceConfig": {
+                    "latency": "optimized"
+                }
+            }
         }
     )
 

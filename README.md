@@ -49,68 +49,9 @@ The above code will run the agent with tools running locally.  When you are read
 agent.deploy()
 ```
 
-## Configuration Methods
-
-The SDK supports four ways to configure agents with action groups:
-
-1. **Using ActionGroup objects in constructor (Recommended)**:
-   ```python
-   weather_group = ActionGroup(
-       name="WeatherService",
-       description="Provides weather information",
-       functions=[get_weather, get_forecast]
-   )
-   agent = Agent(
-       name="WeatherAgent",
-       model="anthropic.claude-3-5-sonnet-20241022-v2:0",
-       instructions="You are a weather assistant.",
-       action_groups=[weather_group]
-   )
-   ```
-
-2. **Adding ActionGroup objects after creation**:
-   ```python
-   agent = Agent(
-       name="WeatherAgent",
-       model="anthropic.claude-3-5-sonnet-20241022-v2:0",
-       instructions="You are a weather assistant."
-   )
-   weather_group = ActionGroup(
-       name="WeatherService",
-       description="Provides weather information",
-       functions=[get_weather, get_forecast]
-   )
-   agent.add_action_group(weather_group)
-   ```
-
-3. **Functions Dictionary**:
-   ```python
-   agent = Agent(
-       name="WeatherAgent",
-       model="anthropic.claude-3-5-sonnet-20241022-v2:0",
-       instructions="You are a weather assistant.",
-       functions={
-           "WeatherService": [get_weather, get_forecast]
-       }
-   )
-   ```
-
-4. **Functions List**:
-   ```python
-   agent = Agent(
-       name="WeatherAgent",
-       model="anthropic.claude-3-5-sonnet-20241022-v2:0",
-       instructions="You are a weather assistant.",
-       functions=[get_weather, get_forecast]
-   )
-   ```
-
-The ActionGroup-first approach (options 1 and 2) is recommended as it provides the most explicit and clear way to organize your agent's capabilities.
-
 ## Documentation Pages
 
 For detailed documentation, visit the [SDK Documentation Pages](https://mikegc-aws.github.io/Amazon-Bedrock-Inline-Agents-with-Return-Control/).
-
 
 
 ## Table of Contents
@@ -497,11 +438,33 @@ The Code Interpreter feature provides significant advantages:
 
 This means you can enable powerful code execution capabilities without any additional infrastructure or security concerns.
 
+### Viewing Code Interpreter Output
+
+To see the actual code generated and executed by the Code Interpreter, you can use the "raw" trace level:
+
+```python
+# Create a client with raw trace level to see code interpreter output
+client = Client(
+    verbosity="verbose",
+    trace_level="raw"
+)
+
+# Or via command line
+# python app.py --trace raw
+```
+
+This will show the complete unprocessed trace data, including the code that was written and executed by the Code Interpreter.
+
 ## Debugging and Running
 
 ### Verbosity and Logging
 
-The SDK provides a unified verbosity system with multiple levels to help you debug and understand the agent's operations:
+The SDK provides two separate but complementary control systems for output:
+
+1. **Verbosity** - Controls SDK-level logs (client operations, function calls, etc.)
+2. **Trace Level** - Controls agent-level traces (reasoning, decisions, code execution, etc.)
+
+This separation allows you to independently control what you see from the SDK itself versus what you see from the agent's internal processes.
 
 ```python
 # Simple unified verbosity control
@@ -513,6 +476,12 @@ client = Client(verbosity="normal")   # Basic operational information
 client = Client(verbosity="verbose")  # Detailed operational information
 client = Client(verbosity="debug")    # All available information
 
+# Trace level control (independent of verbosity)
+client = Client(
+    verbosity="normal",     # Controls SDK logs
+    trace_level="standard"  # Controls agent trace information
+)
+
 # Advanced control (overrides specific aspects of verbosity)
 client = Client(
     verbosity="normal",     # Base verbosity level
@@ -520,7 +489,27 @@ client = Client(
     agent_traces=True,      # Override to show agent reasoning and decisions
     trace_level="detailed"  # Override level of trace detail
 )
+
+# Example with raw trace level for seeing code interpreter output
+client = Client(
+    verbosity="normal",
+    trace_level="raw"       # Show complete unprocessed trace data, including code interpreter output
+)
 ```
+
+#### Why Two Separate Settings?
+
+- **Verbosity** focuses on the SDK's operations (what your code is doing)
+- **Trace Level** focuses on the agent's thinking process (what the AI is doing)
+
+This separation allows you to, for example, have minimal SDK logs but detailed agent traces, or vice versa, depending on what you're trying to debug or understand.
+
+For example:
+- When developing your function tools, you might want high verbosity but minimal trace level
+- When debugging agent reasoning, you might want low verbosity but detailed trace level
+- When viewing code interpreter output, you might want low verbosity but raw trace level
+
+The two settings give you fine-grained control over what information you see, making it easier to focus on what's important for your current task.
 
 #### Verbosity Levels Explained
 
@@ -534,7 +523,7 @@ Each verbosity level automatically configures the appropriate combination of log
 - **normal** (default): 
   - SDK logs controlled by `sdk_logs` parameter (default: False)
   - Agent traces controlled by `agent_traces` parameter (default: True)
-  - Trace level controlled by `trace_level` parameter (default: "standard")
+  - Trace level controlled by `trace_level` parameter (default: "none")
 
 - **verbose**: 
   - SDK logs enabled
@@ -563,18 +552,13 @@ Agent traces (prefixed with `[AGENT TRACE]`) provide insight into the agent's re
 
 #### Trace Levels
 
+- **none**: No trace information (default)
 - **minimal**: Only basic reasoning and decisions
-- **standard**: Reasoning, decisions, and function calls (default)
-- **detailed**: All available trace information
+- **standard**: Reasoning, decisions, and function calls
+- **detailed**: All formatted trace information
+- **raw**: Complete unprocessed trace data in JSON format, including code interpreter output
 
-#### Backward Compatibility
-
-For backward compatibility, you can still use the `debug` parameter:
-
-```python
-# Equivalent to sdk_logs=True
-client = Client(debug=True)
-```
+The **raw** trace level is particularly useful for seeing the code generated and executed by the code interpreter, as well as any other trace information that might not be exposed in the other trace levels.
 
 ### Running the Agent
 
@@ -732,9 +716,8 @@ client = Client(
     verbosity="normal",     # Overall verbosity level (quiet, normal, verbose, debug)
     sdk_logs=False,         # Whether to show SDK-level logs
     agent_traces=True,      # Whether to show agent trace information
-    trace_level="standard", # Level of agent trace detail (minimal, standard, detailed)
-    max_tool_calls=10,      # Maximum number of tool calls to prevent infinite loops
-    debug=None             # Deprecated: Use sdk_logs instead
+    trace_level="standard", # Level of agent trace detail (none, minimal, standard, detailed, raw)
+    max_tool_calls=10       # Maximum number of tool calls to prevent infinite loops
 )
 ```
 
@@ -743,9 +726,8 @@ client = Client(
 | `verbosity` | str | "normal" | Overall verbosity level. Options: "quiet", "normal", "verbose", "debug" |
 | `sdk_logs` | bool | False | Whether to show SDK-level logs (client operations, function calls, etc.) |
 | `agent_traces` | bool | True | Whether to show agent trace information (reasoning, decisions, etc.) |
-| `trace_level` | str | "standard" | Level of agent trace detail. Options: "minimal", "standard", "detailed" |
+| `trace_level` | str | "none" | Level of agent trace detail. Options: "none", "minimal", "standard", "detailed", "raw" |
 | `max_tool_calls` | int | 10 | Maximum number of tool calls to prevent infinite loops |
-| `debug` | bool | None | Deprecated: Use `sdk_logs` instead |
 
 Note that the `verbosity` parameter will override the other logging parameters unless you explicitly set them.
 
@@ -1168,8 +1150,14 @@ python app.py --region us-west-2 --profile myprofile
 # Set verbosity and trace levels
 python app.py --verbosity verbose --trace standard
 
+# Use the raw trace level to see all trace data, including code interpreter output
+python app.py --trace raw  # Shows complete unprocessed JSON trace data
+
 # Use a customer KMS key
 python app.py --kms-key "arn:aws:kms:us-west-2:123456789012:key/abcd1234-ab12-cd34-ef56-abcdef123456"
+
+# Combine options for specific debugging needs
+python app.py --chat --verbosity quiet --trace raw  # Quiet SDK logs but full trace data
 ```
 
 ## Deploying Agents to AWS

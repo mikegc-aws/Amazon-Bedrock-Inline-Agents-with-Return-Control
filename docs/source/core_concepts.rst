@@ -16,6 +16,7 @@ Key properties of an Agent:
 * **Instructions**: Detailed instructions for the agent's behavior
 * **Functions**: The functions that the agent can call
 * **Action Groups**: Logical groupings of related functions
+* **Code Interpreter**: Optional capability to write and execute Python code
 
 Client
 -------------------
@@ -26,6 +27,33 @@ The ``Client`` class (formerly ``BedrockAgents``) is the main client for interac
 * Running agents locally
 * Deploying agents to AWS
 * Managing conversations
+
+Verbosity and Logging
+--------------------
+
+The SDK provides two separate but complementary control systems for output:
+
+1. **Verbosity** - Controls SDK-level logs (client operations, function calls, etc.)
+2. **Trace Level** - Controls agent-level traces (reasoning, decisions, code execution, etc.)
+
+This separation allows you to independently control what you see from the SDK itself versus what you see from the agent's internal processes.
+
+Verbosity Levels:
+
+* **quiet**: No SDK logs, no agent traces (errors are still displayed)
+* **normal** (default): SDK logs and agent traces controlled by parameters
+* **verbose**: SDK logs enabled, agent traces enabled, trace level set to at least "standard"
+* **debug**: SDK logs enabled, agent traces enabled, trace level set to "detailed"
+
+Trace Levels:
+
+* **none** (default): No trace information
+* **minimal**: Only basic reasoning and decisions
+* **standard**: Reasoning, decisions, and function calls
+* **detailed**: All formatted trace information
+* **raw**: Complete unprocessed trace data in JSON format, including code interpreter output
+
+The **raw** trace level is particularly useful for seeing the code generated and executed by the code interpreter.
 
 Function
 -------

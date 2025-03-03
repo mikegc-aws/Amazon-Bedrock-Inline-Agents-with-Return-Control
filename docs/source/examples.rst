@@ -39,6 +39,15 @@ The parameter handling example demonstrates how to work with function parameters
    :language: python
    :linenos:
 
+Code Interpreter Example
+----------------------
+
+The code interpreter example demonstrates how to use the Code Interpreter feature to write and execute Python code.
+
+.. literalinclude:: ../../examples/code_interpreter_example.py
+   :language: python
+   :linenos:
+
 Plugin Example
 ------------
 
