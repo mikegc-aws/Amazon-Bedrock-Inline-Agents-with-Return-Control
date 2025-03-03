@@ -346,6 +346,11 @@ class SAMTemplateGenerator:
         
         # Add parameters if they exist
         parameters = {}
+        
+        # Extract parameter descriptions from docstring
+        from bedrock_agents_sdk.utils.parameter_extraction import extract_parameter_info
+        param_info = extract_parameter_info(func.function)
+        
         for param_name, param in signature.parameters.items():
             # Skip return annotation
             if param_name == "return":
@@ -361,9 +366,14 @@ class SAMTemplateGenerator:
                 elif param.annotation == list or param.annotation == dict:
                     param_type = "object"
             
+            # Get description from extracted parameter info if available
+            param_desc = f"Parameter {param_name}"
+            if param_name in param_info:
+                param_desc = param_info[param_name]["description"]
+            
             # Add parameter to the parameters dictionary
             parameters[param_name] = {
-                "Description": f"Parameter {param_name}",
+                "Description": param_desc,
                 "Required": param.default == inspect.Parameter.empty,
                 "Type": param_type
             }
