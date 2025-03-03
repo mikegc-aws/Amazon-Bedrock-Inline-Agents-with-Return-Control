@@ -532,6 +532,7 @@ class SAMTemplateGenerator:
                 f.write('import json\n')
                 f.write('import logging\n')
                 f.write('import datetime\n')
+                f.write('from typing import Dict, List, Any, Optional, Union\n')
                 
                 # Add detected imports
                 for module in sorted(all_imports):
