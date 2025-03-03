@@ -1,7 +1,88 @@
 Examples
 ========
 
-This section provides examples of using the Amazon Bedrock Agents with Return Control SDK for various use cases.
+The SDK includes several examples to help you get started. These examples demonstrate different features and use cases for the SDK.
+
+Simple Example
+-------------
+
+The simple example demonstrates how to create a basic agent with time and math functions.
+
+.. literalinclude:: ../../examples/simple_example.py
+   :language: python
+   :linenos:
+
+Action Groups Example
+-------------------
+
+The action groups example demonstrates how to use action groups to organize your agent's functions.
+
+.. literalinclude:: ../../examples/action_groups_example.py
+   :language: python
+   :linenos:
+
+Configuration Methods Example
+----------------------------
+
+This example demonstrates the four different ways to configure agents with action groups, highlighting the recommended ActionGroup-first approach.
+
+.. literalinclude:: ../../examples/configuration_methods_example.py
+   :language: python
+   :linenos:
+
+Parameter Handling Example
+-------------------------
+
+The parameter handling example demonstrates how to work with function parameters and validation.
+
+.. literalinclude:: ../../examples/parameter_handling_example.py
+   :language: python
+   :linenos:
+
+Code Interpreter Example
+----------------------
+
+The code interpreter example demonstrates how to use the Code Interpreter feature to write and execute Python code.
+
+.. literalinclude:: ../../examples/code_interpreter_example.py
+   :language: python
+   :linenos:
+
+Plugin Example
+------------
+
+The plugin example demonstrates how to use plugins to extend your agent's capabilities.
+
+.. literalinclude:: ../../examples/plugin_example.py
+   :language: python
+   :linenos:
+
+Dependency Example
+----------------
+
+The dependency example demonstrates how to handle dependencies in your agent's functions.
+
+.. literalinclude:: ../../examples/dependency_example.py
+   :language: python
+   :linenos:
+
+Deployment Example
+----------------
+
+The deployment example demonstrates how to deploy your agent to AWS.
+
+.. literalinclude:: ../../examples/deployment_example.py
+   :language: python
+   :linenos:
+
+Knowledge Base Example
+--------------------
+
+The knowledge base example demonstrates how to connect your agent to an Amazon Bedrock Knowledge Base.
+
+.. literalinclude:: ../../examples/knowledge_base_example.py
+   :language: python
+   :linenos:
 
 Simple Weather Agent
 ------------------

@@ -45,6 +45,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../core_concepts.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_interpreter.html">Code Interpreter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../command_line.html">Command Line Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced_usage.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deployment.html">Deployment</a></li>
@@ -123,12 +125,21 @@
         
         <span class="c1"># Handle dictionary format for functions</span>
         <span class="k">if</span> <span class="s1">&#39;functions&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;functions&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">action_groups</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;functions&#39;</span><span class="p">)</span>
+            <span class="n">action_groups_dict</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;functions&#39;</span><span class="p">)</span>
             <span class="n">processed_functions</span> <span class="o">=</span> <span class="p">[]</span>
             
-            <span class="k">for</span> <span class="n">action_group</span><span class="p">,</span> <span class="n">funcs</span> <span class="ow">in</span> <span class="n">action_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Create ActionGroup objects from the dictionary</span>
+            <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">funcs</span> <span class="ow">in</span> <span class="n">action_groups_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">action_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">group_name</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Functions related to </span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">functions</span><span class="o">=</span><span class="n">funcs</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">action_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_group</span><span class="p">)</span>
+                
+                <span class="c1"># Also add the functions to the functions list with action_group name</span>
                 <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">funcs</span><span class="p">:</span>
-                    <span class="n">processed_functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">action_group</span><span class="o">=</span><span class="n">action_group</span><span class="p">))</span>
+                    <span class="n">processed_functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">action_group</span><span class="o">=</span><span class="n">group_name</span><span class="p">))</span>
             
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;functions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">processed_functions</span>
             
@@ -137,6 +148,9 @@
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
             
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_functions</span><span class="p">()</span>
+        
+        <span class="c1"># Process action groups to ensure all functions are in the functions list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_action_groups</span><span class="p">()</span>
         
     <span class="k">def</span> <span class="nf">_process_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process functions provided in the constructor&quot;&quot;&quot;</span>
@@ -153,6 +167,20 @@
         
         <span class="c1"># Replace the original functions list with processed functions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">functions</span> <span class="o">=</span> <span class="n">processed_functions</span>
+    
+    <span class="k">def</span> <span class="nf">_process_action_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process action groups to ensure all functions are in the functions list&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">action_group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_groups</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">action_group</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
+                <span class="c1"># Check if this function is already in the functions list</span>
+                <span class="n">func_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">func_names</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+                    <span class="n">func_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">action_group</span><span class="o">=</span><span class="n">action_group</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">func_obj</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">func_names</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func_obj</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="nf">_create_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">action_group</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Function object from a callable&quot;&quot;&quot;</span>
@@ -179,6 +207,35 @@
     <span class="k">def</span> <span class="nf">add_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">action_group</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a function to the agent&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_function</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">action_group</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Agent.add_action_group">
+<a class="viewcode-back" href="../../../api/bedrock_agents_sdk.models.html#bedrock_agents_sdk.Agent.add_action_group">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_action_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_group</span><span class="p">:</span> <span class="n">ActionGroup</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add an action group to the agent</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            action_group: The action group to add</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            self: For method chaining</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_group</span><span class="p">)</span>
+        
+        <span class="c1"># Also add the functions to the functions list</span>
+        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">action_group</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+                <span class="c1"># Check if function already exists in functions list</span>
+                <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+                <span class="n">func_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">action_group</span><span class="o">=</span><span class="n">action_group</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="c1"># Check if function already exists in functions list</span>
+                <span class="k">if</span> <span class="n">func_obj</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func_obj</span><span class="p">)</span>
+        
         <span class="k">return</span> <span class="bp">self</span></div>
 
 

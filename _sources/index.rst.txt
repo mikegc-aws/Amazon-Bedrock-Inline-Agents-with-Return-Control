@@ -17,6 +17,8 @@ Welcome to Amazon Bedrock Agents with Return Control SDK's documentation!
    installation
    quickstart
    core_concepts
+   code_interpreter
+   command_line
    api/modules
    advanced_usage
    deployment

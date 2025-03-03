@@ -45,6 +45,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../core_concepts.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_interpreter.html">Code Interpreter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../command_line.html">Command Line Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced_usage.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../deployment.html">Deployment</a></li>
@@ -88,6 +90,7 @@
 <span class="kn">from</span> <span class="nn">botocore.exceptions</span> <span class="kn">import</span> <span class="n">ClientError</span>
 
 <span class="kn">from</span> <span class="nn">bedrock_agents_sdk.models.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">bedrock_agents_sdk.models.function</span> <span class="kn">import</span> <span class="n">Function</span>
 <span class="kn">from</span> <span class="nn">bedrock_agents_sdk.models.message</span> <span class="kn">import</span> <span class="n">Message</span>
 <span class="kn">from</span> <span class="nn">bedrock_agents_sdk.models.files</span> <span class="kn">import</span> <span class="n">OutputFile</span>
 <span class="kn">from</span> <span class="nn">bedrock_agents_sdk.utils.parameter_extraction</span> <span class="kn">import</span> <span class="n">extract_parameter_info</span>
@@ -114,7 +117,8 @@
 <span class="sd">            verbosity: Logging verbosity (default: &quot;normal&quot;)</span>
 <span class="sd">                Options: &quot;quiet&quot;, &quot;normal&quot;, &quot;verbose&quot;, &quot;debug&quot;</span>
 <span class="sd">            trace_level: Agent trace level (default: &quot;none&quot;)</span>
-<span class="sd">                Options: &quot;none&quot;, &quot;minimal&quot;, &quot;standard&quot;, &quot;detailed&quot;</span>
+<span class="sd">                Options: &quot;none&quot;, &quot;minimal&quot;, &quot;standard&quot;, &quot;detailed&quot;, &quot;raw&quot;</span>
+<span class="sd">                The &quot;raw&quot; level dumps the complete unprocessed trace data, including code interpreter output</span>
 <span class="sd">            max_tool_calls: Maximum number of tool calls per run (default: 10)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Set up session</span>
@@ -137,58 +141,109 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[SDK LOG] Initialized Bedrock Agents client (region: </span><span class="si">{</span><span class="n">region_name</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;default&#39;</span><span class="si">}</span><span class="s2">, verbosity: </span><span class="si">{</span><span class="n">verbosity</span><span class="si">}</span><span class="s2">, trace level: </span><span class="si">{</span><span class="n">trace_level</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="nf">_build_action_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="n">Agent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build action groups from agent functions&quot;&quot;&quot;</span>
-        <span class="c1"># Group functions by action group</span>
-        <span class="n">action_group_map</span> <span class="o">=</span> <span class="p">{}</span>
-        
-        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">agent</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
-            <span class="c1"># Determine action group name</span>
-            <span class="n">group_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">action_group</span> <span class="ow">or</span> <span class="s2">&quot;DefaultActions&quot;</span>
-            
-            <span class="c1"># Create action group if it doesn&#39;t exist</span>
-            <span class="k">if</span> <span class="n">group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="p">:</span>
-                <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            
-            <span class="c1"># Extract parameter information</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="n">extract_parameter_info</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">function</span><span class="p">)</span>
-            
-            <span class="c1"># Add function to action group</span>
-            <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">func</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
-                <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="n">params</span>
-            <span class="p">})</span>
-        
-        <span class="c1"># Create action groups</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build action groups from agent&#39;s action_groups property or functions&quot;&quot;&quot;</span>
         <span class="n">action_groups</span> <span class="o">=</span> <span class="p">[]</span>
         
-        <span class="c1"># Add custom action groups from functions</span>
-        <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">functions</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">action_group</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;actionGroupName&quot;</span><span class="p">:</span> <span class="n">group_name</span><span class="p">,</span>
-                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Actions related to </span><span class="si">{</span><span class="n">group_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Actions&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;actionGroupExecutor&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;customControl&quot;</span><span class="p">:</span> <span class="s2">&quot;RETURN_CONTROL&quot;</span>
-                <span class="p">},</span>
-                <span class="s2">&quot;functionSchema&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;functions&quot;</span><span class="p">:</span> <span class="p">[]</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-            
-            <span class="k">for</span> <span class="n">func_info</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
-                <span class="n">function_def</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">func_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">func_info</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
-                    <span class="s2">&quot;requireConfirmation&quot;</span><span class="p">:</span> <span class="s2">&quot;DISABLED&quot;</span>
+        <span class="c1"># First, use the explicitly defined action groups if they exist</span>
+        <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">action_groups</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ag</span> <span class="ow">in</span> <span class="n">agent</span><span class="o">.</span><span class="n">action_groups</span><span class="p">:</span>
+                <span class="n">action_group</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;actionGroupName&quot;</span><span class="p">:</span> <span class="n">ag</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">ag</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+                    <span class="s2">&quot;actionGroupExecutor&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;customControl&quot;</span><span class="p">:</span> <span class="s2">&quot;RETURN_CONTROL&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;functionSchema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;functions&quot;</span><span class="p">:</span> <span class="p">[]</span>
+                    <span class="p">}</span>
                 <span class="p">}</span>
                 
-                <span class="c1"># Add parameters if they exist</span>
-                <span class="k">if</span> <span class="n">func_info</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]:</span>
-                    <span class="n">function_def</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">func_info</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">ag</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
+                    <span class="c1"># Extract function info</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+                        <span class="n">func_obj</span> <span class="o">=</span> <span class="n">func</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Create a Function object if it&#39;s a callable</span>
+                        <span class="n">func_obj</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                            <span class="n">description</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;Execute </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">function</span><span class="o">=</span><span class="n">func</span><span class="p">,</span>
+                            <span class="n">action_group</span><span class="o">=</span><span class="n">ag</span><span class="o">.</span><span class="n">name</span>
+                        <span class="p">)</span>
+                    
+                    <span class="c1"># Extract parameter information</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="n">extract_parameter_info</span><span class="p">(</span><span class="n">func_obj</span><span class="o">.</span><span class="n">function</span><span class="p">)</span>
+                    
+                    <span class="n">function_def</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">func_obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">func_obj</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+                        <span class="s2">&quot;requireConfirmation&quot;</span><span class="p">:</span> <span class="s2">&quot;DISABLED&quot;</span>
+                    <span class="p">}</span>
+                    
+                    <span class="c1"># Add parameters if they exist</span>
+                    <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
+                        <span class="n">function_def</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
+                    
+                    <span class="n">action_group</span><span class="p">[</span><span class="s2">&quot;functionSchema&quot;</span><span class="p">][</span><span class="s2">&quot;functions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">function_def</span><span class="p">)</span>
                 
-                <span class="n">action_group</span><span class="p">[</span><span class="s2">&quot;functionSchema&quot;</span><span class="p">][</span><span class="s2">&quot;functions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">function_def</span><span class="p">)</span>
+                <span class="n">action_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_group</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdk_logs</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[SDK LOG] Using </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">action_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"> action groups from agent.action_groups&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># If no action groups are defined, fall back to building them from functions</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Group functions by action group</span>
+            <span class="n">action_group_map</span> <span class="o">=</span> <span class="p">{}</span>
             
-            <span class="n">action_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_group</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">agent</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
+                <span class="c1"># Determine action group name</span>
+                <span class="n">group_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">action_group</span> <span class="ow">or</span> <span class="s2">&quot;DefaultActions&quot;</span>
+                
+                <span class="c1"># Create action group if it doesn&#39;t exist</span>
+                <span class="k">if</span> <span class="n">group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="p">:</span>
+                    <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                
+                <span class="c1"># Extract parameter information</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="n">extract_parameter_info</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">function</span><span class="p">)</span>
+                
+                <span class="c1"># Add function to action group</span>
+                <span class="n">action_group_map</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">func</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+                    <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="n">params</span>
+                <span class="p">})</span>
+            
+            <span class="c1"># Create action groups</span>
+            <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">functions</span> <span class="ow">in</span> <span class="n">action_group_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">action_group</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;actionGroupName&quot;</span><span class="p">:</span> <span class="n">group_name</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Actions related to </span><span class="si">{</span><span class="n">group_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Actions&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;actionGroupExecutor&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;customControl&quot;</span><span class="p">:</span> <span class="s2">&quot;RETURN_CONTROL&quot;</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;functionSchema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;functions&quot;</span><span class="p">:</span> <span class="p">[]</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+                
+                <span class="k">for</span> <span class="n">func_info</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
+                    <span class="n">function_def</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">func_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">func_info</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;requireConfirmation&quot;</span><span class="p">:</span> <span class="s2">&quot;DISABLED&quot;</span>
+                    <span class="p">}</span>
+                    
+                    <span class="c1"># Add parameters if they exist</span>
+                    <span class="k">if</span> <span class="n">func_info</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]:</span>
+                        <span class="n">function_def</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">func_info</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span>
+                    
+                    <span class="n">action_group</span><span class="p">[</span><span class="s2">&quot;functionSchema&quot;</span><span class="p">][</span><span class="s2">&quot;functions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">function_def</span><span class="p">)</span>
+                
+                <span class="n">action_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_group</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdk_logs</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[SDK LOG] Built </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">action_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"> action groups from agent.functions&quot;</span><span class="p">)</span>
         
         <span class="c1"># Add code interpreter action group if enabled</span>
         <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">enable_code_interpreter</span><span class="p">:</span>

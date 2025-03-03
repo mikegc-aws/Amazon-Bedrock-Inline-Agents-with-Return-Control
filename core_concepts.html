@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Reference" href="api/modules.html" />
+    <link rel="next" title="Code Interpreter" href="code_interpreter.html" />
     <link rel="prev" title="Quick Start" href="quickstart.html" /> 
 </head>
 
@@ -50,6 +50,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Core Concepts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#agent">Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#client">Client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verbosity-and-logging">Verbosity and Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#function">Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#action-group">Action Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#message">Message</a></li>
@@ -57,6 +58,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#deployment">Deployment</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="code_interpreter.html">Code Interpreter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command Line Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced_usage.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment</a></li>
@@ -103,6 +106,7 @@
 <li><p><strong>Instructions</strong>: Detailed instructions for the agent’s behavior</p></li>
 <li><p><strong>Functions</strong>: The functions that the agent can call</p></li>
 <li><p><strong>Action Groups</strong>: Logical groupings of related functions</p></li>
+<li><p><strong>Code Interpreter</strong>: Optional capability to write and execute Python code</p></li>
 </ul>
 </section>
 <section id="client">
@@ -114,6 +118,31 @@
 <li><p>Deploying agents to AWS</p></li>
 <li><p>Managing conversations</p></li>
 </ul>
+</section>
+<section id="verbosity-and-logging">
+<h2>Verbosity and Logging<a class="headerlink" href="#verbosity-and-logging" title="Link to this heading"></a></h2>
+<p>The SDK provides two separate but complementary control systems for output:</p>
+<ol class="arabic simple">
+<li><p><strong>Verbosity</strong> - Controls SDK-level logs (client operations, function calls, etc.)</p></li>
+<li><p><strong>Trace Level</strong> - Controls agent-level traces (reasoning, decisions, code execution, etc.)</p></li>
+</ol>
+<p>This separation allows you to independently control what you see from the SDK itself versus what you see from the agent’s internal processes.</p>
+<p>Verbosity Levels:</p>
+<ul class="simple">
+<li><p><strong>quiet</strong>: No SDK logs, no agent traces (errors are still displayed)</p></li>
+<li><p><strong>normal</strong> (default): SDK logs and agent traces controlled by parameters</p></li>
+<li><p><strong>verbose</strong>: SDK logs enabled, agent traces enabled, trace level set to at least “standard”</p></li>
+<li><p><strong>debug</strong>: SDK logs enabled, agent traces enabled, trace level set to “detailed”</p></li>
+</ul>
+<p>Trace Levels:</p>
+<ul class="simple">
+<li><p><strong>none</strong> (default): No trace information</p></li>
+<li><p><strong>minimal</strong>: Only basic reasoning and decisions</p></li>
+<li><p><strong>standard</strong>: Reasoning, decisions, and function calls</p></li>
+<li><p><strong>detailed</strong>: All formatted trace information</p></li>
+<li><p><strong>raw</strong>: Complete unprocessed trace data in JSON format, including code interpreter output</p></li>
+</ul>
+<p>The <strong>raw</strong> trace level is particularly useful for seeing the code generated and executed by the code interpreter.</p>
 </section>
 <section id="function">
 <h2>Function<a class="headerlink" href="#function" title="Link to this heading"></a></h2>
@@ -136,15 +165,67 @@
 <section id="action-group">
 <h2>Action Group<a class="headerlink" href="#action-group" title="Link to this heading"></a></h2>
 <p>Action Groups are logical groupings of related functions. They help organize the agent’s capabilities and make it easier for the agent to understand when to use specific functions.</p>
-<p>Example:</p>
+<p>The SDK supports multiple ways to configure agents with action groups, with the ActionGroup-first approach being the recommended method.</p>
+<ol class="arabic simple">
+<li><p><strong>Using ActionGroup Objects in Constructor (Recommended)</strong>:</p></li>
+</ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">weather_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;weather&quot;</span><span class="p">,</span>
-    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Functions for getting weather information&quot;</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeatherService&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Provides weather information&quot;</span><span class="p">,</span>
+    <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">get_weather</span><span class="p">,</span> <span class="n">get_forecast</span><span class="p">]</span>
 <span class="p">)</span>
-<span class="n">weather_group</span><span class="o">.</span><span class="n">add_function</span><span class="p">(</span><span class="n">get_weather</span><span class="p">)</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeatherAgent&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+    <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;You are a weather assistant.&quot;</span><span class="p">,</span>
+    <span class="n">action_groups</span><span class="o">=</span><span class="p">[</span><span class="n">weather_group</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>Adding ActionGroup Objects After Creation</strong>:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeatherAgent&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+    <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;You are a weather assistant.&quot;</span>
+<span class="p">)</span>
+
+<span class="n">weather_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeatherService&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Provides weather information&quot;</span><span class="p">,</span>
+    <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">get_weather</span><span class="p">,</span> <span class="n">get_forecast</span><span class="p">]</span>
+<span class="p">)</span>
+
 <span class="n">agent</span><span class="o">.</span><span class="n">add_action_group</span><span class="p">(</span><span class="n">weather_group</span><span class="p">)</span>
 </pre></div>
 </div>
+<ol class="arabic simple" start="3">
+<li><p><strong>Using Functions Dictionary</strong>:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeatherAgent&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+    <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;You are a weather assistant.&quot;</span><span class="p">,</span>
+    <span class="n">functions</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;WeatherService&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">get_weather</span><span class="p">,</span> <span class="n">get_forecast</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p><strong>Using Functions List</strong> (functions will be added to a default action group):</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeatherAgent&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+    <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;You are a weather assistant.&quot;</span><span class="p">,</span>
+    <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">get_weather</span><span class="p">,</span> <span class="n">get_forecast</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The ActionGroup-first approach (options 1 and 2) is recommended as it provides the most explicit and clear way to organize your agent’s capabilities.</p>
 </section>
 <section id="message">
 <h2>Message<a class="headerlink" href="#message" title="Link to this heading"></a></h2>
@@ -171,7 +252,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="quickstart.html" class="btn btn-neutral float-left" title="Quick Start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="api/modules.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="code_interpreter.html" class="btn btn-neutral float-right" title="Code Interpreter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

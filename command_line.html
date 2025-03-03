@@ -1,0 +1,195 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Command Line Interface &mdash; Amazon Bedrock Agents with Return Control SDK 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="api/modules.html" />
+    <link rel="prev" title="Code Interpreter" href="code_interpreter.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Amazon Bedrock Agents with Return Control SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core_concepts.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_interpreter.html">Code Interpreter</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verbosity-and-trace-levels">Verbosity and Trace Levels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#available-options">Available Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-commands">Example Commands</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Amazon Bedrock Agents with Return Control SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Command Line Interface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/command_line.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="command-line-interface">
+<h1>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Link to this heading"></a></h1>
+<p>The SDK includes a command-line interface (CLI) for testing and interacting with agents. The CLI is implemented in the <code class="docutils literal notranslate"><span class="pre">app.py</span></code> file that comes with the SDK.</p>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start in interactive chat mode</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--chat
+
+<span class="c1"># Run with a file</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--file<span class="w"> </span>data.csv
+
+<span class="c1"># Use a specific AWS region and profile</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--region<span class="w"> </span>us-west-2<span class="w"> </span>--profile<span class="w"> </span>myprofile
+</pre></div>
+</div>
+</section>
+<section id="verbosity-and-trace-levels">
+<h2>Verbosity and Trace Levels<a class="headerlink" href="#verbosity-and-trace-levels" title="Link to this heading"></a></h2>
+<p>You can control the verbosity and trace levels using command-line arguments:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set verbosity level</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--verbosity<span class="w"> </span>verbose
+
+<span class="c1"># Set trace level</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--trace<span class="w"> </span>standard
+
+<span class="c1"># Use the raw trace level to see all trace data, including code interpreter output</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--trace<span class="w"> </span>raw<span class="w">  </span><span class="c1"># Shows complete unprocessed JSON trace data</span>
+
+<span class="c1"># Combine options for specific debugging needs</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--chat<span class="w"> </span>--verbosity<span class="w"> </span>quiet<span class="w"> </span>--trace<span class="w"> </span>raw<span class="w">  </span><span class="c1"># Quiet SDK logs but full trace data</span>
+</pre></div>
+</div>
+</section>
+<section id="available-options">
+<h2>Available Options<a class="headerlink" href="#available-options" title="Link to this heading"></a></h2>
+<p>The CLI supports the following options:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--chat<span class="w">                 </span>Start<span class="w"> </span><span class="k">in</span><span class="w"> </span>interactive<span class="w"> </span>chat<span class="w"> </span>mode
+--region<span class="w"> </span>REGION<span class="w">        </span>AWS<span class="w"> </span>region<span class="w"> </span>name
+--profile<span class="w"> </span>PROFILE<span class="w">      </span>AWS<span class="w"> </span>profile<span class="w"> </span>name
+--verbosity<span class="w"> </span><span class="o">{</span>quiet,normal,verbose,debug<span class="o">}</span>
+<span class="w">                       </span>Verbosity<span class="w"> </span>level
+--trace<span class="w"> </span><span class="o">{</span>none,minimal,standard,detailed,raw<span class="o">}</span>
+<span class="w">                       </span>Agent<span class="w"> </span>trace<span class="w"> </span>level<span class="w"> </span><span class="o">(</span>raw<span class="w"> </span>shows<span class="w"> </span><span class="nb">complete</span><span class="w"> </span>unprocessed<span class="w"> </span>trace<span class="w"> </span>data<span class="o">)</span>
+--file<span class="w"> </span>FILE<span class="w">            </span>Path<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>file<span class="w"> </span>to<span class="w"> </span>send<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>agent
+--kms-key<span class="w"> </span>KMS_KEY<span class="w">      </span>Customer<span class="w"> </span>KMS<span class="w"> </span>key<span class="w"> </span>ARN<span class="w"> </span><span class="k">for</span><span class="w"> </span>encryption
+</pre></div>
+</div>
+</section>
+<section id="example-commands">
+<h2>Example Commands<a class="headerlink" href="#example-commands" title="Link to this heading"></a></h2>
+<p>Here are some example commands to get you started:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start a chat session with verbose logging</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--chat<span class="w"> </span>--verbosity<span class="w"> </span>verbose
+
+<span class="c1"># Start a chat session with detailed agent traces</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--chat<span class="w"> </span>--trace<span class="w"> </span>detailed
+
+<span class="c1"># Start a chat session with raw trace level to see code interpreter output</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--chat<span class="w"> </span>--trace<span class="w"> </span>raw
+
+<span class="c1"># Upload a file and start a chat session</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--chat<span class="w"> </span>--file<span class="w"> </span>data.csv
+
+<span class="c1"># Use a customer KMS key for encryption</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--chat<span class="w"> </span>--kms-key<span class="w"> </span><span class="s2">&quot;arn:aws:kms:us-west-2:123456789012:key/abcd1234-ab12-cd34-ef56-abcdef123456&quot;</span>
+
+<span class="c1"># Combine multiple options</span>
+python<span class="w"> </span>app.py<span class="w"> </span>--chat<span class="w"> </span>--region<span class="w"> </span>us-west-2<span class="w"> </span>--profile<span class="w"> </span>dev<span class="w"> </span>--verbosity<span class="w"> </span>normal<span class="w"> </span>--trace<span class="w"> </span>standard
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="code_interpreter.html" class="btn btn-neutral float-left" title="Code Interpreter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api/modules.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Mike Chambers.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

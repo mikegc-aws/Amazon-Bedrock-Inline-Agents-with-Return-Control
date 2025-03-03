@@ -48,11 +48,22 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="core_concepts.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_interpreter.html">Code Interpreter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_line.html">Command Line Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced_usage.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#simple-example">Simple Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#action-groups-example">Action Groups Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-methods-example">Configuration Methods Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameter-handling-example">Parameter Handling Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#code-interpreter-example">Code Interpreter Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plugin-example">Plugin Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependency-example">Dependency Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deployment-example">Deployment Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#knowledge-base-example">Knowledge Base Example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#simple-weather-agent">Simple Weather Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#file-processing-agent">File Processing Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#multi-agent-system">Multi-Agent System</a></li>
@@ -88,7 +99,1149 @@
              
   <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h1>
-<p>This section provides examples of using the Amazon Bedrock Agents with Return Control SDK for various use cases.</p>
+<p>The SDK includes several examples to help you get started. These examples demonstrate different features and use cases for the SDK.</p>
+<section id="simple-example">
+<h2>Simple Example<a class="headerlink" href="#simple-example" title="Link to this heading"></a></h2>
+<p>The simple example demonstrates how to create a basic agent with time and math functions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span><span class="sd">Simple example of using the Bedrock Agents SDK.</span>
+<span class="linenos"> 3</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 4</span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">ActionGroup</span><span class="p">,</span> <span class="n">Message</span>
+<span class="linenos"> 5</span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="c1"># Define a function - this will run locally on your machine</span>
+<span class="linenos"> 8</span><span class="k">def</span> <span class="nf">get_time</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos"> 9</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current time&quot;&quot;&quot;</span>
+<span class="linenos">10</span>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="linenos">11</span>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">)}</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="k">def</span> <span class="nf">get_date</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos">14</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current date&quot;&quot;&quot;</span>
+<span class="linenos">15</span>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="linenos">16</span>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)}</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="k">def</span> <span class="nf">add_numbers</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos">19</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Add two numbers together</span>
+<span class="linenos">20</span><span class="sd">    </span>
+<span class="linenos">21</span><span class="sd">    :param a: The first number</span>
+<span class="linenos">22</span><span class="sd">    :param b: The second number</span>
+<span class="linenos">23</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos">24</span>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">}</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="linenos">27</span>    <span class="c1"># Create action groups</span>
+<span class="linenos">28</span>    <span class="n">time_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+<span class="linenos">29</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;TimeService&quot;</span><span class="p">,</span>
+<span class="linenos">30</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Provides time-related information&quot;</span><span class="p">,</span>
+<span class="linenos">31</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">get_time</span><span class="p">,</span> <span class="n">get_date</span><span class="p">]</span>
+<span class="linenos">32</span>    <span class="p">)</span>
+<span class="linenos">33</span>    
+<span class="linenos">34</span>    <span class="n">math_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+<span class="linenos">35</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MathService&quot;</span><span class="p">,</span>
+<span class="linenos">36</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Provides mathematical operations&quot;</span><span class="p">,</span>
+<span class="linenos">37</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">add_numbers</span><span class="p">]</span>
+<span class="linenos">38</span>    <span class="p">)</span>
+<span class="linenos">39</span>    
+<span class="linenos">40</span>    <span class="c1"># Create the agent with action groups</span>
+<span class="linenos">41</span>    <span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos">42</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SimpleAgent&quot;</span><span class="p">,</span>
+<span class="linenos">43</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+<span class="linenos">44</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant that can tell time and do simple math.&quot;</span><span class="p">,</span>
+<span class="linenos">45</span>        <span class="n">action_groups</span><span class="o">=</span><span class="p">[</span><span class="n">time_group</span><span class="p">,</span> <span class="n">math_group</span><span class="p">]</span>
+<span class="linenos">46</span>    <span class="p">)</span>
+<span class="linenos">47</span>    
+<span class="linenos">48</span>    <span class="c1"># Create the client</span>
+<span class="linenos">49</span>    <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;verbose&quot;</span><span class="p">)</span>
+<span class="linenos">50</span>    
+<span class="linenos">51</span>    <span class="c1"># Start interactive chat session</span>
+<span class="linenos">52</span>    <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span><span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">)</span>
+<span class="linenos">53</span>
+<span class="linenos">54</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">55</span>    <span class="n">main</span><span class="p">()</span> 
+</pre></div>
+</div>
+</section>
+<section id="action-groups-example">
+<h2>Action Groups Example<a class="headerlink" href="#action-groups-example" title="Link to this heading"></a></h2>
+<p>The action groups example demonstrates how to use action groups to organize your agent’s functions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">  2</span><span class="sd">Example of using action groups with the Bedrock Agents SDK.</span>
+<span class="linenos">  3</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">  4</span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="linenos">  5</span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="linenos">  6</span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">ActionGroup</span><span class="p">,</span> <span class="n">Message</span>
+<span class="linenos">  7</span>
+<span class="linenos">  8</span><span class="c1"># Define action group functions</span>
+<span class="linenos">  9</span><span class="k">def</span> <span class="nf">get_weather</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="linenos"> 10</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 11</span><span class="sd">    Get the current weather for a location.</span>
+<span class="linenos"> 12</span><span class="sd">    </span>
+<span class="linenos"> 13</span><span class="sd">    Args:</span>
+<span class="linenos"> 14</span><span class="sd">        location: The city or location to get weather for</span>
+<span class="linenos"> 15</span><span class="sd">        </span>
+<span class="linenos"> 16</span><span class="sd">    Returns:</span>
+<span class="linenos"> 17</span><span class="sd">        Dictionary with weather information</span>
+<span class="linenos"> 18</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos"> 19</span>    <span class="c1"># In a real application, this would call a weather API</span>
+<span class="linenos"> 20</span>    <span class="c1"># This is a mock implementation for demonstration</span>
+<span class="linenos"> 21</span>    <span class="n">weather_data</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos"> 22</span>        <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="n">location</span><span class="p">,</span>
+<span class="linenos"> 23</span>        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">72</span><span class="p">,</span>
+<span class="linenos"> 24</span>        <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;Sunny&quot;</span><span class="p">,</span>
+<span class="linenos"> 25</span>        <span class="s2">&quot;humidity&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+<span class="linenos"> 26</span>        <span class="s2">&quot;wind_speed&quot;</span><span class="p">:</span> <span class="mi">8</span>
+<span class="linenos"> 27</span>    <span class="p">}</span>
+<span class="linenos"> 28</span>    <span class="k">return</span> <span class="n">weather_data</span>
+<span class="linenos"> 29</span>
+<span class="linenos"> 30</span><span class="k">def</span> <span class="nf">get_forecast</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="linenos"> 31</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 32</span><span class="sd">    Get the weather forecast for a location.</span>
+<span class="linenos"> 33</span><span class="sd">    </span>
+<span class="linenos"> 34</span><span class="sd">    Args:</span>
+<span class="linenos"> 35</span><span class="sd">        location: The city or location to get forecast for</span>
+<span class="linenos"> 36</span><span class="sd">        days: Number of days for the forecast (default: 3)</span>
+<span class="linenos"> 37</span><span class="sd">        </span>
+<span class="linenos"> 38</span><span class="sd">    Returns:</span>
+<span class="linenos"> 39</span><span class="sd">        Dictionary with forecast information</span>
+<span class="linenos"> 40</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos"> 41</span>    <span class="c1"># Mock implementation</span>
+<span class="linenos"> 42</span>    <span class="n">forecast</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 43</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">days</span><span class="p">):</span>
+<span class="linenos"> 44</span>        <span class="n">day</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos"> 45</span>            <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">i</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%A&quot;</span><span class="p">),</span>
+<span class="linenos"> 46</span>            <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">70</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+<span class="linenos"> 47</span>            <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;Partly Cloudy&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;Sunny&quot;</span>
+<span class="linenos"> 48</span>        <span class="p">}</span>
+<span class="linenos"> 49</span>        <span class="n">forecast</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">day</span><span class="p">)</span>
+<span class="linenos"> 50</span>    
+<span class="linenos"> 51</span>    <span class="k">return</span> <span class="p">{</span>
+<span class="linenos"> 52</span>        <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="n">location</span><span class="p">,</span>
+<span class="linenos"> 53</span>        <span class="s2">&quot;forecast&quot;</span><span class="p">:</span> <span class="n">forecast</span>
+<span class="linenos"> 54</span>    <span class="p">}</span>
+<span class="linenos"> 55</span>
+<span class="linenos"> 56</span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="linenos"> 57</span>    <span class="c1"># Create the client</span>
+<span class="linenos"> 58</span>    <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
+<span class="linenos"> 59</span>    
+<span class="linenos"> 60</span>    <span class="c1"># Create action groups</span>
+<span class="linenos"> 61</span>    <span class="n">weather_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+<span class="linenos"> 62</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeatherService&quot;</span><span class="p">,</span>
+<span class="linenos"> 63</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Provides weather information and forecasts&quot;</span><span class="p">,</span>
+<span class="linenos"> 64</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">get_weather</span><span class="p">,</span> <span class="n">get_forecast</span><span class="p">]</span>
+<span class="linenos"> 65</span>    <span class="p">)</span>
+<span class="linenos"> 66</span>    
+<span class="linenos"> 67</span>    <span class="c1"># Create the agent</span>
+<span class="linenos"> 68</span>    <span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos"> 69</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeatherAgent&quot;</span><span class="p">,</span>
+<span class="linenos"> 70</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;us.anthropic.claude-3-5-sonnet-20241022-v2:0&quot;</span><span class="p">,</span>
+<span class="linenos"> 71</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;You are a helpful weather assistant. Use the WeatherService action group to provide weather information when asked.&quot;</span><span class="p">,</span>
+<span class="linenos"> 72</span>        <span class="n">action_groups</span><span class="o">=</span><span class="p">[</span><span class="n">weather_group</span><span class="p">]</span>
+<span class="linenos"> 73</span>    <span class="p">)</span>
+<span class="linenos"> 74</span>    
+<span class="linenos"> 75</span>    <span class="c1"># Run the agent with a user query</span>
+<span class="linenos"> 76</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+<span class="linenos"> 77</span>        <span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span>
+<span class="linenos"> 78</span>        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos"> 79</span>            <span class="p">{</span>
+<span class="linenos"> 80</span>                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+<span class="linenos"> 81</span>                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the weather like in Seattle? Also, can you give me a 5-day forecast?&quot;</span>
+<span class="linenos"> 82</span>            <span class="p">}</span>
+<span class="linenos"> 83</span>        <span class="p">]</span>
+<span class="linenos"> 84</span>    <span class="p">)</span>
+<span class="linenos"> 85</span>    
+<span class="linenos"> 86</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Response from agent:&quot;</span><span class="p">)</span>
+<span class="linenos"> 87</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos"> 88</span>    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">])</span>
+<span class="linenos"> 89</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos"> 90</span>    
+<span class="linenos"> 91</span>    <span class="c1"># Interactive chat session</span>
+<span class="linenos"> 92</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Chat with the Weather Agent (type &#39;exit&#39; to quit):&quot;</span><span class="p">)</span>
+<span class="linenos"> 93</span>    <span class="n">messages</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 94</span>    
+<span class="linenos"> 95</span>    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+<span class="linenos"> 96</span>        <span class="n">user_input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">You: &quot;</span><span class="p">)</span>
+<span class="linenos"> 97</span>        <span class="k">if</span> <span class="n">user_input</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;exit&quot;</span><span class="p">:</span>
+<span class="linenos"> 98</span>            <span class="k">break</span>
+<span class="linenos"> 99</span>            
+<span class="linenos">100</span>        <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">user_input</span><span class="p">})</span>
+<span class="linenos">101</span>        
+<span class="linenos">102</span>        <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">)</span>
+<span class="linenos">103</span>        <span class="n">assistant_message</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span>
+<span class="linenos">104</span>        
+<span class="linenos">105</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Weather Agent: </span><span class="si">{</span><span class="n">assistant_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">106</span>        
+<span class="linenos">107</span>        <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">assistant_message</span><span class="p">})</span>
+<span class="linenos">108</span>
+<span class="linenos">109</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">110</span>    <span class="n">main</span><span class="p">()</span> 
+</pre></div>
+</div>
+</section>
+<section id="configuration-methods-example">
+<h2>Configuration Methods Example<a class="headerlink" href="#configuration-methods-example" title="Link to this heading"></a></h2>
+<p>This example demonstrates the four different ways to configure agents with action groups, highlighting the recommended ActionGroup-first approach.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">  2</span><span class="sd">Example demonstrating the different ways to configure agents with action groups.</span>
+<span class="linenos">  3</span>
+<span class="linenos">  4</span><span class="sd">This example shows all four approaches to configuring agents:</span>
+<span class="linenos">  5</span><span class="sd">1. Using ActionGroup objects in the constructor (recommended)</span>
+<span class="linenos">  6</span><span class="sd">2. Adding ActionGroup objects after creation</span>
+<span class="linenos">  7</span><span class="sd">3. Using a functions dictionary</span>
+<span class="linenos">  8</span><span class="sd">4. Using a functions list</span>
+<span class="linenos">  9</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 10</span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="linenos"> 11</span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="linenos"> 12</span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">ActionGroup</span><span class="p">,</span> <span class="n">Message</span>
+<span class="linenos"> 13</span>
+<span class="linenos"> 14</span><span class="c1"># Define some example functions</span>
+<span class="linenos"> 15</span><span class="k">def</span> <span class="nf">get_weather</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="linenos"> 16</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current weather for a location&quot;&quot;&quot;</span>
+<span class="linenos"> 17</span>    <span class="c1"># Mock implementation</span>
+<span class="linenos"> 18</span>    <span class="k">return</span> <span class="p">{</span>
+<span class="linenos"> 19</span>        <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="n">location</span><span class="p">,</span>
+<span class="linenos"> 20</span>        <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">72</span><span class="p">,</span>
+<span class="linenos"> 21</span>        <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;Sunny&quot;</span>
+<span class="linenos"> 22</span>    <span class="p">}</span>
+<span class="linenos"> 23</span>
+<span class="linenos"> 24</span><span class="k">def</span> <span class="nf">get_forecast</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="linenos"> 25</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the weather forecast for a location&quot;&quot;&quot;</span>
+<span class="linenos"> 26</span>    <span class="c1"># Mock implementation</span>
+<span class="linenos"> 27</span>    <span class="n">forecast</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 28</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">days</span><span class="p">):</span>
+<span class="linenos"> 29</span>        <span class="n">day</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos"> 30</span>            <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">i</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%A&quot;</span><span class="p">),</span>
+<span class="linenos"> 31</span>            <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">70</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+<span class="linenos"> 32</span>            <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;Partly Cloudy&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;Sunny&quot;</span>
+<span class="linenos"> 33</span>        <span class="p">}</span>
+<span class="linenos"> 34</span>        <span class="n">forecast</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">day</span><span class="p">)</span>
+<span class="linenos"> 35</span>    
+<span class="linenos"> 36</span>    <span class="k">return</span> <span class="p">{</span>
+<span class="linenos"> 37</span>        <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="n">location</span><span class="p">,</span>
+<span class="linenos"> 38</span>        <span class="s2">&quot;forecast&quot;</span><span class="p">:</span> <span class="n">forecast</span>
+<span class="linenos"> 39</span>    <span class="p">}</span>
+<span class="linenos"> 40</span>
+<span class="linenos"> 41</span><span class="k">def</span> <span class="nf">get_time</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="linenos"> 42</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current time&quot;&quot;&quot;</span>
+<span class="linenos"> 43</span>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="linenos"> 44</span>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">)}</span>
+<span class="linenos"> 45</span>
+<span class="linenos"> 46</span><span class="k">def</span> <span class="nf">get_date</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="linenos"> 47</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current date&quot;&quot;&quot;</span>
+<span class="linenos"> 48</span>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="linenos"> 49</span>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)}</span>
+<span class="linenos"> 50</span>
+<span class="linenos"> 51</span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="linenos"> 52</span>    <span class="c1"># Create a client</span>
+<span class="linenos"> 53</span>    <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;verbose&quot;</span><span class="p">)</span>
+<span class="linenos"> 54</span>    
+<span class="linenos"> 55</span>    <span class="c1"># Method 1: Using ActionGroup objects in the constructor (recommended)</span>
+<span class="linenos"> 56</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Method 1: ActionGroup objects in constructor (recommended) ===&quot;</span><span class="p">)</span>
+<span class="linenos"> 57</span>    
+<span class="linenos"> 58</span>    <span class="c1"># Create action groups</span>
+<span class="linenos"> 59</span>    <span class="n">weather_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+<span class="linenos"> 60</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeatherService&quot;</span><span class="p">,</span>
+<span class="linenos"> 61</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Provides weather information and forecasts&quot;</span><span class="p">,</span>
+<span class="linenos"> 62</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">get_weather</span><span class="p">,</span> <span class="n">get_forecast</span><span class="p">]</span>
+<span class="linenos"> 63</span>    <span class="p">)</span>
+<span class="linenos"> 64</span>    
+<span class="linenos"> 65</span>    <span class="n">time_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+<span class="linenos"> 66</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;TimeService&quot;</span><span class="p">,</span>
+<span class="linenos"> 67</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Provides time-related functions&quot;</span><span class="p">,</span>
+<span class="linenos"> 68</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">get_time</span><span class="p">,</span> <span class="n">get_date</span><span class="p">]</span>
+<span class="linenos"> 69</span>    <span class="p">)</span>
+<span class="linenos"> 70</span>    
+<span class="linenos"> 71</span>    <span class="c1"># Create the agent with action groups</span>
+<span class="linenos"> 72</span>    <span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos"> 73</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Method1Agent&quot;</span><span class="p">,</span>
+<span class="linenos"> 74</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+<span class="linenos"> 75</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant that can provide weather and time information.&quot;</span><span class="p">,</span>
+<span class="linenos"> 76</span>        <span class="n">action_groups</span><span class="o">=</span><span class="p">[</span><span class="n">weather_group</span><span class="p">,</span> <span class="n">time_group</span><span class="p">]</span>
+<span class="linenos"> 77</span>    <span class="p">)</span>
+<span class="linenos"> 78</span>    
+<span class="linenos"> 79</span>    <span class="c1"># Print information about the agent</span>
+<span class="linenos"> 80</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Agent has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">agent1</span><span class="o">.</span><span class="n">action_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"> action groups:&quot;</span><span class="p">)</span>
+<span class="linenos"> 81</span>    <span class="k">for</span> <span class="n">ag</span> <span class="ow">in</span> <span class="n">agent1</span><span class="o">.</span><span class="n">action_groups</span><span class="p">:</span>
+<span class="linenos"> 82</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">ag</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ag</span><span class="o">.</span><span class="n">functions</span><span class="p">)</span><span class="si">}</span><span class="s2"> functions&quot;</span><span class="p">)</span>
+<span class="linenos"> 83</span>    
+<span class="linenos"> 84</span>    <span class="c1"># Method 2: Adding ActionGroup objects after creation</span>
+<span class="linenos"> 85</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Method 2: Adding ActionGroup objects after creation ===&quot;</span><span class="p">)</span>
+<span class="linenos"> 86</span>    
+<span class="linenos"> 87</span>    <span class="c1"># Create the agent</span>
+<span class="linenos"> 88</span>    <span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos"> 89</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Method2Agent&quot;</span><span class="p">,</span>
+<span class="linenos"> 90</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+<span class="linenos"> 91</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant that can provide weather and time information.&quot;</span>
+<span class="linenos"> 92</span>    <span class="p">)</span>
+<span class="linenos"> 93</span>    
+<span class="linenos"> 94</span>    <span class="c1"># Create and add action groups</span>
+<span class="linenos"> 95</span>    <span class="n">weather_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+<span class="linenos"> 96</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeatherService&quot;</span><span class="p">,</span>
+<span class="linenos"> 97</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Provides weather information and forecasts&quot;</span><span class="p">,</span>
+<span class="linenos"> 98</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">get_weather</span><span class="p">,</span> <span class="n">get_forecast</span><span class="p">]</span>
+<span class="linenos"> 99</span>    <span class="p">)</span>
+<span class="linenos">100</span>    
+<span class="linenos">101</span>    <span class="n">agent2</span><span class="o">.</span><span class="n">add_action_group</span><span class="p">(</span><span class="n">weather_group</span><span class="p">)</span>
+<span class="linenos">102</span>    
+<span class="linenos">103</span>    <span class="n">time_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+<span class="linenos">104</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;TimeService&quot;</span><span class="p">,</span>
+<span class="linenos">105</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Provides time-related functions&quot;</span><span class="p">,</span>
+<span class="linenos">106</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">get_time</span><span class="p">,</span> <span class="n">get_date</span><span class="p">]</span>
+<span class="linenos">107</span>    <span class="p">)</span>
+<span class="linenos">108</span>    
+<span class="linenos">109</span>    <span class="n">agent2</span><span class="o">.</span><span class="n">add_action_group</span><span class="p">(</span><span class="n">time_group</span><span class="p">)</span>
+<span class="linenos">110</span>    
+<span class="linenos">111</span>    <span class="c1"># Print information about the agent</span>
+<span class="linenos">112</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Agent has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">agent2</span><span class="o">.</span><span class="n">action_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"> action groups:&quot;</span><span class="p">)</span>
+<span class="linenos">113</span>    <span class="k">for</span> <span class="n">ag</span> <span class="ow">in</span> <span class="n">agent2</span><span class="o">.</span><span class="n">action_groups</span><span class="p">:</span>
+<span class="linenos">114</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">ag</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ag</span><span class="o">.</span><span class="n">functions</span><span class="p">)</span><span class="si">}</span><span class="s2"> functions&quot;</span><span class="p">)</span>
+<span class="linenos">115</span>    
+<span class="linenos">116</span>    <span class="c1"># Method 3: Using a functions dictionary</span>
+<span class="linenos">117</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Method 3: Using a functions dictionary ===&quot;</span><span class="p">)</span>
+<span class="linenos">118</span>    
+<span class="linenos">119</span>    <span class="c1"># Create the agent with a functions dictionary</span>
+<span class="linenos">120</span>    <span class="n">agent3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos">121</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Method3Agent&quot;</span><span class="p">,</span>
+<span class="linenos">122</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+<span class="linenos">123</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant that can provide weather and time information.&quot;</span><span class="p">,</span>
+<span class="linenos">124</span>        <span class="n">functions</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">125</span>            <span class="s2">&quot;WeatherService&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">get_weather</span><span class="p">,</span> <span class="n">get_forecast</span><span class="p">],</span>
+<span class="linenos">126</span>            <span class="s2">&quot;TimeService&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">get_time</span><span class="p">,</span> <span class="n">get_date</span><span class="p">]</span>
+<span class="linenos">127</span>        <span class="p">}</span>
+<span class="linenos">128</span>    <span class="p">)</span>
+<span class="linenos">129</span>    
+<span class="linenos">130</span>    <span class="c1"># Print information about the agent</span>
+<span class="linenos">131</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Agent has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">agent3</span><span class="o">.</span><span class="n">action_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"> action groups:&quot;</span><span class="p">)</span>
+<span class="linenos">132</span>    <span class="k">for</span> <span class="n">ag</span> <span class="ow">in</span> <span class="n">agent3</span><span class="o">.</span><span class="n">action_groups</span><span class="p">:</span>
+<span class="linenos">133</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">ag</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ag</span><span class="o">.</span><span class="n">functions</span><span class="p">)</span><span class="si">}</span><span class="s2"> functions&quot;</span><span class="p">)</span>
+<span class="linenos">134</span>    
+<span class="linenos">135</span>    <span class="c1"># Method 4: Using a functions list</span>
+<span class="linenos">136</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Method 4: Using a functions list ===&quot;</span><span class="p">)</span>
+<span class="linenos">137</span>    
+<span class="linenos">138</span>    <span class="c1"># Create the agent with a functions list</span>
+<span class="linenos">139</span>    <span class="n">agent4</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos">140</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Method4Agent&quot;</span><span class="p">,</span>
+<span class="linenos">141</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+<span class="linenos">142</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant that can provide weather and time information.&quot;</span><span class="p">,</span>
+<span class="linenos">143</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">get_weather</span><span class="p">,</span> <span class="n">get_forecast</span><span class="p">,</span> <span class="n">get_time</span><span class="p">,</span> <span class="n">get_date</span><span class="p">]</span>
+<span class="linenos">144</span>    <span class="p">)</span>
+<span class="linenos">145</span>    
+<span class="linenos">146</span>    <span class="c1"># Print information about the agent</span>
+<span class="linenos">147</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Agent has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">agent4</span><span class="o">.</span><span class="n">action_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"> action groups:&quot;</span><span class="p">)</span>
+<span class="linenos">148</span>    <span class="k">for</span> <span class="n">ag</span> <span class="ow">in</span> <span class="n">agent4</span><span class="o">.</span><span class="n">action_groups</span><span class="p">:</span>
+<span class="linenos">149</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">ag</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ag</span><span class="o">.</span><span class="n">functions</span><span class="p">)</span><span class="si">}</span><span class="s2"> functions&quot;</span><span class="p">)</span>
+<span class="linenos">150</span>    
+<span class="linenos">151</span>    <span class="c1"># Print functions</span>
+<span class="linenos">152</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Agent has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">agent4</span><span class="o">.</span><span class="n">functions</span><span class="p">)</span><span class="si">}</span><span class="s2"> functions:&quot;</span><span class="p">)</span>
+<span class="linenos">153</span>    <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">agent4</span><span class="o">.</span><span class="n">functions</span><span class="p">:</span>
+<span class="linenos">154</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (action group: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">action_group</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;DefaultActions&#39;</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="linenos">155</span>    
+<span class="linenos">156</span>    <span class="c1"># Run a simple test with the recommended approach (Method 1)</span>
+<span class="linenos">157</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Running a test with the recommended approach (Method 1) ===&quot;</span><span class="p">)</span>
+<span class="linenos">158</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+<span class="linenos">159</span>        <span class="n">agent</span><span class="o">=</span><span class="n">agent1</span><span class="p">,</span>
+<span class="linenos">160</span>        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">161</span>            <span class="p">{</span>
+<span class="linenos">162</span>                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+<span class="linenos">163</span>                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the weather like in Seattle? Also, what time is it now?&quot;</span>
+<span class="linenos">164</span>            <span class="p">}</span>
+<span class="linenos">165</span>        <span class="p">]</span>
+<span class="linenos">166</span>    <span class="p">)</span>
+<span class="linenos">167</span>    
+<span class="linenos">168</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Response from agent:&quot;</span><span class="p">)</span>
+<span class="linenos">169</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">170</span>    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">])</span>
+<span class="linenos">171</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">172</span>
+<span class="linenos">173</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">174</span>    <span class="n">main</span><span class="p">()</span> 
+</pre></div>
+</div>
+</section>
+<section id="parameter-handling-example">
+<h2>Parameter Handling Example<a class="headerlink" href="#parameter-handling-example" title="Link to this heading"></a></h2>
+<p>The parameter handling example demonstrates how to work with function parameters and validation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">  2</span><span class="sd">Example of deploying a Bedrock Agent with various parameter types.</span>
+<span class="linenos">  3</span>
+<span class="linenos">  4</span><span class="sd">This example demonstrates how to:</span>
+<span class="linenos">  5</span><span class="sd">1. Define functions with different parameter types (string, int, float, bool)</span>
+<span class="linenos">  6</span><span class="sd">2. Use type hints to ensure proper parameter conversion in Lambda functions</span>
+<span class="linenos">  7</span><span class="sd">3. Provide default values for optional parameters</span>
+<span class="linenos">  8</span><span class="sd">4. Deploy an agent that correctly handles parameters in Lambda</span>
+<span class="linenos">  9</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 10</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 11</span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">ActionGroup</span><span class="p">,</span> <span class="n">Message</span>
+<span class="linenos"> 12</span>
+<span class="linenos"> 13</span><span class="c1"># Define functions with various parameter types</span>
+<span class="linenos"> 14</span><span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">operation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos"> 15</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 16</span><span class="sd">    Perform a mathematical calculation</span>
+<span class="linenos"> 17</span><span class="sd">    </span>
+<span class="linenos"> 18</span><span class="sd">    :param operation: The operation to perform (add, subtract, multiply, divide)</span>
+<span class="linenos"> 19</span><span class="sd">    :param a: The first number</span>
+<span class="linenos"> 20</span><span class="sd">    :param b: The second number</span>
+<span class="linenos"> 21</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos"> 22</span>    <span class="k">if</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;add&quot;</span><span class="p">:</span>
+<span class="linenos"> 23</span>        <span class="n">result</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+<span class="linenos"> 24</span>    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;subtract&quot;</span><span class="p">:</span>
+<span class="linenos"> 25</span>        <span class="n">result</span> <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span>
+<span class="linenos"> 26</span>    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;multiply&quot;</span><span class="p">:</span>
+<span class="linenos"> 27</span>        <span class="n">result</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+<span class="linenos"> 28</span>    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;divide&quot;</span><span class="p">:</span>
+<span class="linenos"> 29</span>        <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="linenos"> 30</span>            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Cannot divide by zero&quot;</span><span class="p">}</span>
+<span class="linenos"> 31</span>        <span class="n">result</span> <span class="o">=</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span>
+<span class="linenos"> 32</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos"> 33</span>        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Unknown operation: </span><span class="si">{</span><span class="n">operation</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+<span class="linenos"> 34</span>    
+<span class="linenos"> 35</span>    <span class="k">return</span> <span class="p">{</span>
+<span class="linenos"> 36</span>        <span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="n">operation</span><span class="p">,</span>
+<span class="linenos"> 37</span>        <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span>
+<span class="linenos"> 38</span>        <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">,</span>
+<span class="linenos"> 39</span>        <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">result</span>
+<span class="linenos"> 40</span>    <span class="p">}</span>
+<span class="linenos"> 41</span>
+<span class="linenos"> 42</span><span class="k">def</span> <span class="nf">format_text</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">uppercase</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">max_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos"> 43</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 44</span><span class="sd">    Format a text string</span>
+<span class="linenos"> 45</span><span class="sd">    </span>
+<span class="linenos"> 46</span><span class="sd">    :param text: The text to format</span>
+<span class="linenos"> 47</span><span class="sd">    :param uppercase: Whether to convert the text to uppercase</span>
+<span class="linenos"> 48</span><span class="sd">    :param max_length: Maximum length of the text (will be truncated if longer)</span>
+<span class="linenos"> 49</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos"> 50</span>    <span class="c1"># Truncate text if needed</span>
+<span class="linenos"> 51</span>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_length</span><span class="p">:</span>
+<span class="linenos"> 52</span>        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">max_length</span><span class="p">]</span>
+<span class="linenos"> 53</span>    
+<span class="linenos"> 54</span>    <span class="c1"># Convert to uppercase if requested</span>
+<span class="linenos"> 55</span>    <span class="k">if</span> <span class="n">uppercase</span><span class="p">:</span>
+<span class="linenos"> 56</span>        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+<span class="linenos"> 57</span>    
+<span class="linenos"> 58</span>    <span class="k">return</span> <span class="p">{</span>
+<span class="linenos"> 59</span>        <span class="s2">&quot;original_length&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">),</span>
+<span class="linenos"> 60</span>        <span class="s2">&quot;formatted_text&quot;</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span>
+<span class="linenos"> 61</span>        <span class="s2">&quot;uppercase&quot;</span><span class="p">:</span> <span class="n">uppercase</span><span class="p">,</span>
+<span class="linenos"> 62</span>        <span class="s2">&quot;max_length&quot;</span><span class="p">:</span> <span class="n">max_length</span>
+<span class="linenos"> 63</span>    <span class="p">}</span>
+<span class="linenos"> 64</span>
+<span class="linenos"> 65</span><span class="k">def</span> <span class="nf">calculate_statistics</span><span class="p">(</span><span class="n">numbers</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos"> 66</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 67</span><span class="sd">    Calculate statistics for a list of numbers</span>
+<span class="linenos"> 68</span><span class="sd">    </span>
+<span class="linenos"> 69</span><span class="sd">    :param numbers: Comma-separated list of numbers (e.g., &quot;1, 2, 3, 4, 5&quot;)</span>
+<span class="linenos"> 70</span><span class="sd">    :param precision: Number of decimal places for results (default: 2.0)</span>
+<span class="linenos"> 71</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos"> 72</span>    <span class="c1"># Parse the input string into a list of numbers</span>
+<span class="linenos"> 73</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos"> 74</span>        <span class="c1"># Split by comma and convert each item to float</span>
+<span class="linenos"> 75</span>        <span class="n">num_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">numbers</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+<span class="linenos"> 76</span>        
+<span class="linenos"> 77</span>        <span class="k">if</span> <span class="ow">not</span> <span class="n">num_list</span><span class="p">:</span>
+<span class="linenos"> 78</span>            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;No numbers provided&quot;</span><span class="p">}</span>
+<span class="linenos"> 79</span>        
+<span class="linenos"> 80</span>        <span class="c1"># Calculate statistics</span>
+<span class="linenos"> 81</span>        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_list</span><span class="p">)</span>
+<span class="linenos"> 82</span>        <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">num_list</span><span class="p">)</span>
+<span class="linenos"> 83</span>        <span class="n">mean</span> <span class="o">=</span> <span class="n">total</span> <span class="o">/</span> <span class="n">count</span>
+<span class="linenos"> 84</span>        
+<span class="linenos"> 85</span>        <span class="c1"># Sort the list for median and min/max</span>
+<span class="linenos"> 86</span>        <span class="n">sorted_nums</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">num_list</span><span class="p">)</span>
+<span class="linenos"> 87</span>        
+<span class="linenos"> 88</span>        <span class="c1"># Calculate median</span>
+<span class="linenos"> 89</span>        <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="linenos"> 90</span>            <span class="c1"># Even number of items</span>
+<span class="linenos"> 91</span>            <span class="n">median</span> <span class="o">=</span> <span class="p">(</span><span class="n">sorted_nums</span><span class="p">[</span><span class="n">count</span><span class="o">//</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sorted_nums</span><span class="p">[</span><span class="n">count</span><span class="o">//</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="linenos"> 92</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos"> 93</span>            <span class="c1"># Odd number of items</span>
+<span class="linenos"> 94</span>            <span class="n">median</span> <span class="o">=</span> <span class="n">sorted_nums</span><span class="p">[</span><span class="n">count</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span>
+<span class="linenos"> 95</span>        
+<span class="linenos"> 96</span>        <span class="c1"># Round results to specified precision</span>
+<span class="linenos"> 97</span>        <span class="n">precision</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span>  <span class="c1"># Convert to integer for rounding</span>
+<span class="linenos"> 98</span>        
+<span class="linenos"> 99</span>        <span class="k">return</span> <span class="p">{</span>
+<span class="linenos">100</span>            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="n">count</span><span class="p">,</span>
+<span class="linenos">101</span>            <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">num_list</span><span class="p">),</span> <span class="n">precision</span><span class="p">),</span>
+<span class="linenos">102</span>            <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">num_list</span><span class="p">),</span> <span class="n">precision</span><span class="p">),</span>
+<span class="linenos">103</span>            <span class="s2">&quot;sum&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">precision</span><span class="p">),</span>
+<span class="linenos">104</span>            <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">precision</span><span class="p">),</span>
+<span class="linenos">105</span>            <span class="s2">&quot;median&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">median</span><span class="p">,</span> <span class="n">precision</span><span class="p">),</span>
+<span class="linenos">106</span>            <span class="s2">&quot;numbers&quot;</span><span class="p">:</span> <span class="n">num_list</span>
+<span class="linenos">107</span>        <span class="p">}</span>
+<span class="linenos">108</span>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="linenos">109</span>        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Error processing numbers: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+<span class="linenos">110</span>
+<span class="linenos">111</span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="linenos">112</span>    <span class="c1"># Create action groups</span>
+<span class="linenos">113</span>    <span class="n">math_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+<span class="linenos">114</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MathActions&quot;</span><span class="p">,</span>
+<span class="linenos">115</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Functions for performing mathematical calculations&quot;</span><span class="p">,</span>
+<span class="linenos">116</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">calculate</span><span class="p">]</span>
+<span class="linenos">117</span>    <span class="p">)</span>
+<span class="linenos">118</span>    
+<span class="linenos">119</span>    <span class="n">text_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+<span class="linenos">120</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;TextActions&quot;</span><span class="p">,</span>
+<span class="linenos">121</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Functions for formatting and manipulating text&quot;</span><span class="p">,</span>
+<span class="linenos">122</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">format_text</span><span class="p">]</span>
+<span class="linenos">123</span>    <span class="p">)</span>
+<span class="linenos">124</span>    
+<span class="linenos">125</span>    <span class="n">stats_group</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+<span class="linenos">126</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;StatisticsActions&quot;</span><span class="p">,</span>
+<span class="linenos">127</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Functions for calculating statistics on sets of numbers&quot;</span><span class="p">,</span>
+<span class="linenos">128</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">calculate_statistics</span><span class="p">]</span>
+<span class="linenos">129</span>    <span class="p">)</span>
+<span class="linenos">130</span>    
+<span class="linenos">131</span>    <span class="c1"># Create the agent with action groups</span>
+<span class="linenos">132</span>    <span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos">133</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ParameterDemoAgent&quot;</span><span class="p">,</span>
+<span class="linenos">134</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+<span class="linenos">135</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;You are a helpful assistant that demonstrates parameter handling.</span>
+<span class="linenos">136</span><span class="s2">        </span>
+<span class="linenos">137</span><span class="s2">        You can:</span>
+<span class="linenos">138</span><span class="s2">        1. Perform calculations using the calculate function</span>
+<span class="linenos">139</span><span class="s2">        2. Format text using the format_text function</span>
+<span class="linenos">140</span><span class="s2">        3. Calculate statistics for a list of numbers using the calculate_statistics function</span>
+<span class="linenos">141</span><span class="s2">        </span>
+<span class="linenos">142</span><span class="s2">        Please use these functions to help users with their requests.</span>
+<span class="linenos">143</span><span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">144</span>        <span class="n">action_groups</span><span class="o">=</span><span class="p">[</span><span class="n">math_group</span><span class="p">,</span> <span class="n">text_group</span><span class="p">,</span> <span class="n">stats_group</span><span class="p">]</span>
+<span class="linenos">145</span>    <span class="p">)</span>
+<span class="linenos">146</span>    
+<span class="linenos">147</span>    <span class="c1"># Test the agent locally before deploying</span>
+<span class="linenos">148</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Testing agent locally before deployment...&quot;</span><span class="p">)</span>
+<span class="linenos">149</span>    <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">)</span>
+<span class="linenos">150</span>    
+<span class="linenos">151</span>    <span class="c1"># Test with different parameter types</span>
+<span class="linenos">152</span>    <span class="n">test_messages</span> <span class="o">=</span> <span class="p">[</span>
+<span class="linenos">153</span>        <span class="s2">&quot;Calculate 25 + 17&quot;</span><span class="p">,</span>
+<span class="linenos">154</span>        <span class="s2">&quot;Format this text in uppercase: Hello, world!&quot;</span><span class="p">,</span>
+<span class="linenos">155</span>        <span class="s2">&quot;Calculate statistics for these numbers: 10, 15, 7, 22, 18, 5, 12, 30, 25, 20&quot;</span>
+<span class="linenos">156</span>    <span class="p">]</span>
+<span class="linenos">157</span>    
+<span class="linenos">158</span>    <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">test_messages</span><span class="p">:</span>
+<span class="linenos">159</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Testing: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">160</span>        <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">)</span>
+<span class="linenos">161</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">162</span>        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">])</span>
+<span class="linenos">163</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">164</span>    
+<span class="linenos">165</span>    <span class="c1"># Deploy the agent to AWS</span>
+<span class="linenos">166</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Deploying agent to AWS...&quot;</span><span class="p">)</span>
+<span class="linenos">167</span>    
+<span class="linenos">168</span>    <span class="c1"># Generate the SAM template and supporting files</span>
+<span class="linenos">169</span>    <span class="c1"># The output directory will default to &quot;./parameterdemoagent_deployment&quot;</span>
+<span class="linenos">170</span>    <span class="n">template_path</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span>
+<span class="linenos">171</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Parameter handling demonstration agent&quot;</span><span class="p">,</span>
+<span class="linenos">172</span>        <span class="c1"># Uncomment the following lines to automatically build and deploy</span>
+<span class="linenos">173</span>        <span class="c1"># auto_build=True,</span>
+<span class="linenos">174</span>        <span class="c1"># auto_deploy=True</span>
+<span class="linenos">175</span>    <span class="p">)</span>
+<span class="linenos">176</span>    
+<span class="linenos">177</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">After deployment, you can test your agent in the AWS Console:&quot;</span><span class="p">)</span>
+<span class="linenos">178</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1. Go to the Amazon Bedrock console&quot;</span><span class="p">)</span>
+<span class="linenos">179</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2. Navigate to Agents&quot;</span><span class="p">)</span>
+<span class="linenos">180</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;3. Find your agent named &#39;ParameterDemoAgent&#39;&quot;</span><span class="p">)</span>
+<span class="linenos">181</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;4. Click on the agent and use the &#39;Test&#39; tab to interact with it&quot;</span><span class="p">)</span>
+<span class="linenos">182</span>    
+<span class="linenos">183</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Try these test messages:&quot;</span><span class="p">)</span>
+<span class="linenos">184</span>    <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">test_messages</span><span class="p">:</span>
+<span class="linenos">185</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">186</span>
+<span class="linenos">187</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">188</span>    <span class="n">main</span><span class="p">()</span> 
+</pre></div>
+</div>
+</section>
+<section id="code-interpreter-example">
+<h2>Code Interpreter Example<a class="headerlink" href="#code-interpreter-example" title="Link to this heading"></a></h2>
+<p>The code interpreter example demonstrates how to use the Code Interpreter feature to write and execute Python code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span><span class="sd">Code Interpreter Example</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="sd">This example demonstrates how to use the Code Interpreter feature of Amazon Bedrock Agents.</span>
+<span class="linenos"> 5</span><span class="sd">The Code Interpreter allows the agent to write and execute Python code to solve problems.</span>
+<span class="linenos"> 6</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 9</span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">Message</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="linenos">12</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">13</span><span class="sd">    Main function to demonstrate Code Interpreter functionality.</span>
+<span class="linenos">14</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos">15</span>    <span class="c1"># Create an agent with Code Interpreter enabled</span>
+<span class="linenos">16</span>    <span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos">17</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CodeInterpreterAgent&quot;</span><span class="p">,</span>
+<span class="linenos">18</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-5-sonnet-20241022-v2:0&quot;</span><span class="p">,</span>
+<span class="linenos">19</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">20</span><span class="s2">        You are a helpful data analysis assistant that can write and execute Python code.</span>
+<span class="linenos">21</span><span class="s2">        When asked to analyze data or solve mathematical problems, use Python code to provide solutions.</span>
+<span class="linenos">22</span><span class="s2">        Create visualizations when appropriate to help explain your findings.</span>
+<span class="linenos">23</span><span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">24</span>        <span class="n">enable_code_interpreter</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># This enables the Code Interpreter feature</span>
+<span class="linenos">25</span>    <span class="p">)</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span>    <span class="c1"># Create a client with raw trace level to see the code being executed</span>
+<span class="linenos">28</span>    <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
+<span class="linenos">29</span>        <span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+<span class="linenos">30</span>        <span class="n">trace_level</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span>  <span class="c1"># Use &quot;raw&quot; to see the actual code being executed</span>
+<span class="linenos">31</span>    <span class="p">)</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span>    <span class="c1"># Example 1: Simple calculation</span>
+<span class="linenos">34</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Example 1: Simple Calculation ===&quot;</span><span class="p">)</span>
+<span class="linenos">35</span>    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+<span class="linenos">36</span>        <span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span>
+<span class="linenos">37</span>        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Calculate the first 10 Fibonacci numbers and show them in a table.&quot;</span>
+<span class="linenos">38</span>    <span class="p">)</span>
+<span class="linenos">39</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Response: </span><span class="si">{</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">40</span>
+<span class="linenos">41</span>    <span class="c1"># Example 2: Data analysis with a CSV file</span>
+<span class="linenos">42</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Example 2: Data Analysis with CSV ===&quot;</span><span class="p">)</span>
+<span class="linenos">43</span>    
+<span class="linenos">44</span>    <span class="c1"># Create a sample CSV file if it doesn&#39;t exist</span>
+<span class="linenos">45</span>    <span class="n">csv_path</span> <span class="o">=</span> <span class="s2">&quot;sample_data.csv&quot;</span>
+<span class="linenos">46</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">csv_path</span><span class="p">):</span>
+<span class="linenos">47</span>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="linenos">48</span>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Month,Sales,Expenses</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">49</span>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;January,10000,8000</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">50</span>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;February,12000,8500</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">51</span>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;March,15000,9000</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">52</span>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;April,9000,7500</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">53</span>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;May,11000,8200</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">54</span>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;June,13500,8800</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">55</span>    
+<span class="linenos">56</span>    <span class="c1"># Add the CSV file to the agent</span>
+<span class="linenos">57</span>    <span class="n">agent</span><span class="o">.</span><span class="n">add_file_from_path</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
+<span class="linenos">58</span>    
+<span class="linenos">59</span>    <span class="c1"># Run the agent with a data analysis request</span>
+<span class="linenos">60</span>    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+<span class="linenos">61</span>        <span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span>
+<span class="linenos">62</span>        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">63</span><span class="s2">        Please analyze the sales data in the CSV file:</span>
+<span class="linenos">64</span><span class="s2">        1. Calculate the total sales and expenses</span>
+<span class="linenos">65</span><span class="s2">        2. Calculate the profit for each month</span>
+<span class="linenos">66</span><span class="s2">        3. Create a bar chart showing sales and expenses by month</span>
+<span class="linenos">67</span><span class="s2">        4. Which month had the highest profit margin?</span>
+<span class="linenos">68</span><span class="s2">        &quot;&quot;&quot;</span>
+<span class="linenos">69</span>    <span class="p">)</span>
+<span class="linenos">70</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Response: </span><span class="si">{</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">71</span>    
+<span class="linenos">72</span>    <span class="c1"># Save any generated files</span>
+<span class="linenos">73</span>    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;files&quot;</span><span class="p">):</span>
+<span class="linenos">74</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The agent generated </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> file(s)&quot;</span><span class="p">)</span>
+<span class="linenos">75</span>        <span class="n">saved_paths</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;save_all_files&quot;</span><span class="p">](</span><span class="s2">&quot;output&quot;</span><span class="p">)</span>
+<span class="linenos">76</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Files saved to: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saved_paths</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">77</span>
+<span class="linenos">78</span>    <span class="c1"># Example 3: Interactive chat with Code Interpreter</span>
+<span class="linenos">79</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Example 3: Interactive Chat with Code Interpreter ===&quot;</span><span class="p">)</span>
+<span class="linenos">80</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting interactive chat. Type &#39;exit&#39; to quit.&quot;</span><span class="p">)</span>
+<span class="linenos">81</span>    
+<span class="linenos">82</span>    <span class="c1"># Start an interactive chat session</span>
+<span class="linenos">83</span>    <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span><span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">)</span>
+<span class="linenos">84</span>
+<span class="linenos">85</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">86</span>    <span class="n">main</span><span class="p">()</span> 
+</pre></div>
+</div>
+</section>
+<section id="plugin-example">
+<h2>Plugin Example<a class="headerlink" href="#plugin-example" title="Link to this heading"></a></h2>
+<p>The plugin example demonstrates how to use plugins to extend your agent’s capabilities.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">  2</span><span class="sd">Example of using plugins with the Bedrock Agents SDK.</span>
+<span class="linenos">  3</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">  4</span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="linenos">  5</span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">BedrockAgents</span><span class="p">,</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">Message</span>
+<span class="linenos">  6</span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">SecurityPlugin</span><span class="p">,</span> <span class="n">GuardrailPlugin</span><span class="p">,</span> <span class="n">KnowledgeBasePlugin</span>
+<span class="linenos">  7</span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk.plugins.base</span> <span class="kn">import</span> <span class="n">BedrockAgentsPlugin</span>
+<span class="linenos">  8</span>
+<span class="linenos">  9</span><span class="c1"># Define a function</span>
+<span class="linenos"> 10</span><span class="k">def</span> <span class="nf">get_time</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos"> 11</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current time&quot;&quot;&quot;</span>
+<span class="linenos"> 12</span>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="linenos"> 13</span>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">)}</span>
+<span class="linenos"> 14</span>
+<span class="linenos"> 15</span><span class="c1"># Define a custom plugin</span>
+<span class="linenos"> 16</span><span class="k">class</span> <span class="nc">LoggingPlugin</span><span class="p">(</span><span class="n">BedrockAgentsPlugin</span><span class="p">):</span>
+<span class="linenos"> 17</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;A plugin that logs all API calls&quot;&quot;&quot;</span>
+<span class="linenos"> 18</span>    
+<span class="linenos"> 19</span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="s2">&quot;api_calls.log&quot;</span><span class="p">):</span>
+<span class="linenos"> 20</span>        <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="n">log_file</span>
+<span class="linenos"> 21</span>    
+<span class="linenos"> 22</span>    <span class="k">def</span> <span class="nf">pre_invoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="linenos"> 23</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Log the parameters before invocation&quot;&quot;&quot;</span>
+<span class="linenos"> 24</span>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="linenos"> 25</span>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;API Call Parameters: </span><span class="si">{</span><span class="n">params</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos"> 26</span>        <span class="k">return</span> <span class="n">params</span>
+<span class="linenos"> 27</span>    
+<span class="linenos"> 28</span>    <span class="k">def</span> <span class="nf">post_invoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+<span class="linenos"> 29</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Log the response after invocation&quot;&quot;&quot;</span>
+<span class="linenos"> 30</span>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="linenos"> 31</span>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;API Response: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos"> 32</span>        <span class="k">return</span> <span class="n">response</span>
+<span class="linenos"> 33</span>    
+<span class="linenos"> 34</span>    <span class="k">def</span> <span class="nf">pre_deploy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
+<span class="linenos"> 35</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;Log the template before deployment&quot;&quot;&quot;</span>
+<span class="linenos"> 36</span>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="linenos"> 37</span>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deployment Template: </span><span class="si">{</span><span class="n">template</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos"> 38</span>        <span class="k">return</span> <span class="n">template</span>
+<span class="linenos"> 39</span>
+<span class="linenos"> 40</span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="linenos"> 41</span>    <span class="c1"># Create the client</span>
+<span class="linenos"> 42</span>    <span class="n">client</span> <span class="o">=</span> <span class="n">BedrockAgents</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;verbose&quot;</span><span class="p">)</span>
+<span class="linenos"> 43</span>    
+<span class="linenos"> 44</span>    <span class="c1"># Create plugins</span>
+<span class="linenos"> 45</span>    <span class="n">kb_plugin</span> <span class="o">=</span> <span class="n">KnowledgeBasePlugin</span><span class="p">(</span>
+<span class="linenos"> 46</span>        <span class="n">knowledge_base_id</span><span class="o">=</span><span class="s2">&quot;your-kb-id&quot;</span><span class="p">,</span>
+<span class="linenos"> 47</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Knowledge base containing company documentation&quot;</span>
+<span class="linenos"> 48</span>    <span class="p">)</span>
+<span class="linenos"> 49</span>    
+<span class="linenos"> 50</span>    <span class="n">guardrail_plugin</span> <span class="o">=</span> <span class="n">GuardrailPlugin</span><span class="p">(</span><span class="n">guardrail_id</span><span class="o">=</span><span class="s2">&quot;your-guardrail-id&quot;</span><span class="p">)</span>
+<span class="linenos"> 51</span>    
+<span class="linenos"> 52</span>    <span class="c1"># Create a custom logging plugin</span>
+<span class="linenos"> 53</span>    <span class="n">logging_plugin</span> <span class="o">=</span> <span class="n">LoggingPlugin</span><span class="p">(</span><span class="n">log_file</span><span class="o">=</span><span class="s2">&quot;api_calls.log&quot;</span><span class="p">)</span>
+<span class="linenos"> 54</span>    
+<span class="linenos"> 55</span>    <span class="c1"># Create a security plugin (uncomment to use)</span>
+<span class="linenos"> 56</span>    <span class="c1"># security_plugin = SecurityPlugin(customer_encryption_key_arn=&quot;your-kms-key-arn&quot;)</span>
+<span class="linenos"> 57</span>    
+<span class="linenos"> 58</span>    <span class="c1"># Create the agent with plugins</span>
+<span class="linenos"> 59</span>    <span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos"> 60</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PluginAgent&quot;</span><span class="p">,</span>
+<span class="linenos"> 61</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;us.anthropic.claude-3-5-sonnet-20241022-v2:0&quot;</span><span class="p">,</span>
+<span class="linenos"> 62</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant that can tell the time.&quot;</span><span class="p">,</span>
+<span class="linenos"> 63</span>        <span class="n">functions</span><span class="o">=</span><span class="p">[</span><span class="n">get_time</span><span class="p">],</span>
+<span class="linenos"> 64</span>        <span class="n">plugins</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos"> 65</span>            <span class="n">kb_plugin</span><span class="p">,</span>
+<span class="linenos"> 66</span>            <span class="n">guardrail_plugin</span><span class="p">,</span>
+<span class="linenos"> 67</span>            <span class="n">logging_plugin</span><span class="p">,</span>
+<span class="linenos"> 68</span>            <span class="c1"># security_plugin  # Uncomment to use</span>
+<span class="linenos"> 69</span>        <span class="p">]</span>
+<span class="linenos"> 70</span>    <span class="p">)</span>
+<span class="linenos"> 71</span>    
+<span class="linenos"> 72</span>    <span class="c1"># Run the agent</span>
+<span class="linenos"> 73</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+<span class="linenos"> 74</span>        <span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span>
+<span class="linenos"> 75</span>        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos"> 76</span>            <span class="p">{</span>
+<span class="linenos"> 77</span>                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+<span class="linenos"> 78</span>                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What time is it now?&quot;</span>
+<span class="linenos"> 79</span>            <span class="p">}</span>
+<span class="linenos"> 80</span>        <span class="p">]</span>
+<span class="linenos"> 81</span>    <span class="p">)</span>
+<span class="linenos"> 82</span>    
+<span class="linenos"> 83</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Response from agent:&quot;</span><span class="p">)</span>
+<span class="linenos"> 84</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos"> 85</span>    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">])</span>
+<span class="linenos"> 86</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos"> 87</span>    
+<span class="linenos"> 88</span>    <span class="c1"># Deploy the agent to AWS</span>
+<span class="linenos"> 89</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Deploying agent to AWS...&quot;</span><span class="p">)</span>
+<span class="linenos"> 90</span>    
+<span class="linenos"> 91</span>    <span class="c1"># All plugins will be applied to the deployment</span>
+<span class="linenos"> 92</span>    <span class="c1"># template_path = agent.deploy(</span>
+<span class="linenos"> 93</span>    <span class="c1">#     description=&quot;Plugin example agent&quot;,</span>
+<span class="linenos"> 94</span>    <span class="c1">#     # Uncomment the following lines to automatically build and deploy</span>
+<span class="linenos"> 95</span>    <span class="c1">#     # auto_build=True,</span>
+<span class="linenos"> 96</span>    <span class="c1">#     # auto_deploy=True</span>
+<span class="linenos"> 97</span>    <span class="c1"># )</span>
+<span class="linenos"> 98</span>
+<span class="linenos"> 99</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">100</span>    <span class="n">main</span><span class="p">()</span> 
+</pre></div>
+</div>
+</section>
+<section id="dependency-example">
+<h2>Dependency Example<a class="headerlink" href="#dependency-example" title="Link to this heading"></a></h2>
+<p>The dependency example demonstrates how to handle dependencies in your agent’s functions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">  2</span><span class="sd">Example of deploying a Bedrock Agent with web search capabilities.</span>
+<span class="linenos">  3</span>
+<span class="linenos">  4</span><span class="sd">This example demonstrates how to:</span>
+<span class="linenos">  5</span><span class="sd">1. Create functions that search the web and extract content from URLs</span>
+<span class="linenos">  6</span><span class="sd">2. Handle different response formats from third-party libraries</span>
+<span class="linenos">  7</span><span class="sd">3. Properly specify dependencies for Lambda deployment</span>
+<span class="linenos">  8</span><span class="sd">4. Handle Lambda parameter format correctly (list of dictionaries)</span>
+<span class="linenos">  9</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 10</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 11</span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">BedrockAgents</span><span class="p">,</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">Message</span>
+<span class="linenos"> 12</span>
+<span class="linenos"> 13</span><span class="c1"># Define functions for web search and content extraction</span>
+<span class="linenos"> 14</span><span class="k">def</span> <span class="nf">search_internet</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_results</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos"> 15</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 16</span><span class="sd">    Search the internet using DuckDuckGo</span>
+<span class="linenos"> 17</span><span class="sd">    </span>
+<span class="linenos"> 18</span><span class="sd">    :param query: The search query</span>
+<span class="linenos"> 19</span><span class="sd">    :param num_results: Number of results to return (default: 5)</span>
+<span class="linenos"> 20</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos"> 21</span>    <span class="kn">from</span> <span class="nn">duckduckgo_search</span> <span class="kn">import</span> <span class="n">DDGS</span>
+<span class="linenos"> 22</span>    
+<span class="linenos"> 23</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos"> 24</span>        <span class="c1"># Create a DuckDuckGo Search instance</span>
+<span class="linenos"> 25</span>        <span class="n">ddg</span> <span class="o">=</span> <span class="n">DDGS</span><span class="p">()</span>
+<span class="linenos"> 26</span>        
+<span class="linenos"> 27</span>        <span class="c1"># Perform the search</span>
+<span class="linenos"> 28</span>        <span class="n">search_results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ddg</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="n">num_results</span><span class="p">))</span>
+<span class="linenos"> 29</span>        
+<span class="linenos"> 30</span>        <span class="c1"># Format the results - handle different possible return formats</span>
+<span class="linenos"> 31</span>        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 32</span>        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">search_results</span><span class="p">:</span>
+<span class="linenos"> 33</span>            <span class="c1"># Check if result is a dictionary (newer versions of the library)</span>
+<span class="linenos"> 34</span>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="linenos"> 35</span>                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<span class="linenos"> 36</span>                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+<span class="linenos"> 37</span>                    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;href&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+<span class="linenos"> 38</span>                    <span class="s2">&quot;snippet&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="linenos"> 39</span>                <span class="p">})</span>
+<span class="linenos"> 40</span>            <span class="c1"># Check if result is a list or tuple (older versions or different format)</span>
+<span class="linenos"> 41</span>            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+<span class="linenos"> 42</span>                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<span class="linenos"> 43</span>                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="linenos"> 44</span>                    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="linenos"> 45</span>                    <span class="s2">&quot;snippet&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+<span class="linenos"> 46</span>                <span class="p">})</span>
+<span class="linenos"> 47</span>            <span class="c1"># Fallback for any other format</span>
+<span class="linenos"> 48</span>            <span class="k">else</span><span class="p">:</span>
+<span class="linenos"> 49</span>                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<span class="linenos"> 50</span>                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
+<span class="linenos"> 51</span>                    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="linenos"> 52</span>                    <span class="s2">&quot;snippet&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="linenos"> 53</span>                <span class="p">})</span>
+<span class="linenos"> 54</span>                
+<span class="linenos"> 55</span>        <span class="k">return</span> <span class="p">{</span>
+<span class="linenos"> 56</span>            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">,</span>
+<span class="linenos"> 57</span>            <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">query</span>
+<span class="linenos"> 58</span>        <span class="p">}</span>
+<span class="linenos"> 59</span>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="linenos"> 60</span>        <span class="c1"># Return error information if the search fails</span>
+<span class="linenos"> 61</span>        <span class="k">return</span> <span class="p">{</span>
+<span class="linenos"> 62</span>            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[],</span>
+<span class="linenos"> 63</span>            <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
+<span class="linenos"> 64</span>            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="linenos"> 65</span>        <span class="p">}</span>
+<span class="linenos"> 66</span>
+<span class="linenos"> 67</span><span class="k">def</span> <span class="nf">load_text_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos"> 68</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 69</span><span class="sd">    Load and extract text content from a specified URL</span>
+<span class="linenos"> 70</span><span class="sd">    </span>
+<span class="linenos"> 71</span><span class="sd">    :param url: The URL to fetch text content from</span>
+<span class="linenos"> 72</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos"> 73</span>    <span class="kn">import</span> <span class="nn">requests</span>
+<span class="linenos"> 74</span>    <span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="linenos"> 75</span>    
+<span class="linenos"> 76</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos"> 77</span>        <span class="c1"># Add user agent to avoid being blocked</span>
+<span class="linenos"> 78</span>        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos"> 79</span>            <span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="s1">&#39;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36&#39;</span>
+<span class="linenos"> 80</span>        <span class="p">}</span>
+<span class="linenos"> 81</span>        
+<span class="linenos"> 82</span>        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="linenos"> 83</span>        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># Raise exception for 4XX/5XX responses</span>
+<span class="linenos"> 84</span>        
+<span class="linenos"> 85</span>        <span class="c1"># Parse the HTML content</span>
+<span class="linenos"> 86</span>        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+<span class="linenos"> 87</span>        
+<span class="linenos"> 88</span>        <span class="c1"># Remove script and style elements</span>
+<span class="linenos"> 89</span>        <span class="k">for</span> <span class="n">script_or_style</span> <span class="ow">in</span> <span class="n">soup</span><span class="p">([</span><span class="s2">&quot;script&quot;</span><span class="p">,</span> <span class="s2">&quot;style&quot;</span><span class="p">,</span> <span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="s2">&quot;footer&quot;</span><span class="p">,</span> <span class="s2">&quot;nav&quot;</span><span class="p">]):</span>
+<span class="linenos"> 90</span>            <span class="n">script_or_style</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span>
+<span class="linenos"> 91</span>            
+<span class="linenos"> 92</span>        <span class="c1"># Get text content</span>
+<span class="linenos"> 93</span>        <span class="n">text</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+<span class="linenos"> 94</span>        
+<span class="linenos"> 95</span>        <span class="c1"># Clean up text: remove extra whitespace and blank lines</span>
+<span class="linenos"> 96</span>        <span class="n">lines</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">())</span>
+<span class="linenos"> 97</span>        <span class="n">chunks</span> <span class="o">=</span> <span class="p">(</span><span class="n">phrase</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">for</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;  &quot;</span><span class="p">))</span>
+<span class="linenos"> 98</span>        <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chunk</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span> <span class="k">if</span> <span class="n">chunk</span><span class="p">)</span>
+<span class="linenos"> 99</span>        
+<span class="linenos">100</span>        <span class="c1"># Limit text length to avoid exceeding Lambda response size limits</span>
+<span class="linenos">101</span>        <span class="n">max_length</span> <span class="o">=</span> <span class="mi">100000</span>  <span class="c1"># Adjust as needed</span>
+<span class="linenos">102</span>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_length</span><span class="p">:</span>
+<span class="linenos">103</span>            <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">max_length</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;... [content truncated due to size]&quot;</span>
+<span class="linenos">104</span>        
+<span class="linenos">105</span>        <span class="k">return</span> <span class="p">{</span>
+<span class="linenos">106</span>            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span>
+<span class="linenos">107</span>            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+<span class="linenos">108</span>            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span>
+<span class="linenos">109</span>        <span class="p">}</span>
+<span class="linenos">110</span>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="linenos">111</span>        <span class="c1"># Handle errors gracefully</span>
+<span class="linenos">112</span>        <span class="k">return</span> <span class="p">{</span>
+<span class="linenos">113</span>            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Error retrieving content: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+<span class="linenos">114</span>            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+<span class="linenos">115</span>            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="mi">500</span>
+<span class="linenos">116</span>        <span class="p">}</span>
+<span class="linenos">117</span>
+<span class="linenos">118</span><span class="c1"># Helper function to extract parameters in Lambda</span>
+<span class="linenos">119</span><span class="k">def</span> <span class="nf">extract_parameter_value</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos">120</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">121</span><span class="sd">    Extract a parameter value from the parameters list</span>
+<span class="linenos">122</span><span class="sd">    </span>
+<span class="linenos">123</span><span class="sd">    Args:</span>
+<span class="linenos">124</span><span class="sd">        parameters: List of parameter dictionaries</span>
+<span class="linenos">125</span><span class="sd">        param_name: Name of the parameter to extract</span>
+<span class="linenos">126</span><span class="sd">        default: Default value if parameter is not found</span>
+<span class="linenos">127</span><span class="sd">        </span>
+<span class="linenos">128</span><span class="sd">    Returns:</span>
+<span class="linenos">129</span><span class="sd">        The parameter value or default if not found</span>
+<span class="linenos">130</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos">131</span>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+<span class="linenos">132</span>        <span class="c1"># Parameters is a list of dictionaries</span>
+<span class="linenos">133</span>        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+<span class="linenos">134</span>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">param_name</span><span class="p">:</span>
+<span class="linenos">135</span>                <span class="k">return</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+<span class="linenos">136</span>    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="linenos">137</span>        <span class="c1"># Parameters is a dictionary</span>
+<span class="linenos">138</span>        <span class="k">return</span> <span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_name</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+<span class="linenos">139</span>    
+<span class="linenos">140</span>    <span class="c1"># If we get here, parameter was not found</span>
+<span class="linenos">141</span>    <span class="k">return</span> <span class="n">default</span>
+<span class="linenos">142</span>
+<span class="linenos">143</span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="linenos">144</span>    <span class="c1"># Create the agent</span>
+<span class="linenos">145</span>    <span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos">146</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WebSearchAgent&quot;</span><span class="p">,</span>
+<span class="linenos">147</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+<span class="linenos">148</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;You are a helpful web search assistant. </span>
+<span class="linenos">149</span><span class="s2">        When asked for information, use the search_internet function to find relevant information.</span>
+<span class="linenos">150</span><span class="s2">        If the user wants to read content from a specific URL, use the load_text_from_url function.</span>
+<span class="linenos">151</span><span class="s2">        Always cite your sources by providing the URLs.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">152</span>        <span class="n">functions</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">153</span>            <span class="s2">&quot;SearchActions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">search_internet</span><span class="p">,</span> <span class="n">load_text_from_url</span><span class="p">]</span>
+<span class="linenos">154</span>        <span class="p">}</span>
+<span class="linenos">155</span>    <span class="p">)</span>
+<span class="linenos">156</span>    
+<span class="linenos">157</span>    <span class="c1"># Test the agent locally before deploying</span>
+<span class="linenos">158</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Testing agent locally before deployment...&quot;</span><span class="p">)</span>
+<span class="linenos">159</span>    <span class="n">client</span> <span class="o">=</span> <span class="n">BedrockAgents</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">)</span>
+<span class="linenos">160</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+<span class="linenos">161</span>        <span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span>
+<span class="linenos">162</span>        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is the current weather in Seattle?&quot;</span>
+<span class="linenos">163</span>    <span class="p">)</span>
+<span class="linenos">164</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Local agent response:&quot;</span><span class="p">)</span>
+<span class="linenos">165</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">166</span>    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">])</span>
+<span class="linenos">167</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">168</span>    
+<span class="linenos">169</span>    <span class="c1"># Deploy the agent to AWS</span>
+<span class="linenos">170</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Deploying agent to AWS...&quot;</span><span class="p">)</span>
+<span class="linenos">171</span>    
+<span class="linenos">172</span>    <span class="c1"># Add specific version constraints for dependencies</span>
+<span class="linenos">173</span>    <span class="n">agent</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="s2">&quot;requests&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=2.25.0&quot;</span><span class="p">)</span>
+<span class="linenos">174</span>    <span class="n">agent</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="s2">&quot;beautifulsoup4&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=4.9.0&quot;</span><span class="p">)</span>
+<span class="linenos">175</span>    <span class="n">agent</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="s2">&quot;duckduckgo-search&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=3.0.0&quot;</span><span class="p">)</span>
+<span class="linenos">176</span>    
+<span class="linenos">177</span>    <span class="c1"># Generate the SAM template and supporting files</span>
+<span class="linenos">178</span>    <span class="c1"># The output directory will default to &quot;./websearchagent_deployment&quot;</span>
+<span class="linenos">179</span>    <span class="n">template_path</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span>
+<span class="linenos">180</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Web search agent with DuckDuckGo and BeautifulSoup&quot;</span><span class="p">,</span>
+<span class="linenos">181</span>        <span class="c1"># Uncomment the following lines to automatically build and deploy</span>
+<span class="linenos">182</span>        <span class="c1"># auto_build=True,</span>
+<span class="linenos">183</span>        <span class="c1"># auto_deploy=True</span>
+<span class="linenos">184</span>    <span class="p">)</span>
+<span class="linenos">185</span>    
+<span class="linenos">186</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">IMPORTANT: After deployment, you need to manually update the Lambda function code&quot;</span><span class="p">)</span>
+<span class="linenos">187</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;to handle parameters correctly. In the Lambda console, add the following function:&quot;</span><span class="p">)</span>
+<span class="linenos">188</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">189</span><span class="s2">def extract_parameter_value(parameters, param_name, default=None):</span>
+<span class="linenos">190</span><span class="s2">    </span><span class="se">\&quot;\&quot;\&quot;</span>
+<span class="linenos">191</span><span class="s2">    Extract a parameter value from the parameters list</span>
+<span class="linenos">192</span><span class="s2">    </span><span class="se">\&quot;\&quot;\&quot;</span>
+<span class="linenos">193</span><span class="s2">    if isinstance(parameters, list):</span>
+<span class="linenos">194</span><span class="s2">        # Parameters is a list of dictionaries</span>
+<span class="linenos">195</span><span class="s2">        for param in parameters:</span>
+<span class="linenos">196</span><span class="s2">            if isinstance(param, dict) and param.get(&#39;name&#39;) == param_name:</span>
+<span class="linenos">197</span><span class="s2">                return param.get(&#39;value&#39;, default)</span>
+<span class="linenos">198</span><span class="s2">    elif isinstance(parameters, dict):</span>
+<span class="linenos">199</span><span class="s2">        # Parameters is a dictionary</span>
+<span class="linenos">200</span><span class="s2">        return parameters.get(param_name, default)</span>
+<span class="linenos">201</span><span class="s2">    </span>
+<span class="linenos">202</span><span class="s2">    # If we get here, parameter was not found</span>
+<span class="linenos">203</span><span class="s2">    return default</span>
+<span class="linenos">204</span><span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
+<span class="linenos">205</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Then update the lambda_handler function to use this helper function:&quot;</span><span class="p">)</span>
+<span class="linenos">206</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">207</span><span class="s2"># Get parameters from the event if available</span>
+<span class="linenos">208</span><span class="s2">parameters = event.get(&quot;parameters&quot;, [])</span>
+<span class="linenos">209</span>
+<span class="linenos">210</span><span class="s2"># For search_internet function:</span>
+<span class="linenos">211</span><span class="s2">query = extract_parameter_value(parameters, &quot;query&quot;, &quot;&quot;)</span>
+<span class="linenos">212</span><span class="s2">num_results_str = extract_parameter_value(parameters, &quot;num_results&quot;, &quot;5&quot;)</span>
+<span class="linenos">213</span><span class="s2">try:</span>
+<span class="linenos">214</span><span class="s2">    num_results = int(num_results_str)</span>
+<span class="linenos">215</span><span class="s2">except (ValueError, TypeError):</span>
+<span class="linenos">216</span><span class="s2">    num_results = 5</span>
+<span class="linenos">217</span><span class="s2">output_from_logic = search_internet(query=query, num_results=num_results)</span>
+<span class="linenos">218</span>
+<span class="linenos">219</span><span class="s2"># For load_text_from_url function:</span>
+<span class="linenos">220</span><span class="s2">url = extract_parameter_value(parameters, &quot;url&quot;, &quot;&quot;)</span>
+<span class="linenos">221</span><span class="s2">output_from_logic = load_text_from_url(url=url)</span>
+<span class="linenos">222</span><span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
+<span class="linenos">223</span>
+<span class="linenos">224</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">225</span>    <span class="n">main</span><span class="p">()</span> 
+</pre></div>
+</div>
+</section>
+<section id="deployment-example">
+<h2>Deployment Example<a class="headerlink" href="#deployment-example" title="Link to this heading"></a></h2>
+<p>The deployment example demonstrates how to deploy your agent to AWS.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span><span class="sd">Example of deploying a Bedrock Agent to AWS using the Bedrock Agents SDK.</span>
+<span class="linenos"> 3</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 4</span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="linenos"> 5</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 6</span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">BedrockAgents</span><span class="p">,</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">Message</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="c1"># Define functions - these will run in AWS Lambda when deployed</span>
+<span class="linenos"> 9</span><span class="k">def</span> <span class="nf">get_time</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos">10</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current time&quot;&quot;&quot;</span>
+<span class="linenos">11</span>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="linenos">12</span>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">)}</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span><span class="k">def</span> <span class="nf">get_date</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos">15</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the current date&quot;&quot;&quot;</span>
+<span class="linenos">16</span>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="linenos">17</span>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)}</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="k">def</span> <span class="nf">add_numbers</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="linenos">20</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Add two numbers together</span>
+<span class="linenos">21</span><span class="sd">    </span>
+<span class="linenos">22</span><span class="sd">    :param a: The first number</span>
+<span class="linenos">23</span><span class="sd">    :param b: The second number</span>
+<span class="linenos">24</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos">25</span>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">}</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="linenos">28</span>    <span class="c1"># Create the agent</span>
+<span class="linenos">29</span>    <span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos">30</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;DeploymentExample&quot;</span><span class="p">,</span>
+<span class="linenos">31</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;</span><span class="p">,</span>
+<span class="linenos">32</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;You are a helpful assistant that can tell the time and date, </span>
+<span class="linenos">33</span><span class="s2">        and perform simple calculations. When asked about time or date, use the </span>
+<span class="linenos">34</span><span class="s2">        appropriate function to get accurate information. When asked to add numbers, </span>
+<span class="linenos">35</span><span class="s2">        use the add_numbers function.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">36</span>        <span class="n">functions</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">37</span>            <span class="s2">&quot;TimeActions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">get_time</span><span class="p">,</span> <span class="n">get_date</span><span class="p">],</span>
+<span class="linenos">38</span>            <span class="s2">&quot;MathActions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">add_numbers</span><span class="p">]</span>
+<span class="linenos">39</span>        <span class="p">}</span>
+<span class="linenos">40</span>    <span class="p">)</span>
+<span class="linenos">41</span>    
+<span class="linenos">42</span>    <span class="c1"># Test the agent locally before deploying</span>
+<span class="linenos">43</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Testing agent locally before deployment...&quot;</span><span class="p">)</span>
+<span class="linenos">44</span>    <span class="n">client</span> <span class="o">=</span> <span class="n">BedrockAgents</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">)</span>
+<span class="linenos">45</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+<span class="linenos">46</span>        <span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span>
+<span class="linenos">47</span>        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;What time is it now, and can you also add 25 and 17 for me?&quot;</span>
+<span class="linenos">48</span>    <span class="p">)</span>
+<span class="linenos">49</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Local agent response:&quot;</span><span class="p">)</span>
+<span class="linenos">50</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">51</span>    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">])</span>
+<span class="linenos">52</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">53</span>    
+<span class="linenos">54</span>    <span class="c1"># Deploy the agent to AWS</span>
+<span class="linenos">55</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Deploying agent to AWS...&quot;</span><span class="p">)</span>
+<span class="linenos">56</span>    
+<span class="linenos">57</span>    <span class="c1"># Generate the SAM template and supporting files</span>
+<span class="linenos">58</span>    <span class="c1"># The output directory will default to &quot;./deploymentexample_deployment&quot;</span>
+<span class="linenos">59</span>    <span class="n">template_path</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span>
+<span class="linenos">60</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Example agent deployment&quot;</span><span class="p">,</span>
+<span class="linenos">61</span>        <span class="c1"># Uncomment the following lines to automatically build and deploy</span>
+<span class="linenos">62</span>        <span class="c1"># auto_build=True,</span>
+<span class="linenos">63</span>        <span class="c1"># auto_deploy=True</span>
+<span class="linenos">64</span>    <span class="p">)</span>
+<span class="linenos">65</span>    
+<span class="linenos">66</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">After deployment, you can test your agent in the AWS Console:&quot;</span><span class="p">)</span>
+<span class="linenos">67</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1. Go to the Amazon Bedrock console&quot;</span><span class="p">)</span>
+<span class="linenos">68</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2. Navigate to Agents&quot;</span><span class="p">)</span>
+<span class="linenos">69</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;3. Find your agent named &#39;DeploymentExample&#39;&quot;</span><span class="p">)</span>
+<span class="linenos">70</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;4. Click on the agent and use the &#39;Test&#39; tab to interact with it&quot;</span><span class="p">)</span>
+<span class="linenos">71</span>
+<span class="linenos">72</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">73</span>    <span class="n">main</span><span class="p">()</span> 
+</pre></div>
+</div>
+</section>
+<section id="knowledge-base-example">
+<h2>Knowledge Base Example<a class="headerlink" href="#knowledge-base-example" title="Link to this heading"></a></h2>
+<p>The knowledge base example demonstrates how to connect your agent to an Amazon Bedrock Knowledge Base.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span><span class="sd">Example of using knowledge bases with the Bedrock Agents SDK.</span>
+<span class="linenos"> 3</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 4</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 5</span><span class="kn">from</span> <span class="nn">bedrock_agents_sdk</span> <span class="kn">import</span> <span class="n">BedrockAgents</span><span class="p">,</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">Message</span><span class="p">,</span> <span class="n">KnowledgeBasePlugin</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="linenos"> 8</span>    <span class="c1"># Create the client</span>
+<span class="linenos"> 9</span>    <span class="n">client</span> <span class="o">=</span> <span class="n">BedrockAgents</span><span class="p">()</span>
+<span class="linenos">10</span>    
+<span class="linenos">11</span>    <span class="c1"># Create a knowledge base plugin</span>
+<span class="linenos">12</span>    <span class="n">kb_plugin</span> <span class="o">=</span> <span class="n">KnowledgeBasePlugin</span><span class="p">(</span>
+<span class="linenos">13</span>        <span class="n">knowledge_base_id</span><span class="o">=</span><span class="s2">&quot;your-knowledge-base-id&quot;</span><span class="p">,</span>  <span class="c1"># Replace with your actual KB ID</span>
+<span class="linenos">14</span>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Knowledge base containing company documentation and FAQs&quot;</span>
+<span class="linenos">15</span>    <span class="p">)</span>
+<span class="linenos">16</span>    
+<span class="linenos">17</span>    <span class="c1"># Create the agent with the knowledge base plugin</span>
+<span class="linenos">18</span>    <span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos">19</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SupportAgent&quot;</span><span class="p">,</span>
+<span class="linenos">20</span>        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;us.anthropic.claude-3-5-sonnet-20241022-v2:0&quot;</span><span class="p">,</span>
+<span class="linenos">21</span>        <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">22</span><span class="s2">        You are a helpful support assistant for our company.</span>
+<span class="linenos">23</span><span class="s2">        Use the knowledge base to answer questions about our products and services.</span>
+<span class="linenos">24</span><span class="s2">        If you don&#39;t know the answer, say so and don&#39;t make up information.</span>
+<span class="linenos">25</span><span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">26</span>        <span class="n">plugins</span><span class="o">=</span><span class="p">[</span><span class="n">kb_plugin</span><span class="p">]</span>  <span class="c1"># Add the plugin directly to the agent</span>
+<span class="linenos">27</span>    <span class="p">)</span>
+<span class="linenos">28</span>    
+<span class="linenos">29</span>    <span class="c1"># Run the agent with a user query</span>
+<span class="linenos">30</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+<span class="linenos">31</span>        <span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span>
+<span class="linenos">32</span>        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">33</span>            <span class="p">{</span>
+<span class="linenos">34</span>                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+<span class="linenos">35</span>                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What are your refund policies?&quot;</span>
+<span class="linenos">36</span>            <span class="p">}</span>
+<span class="linenos">37</span>        <span class="p">]</span>
+<span class="linenos">38</span>    <span class="p">)</span>
+<span class="linenos">39</span>    
+<span class="linenos">40</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Response from agent:&quot;</span><span class="p">)</span>
+<span class="linenos">41</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">42</span>    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">])</span>
+<span class="linenos">43</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">44</span>    
+<span class="linenos">45</span>    <span class="c1"># Example of uploading a document to a knowledge base</span>
+<span class="linenos">46</span>    <span class="k">def</span> <span class="nf">upload_document_example</span><span class="p">():</span>
+<span class="linenos">47</span>        <span class="c1"># This is a demonstration of how you might upload a document</span>
+<span class="linenos">48</span>        <span class="c1"># In a real application, you would use the AWS SDK or console</span>
+<span class="linenos">49</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Uploading document to knowledge base (example code):&quot;</span><span class="p">)</span>
+<span class="linenos">50</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;client.upload_document(&quot;</span><span class="p">)</span>
+<span class="linenos">51</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    knowledge_base_id=&#39;your-knowledge-base-id&#39;,&quot;</span><span class="p">)</span>
+<span class="linenos">52</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    document_path=&#39;path/to/document.pdf&#39;,&quot;</span><span class="p">)</span>
+<span class="linenos">53</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    metadata={&#39;category&#39;: &#39;policies&#39;, &#39;department&#39;: &#39;legal&#39;}&quot;</span><span class="p">)</span>
+<span class="linenos">54</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">)</span>
+<span class="linenos">55</span>    
+<span class="linenos">56</span>    <span class="n">upload_document_example</span><span class="p">()</span>
+<span class="linenos">57</span>    
+<span class="linenos">58</span>    <span class="c1"># Interactive chat session</span>
+<span class="linenos">59</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Chat with the Support Agent (type &#39;exit&#39; to quit):&quot;</span><span class="p">)</span>
+<span class="linenos">60</span>    <span class="n">messages</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos">61</span>    
+<span class="linenos">62</span>    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+<span class="linenos">63</span>        <span class="n">user_input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">You: &quot;</span><span class="p">)</span>
+<span class="linenos">64</span>        <span class="k">if</span> <span class="n">user_input</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;exit&quot;</span><span class="p">:</span>
+<span class="linenos">65</span>            <span class="k">break</span>
+<span class="linenos">66</span>            
+<span class="linenos">67</span>        <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">user_input</span><span class="p">})</span>
+<span class="linenos">68</span>        
+<span class="linenos">69</span>        <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">)</span>
+<span class="linenos">70</span>        <span class="n">assistant_message</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span>
+<span class="linenos">71</span>        
+<span class="linenos">72</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Support Agent: </span><span class="si">{</span><span class="n">assistant_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">73</span>        
+<span class="linenos">74</span>        <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">assistant_message</span><span class="p">})</span>
+<span class="linenos">75</span>
+<span class="linenos">76</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">77</span>    <span class="n">main</span><span class="p">()</span> 
+</pre></div>
+</div>
+</section>
 <section id="simple-weather-agent">
 <h2>Simple Weather Agent<a class="headerlink" href="#simple-weather-agent" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
