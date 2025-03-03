@@ -33,7 +33,8 @@ class Client:
             verbosity: Logging verbosity (default: "normal")
                 Options: "quiet", "normal", "verbose", "debug"
             trace_level: Agent trace level (default: "none")
-                Options: "none", "minimal", "standard", "detailed"
+                Options: "none", "minimal", "standard", "detailed", "raw"
+                The "raw" level dumps the complete unprocessed trace data, including code interpreter output
             max_tool_calls: Maximum number of tool calls per run (default: 10)
         """
         # Set up session

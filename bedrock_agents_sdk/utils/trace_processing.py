@@ -2,6 +2,7 @@
 Utility functions for trace processing.
 """
 from typing import Dict, Any
+import json
 
 def process_trace_data(trace_data: Dict[str, Any], agent_traces: bool, trace_level: str) -> None:
     """
@@ -10,13 +11,22 @@ def process_trace_data(trace_data: Dict[str, Any], agent_traces: bool, trace_lev
     Args:
         trace_data: The trace data from the agent response
         agent_traces: Whether agent traces are enabled
-        trace_level: The trace level (none, minimal, standard, detailed)
+        trace_level: The trace level (none, minimal, standard, detailed, raw)
     """
     # Skip trace processing if agent_traces is disabled or trace level is none
     if not agent_traces or trace_level == "none":
         return
         
     if not trace_data or not isinstance(trace_data, dict) or "trace" not in trace_data:
+        return
+    
+    # For raw trace level, dump the entire trace data without processing
+    if trace_level == "raw":
+        print("\n" + "=" * 80)
+        print("[AGENT TRACE] RAW TRACE DATA:")
+        print("-" * 80)
+        print(json.dumps(trace_data, indent=2))
+        print("=" * 80)
         return
         
     trace = trace_data["trace"]
